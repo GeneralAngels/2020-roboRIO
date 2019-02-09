@@ -65,7 +65,7 @@ public class EfratTestingFull extends Bobot {
     public void teleop() {
         updateTriggers();
         double divide=2.0;
-        drive.direct(-driverGamepad.getY(GenericHID.Hand.kLeft)/divide,driverGamepad.getX(GenericHID.Hand.kLeft)/divide);
+        drive.setStickNoPID(-driverGamepad.getY(GenericHID.Hand.kLeft)/divide,driverGamepad.getX(GenericHID.Hand.kLeft)/divide);
         makel.set(-driverGamepad.getX(GenericHID.Hand.kRight));
         lift.set(driverGamepad.getY(GenericHID.Hand.kRight));
     }
