@@ -67,7 +67,11 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     }
 
     public void setStickNoPID(double speed, double turn) {
-        direct(noPIDCalculateLeft(speed, turn), noPIDCalculateRight(speed, turn));
+        double l,r;
+        l=noPIDCalculateLeft(speed, turn);
+        r=noPIDCalculateRight(speed, turn);
+        log("L "+l+" R "+r);
+        direct(l,r);
     }
 
     public void set(double speed, double turn) {

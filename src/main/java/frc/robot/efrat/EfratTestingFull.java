@@ -6,6 +6,7 @@ import frc.robot.bobot.Bobot;
 import frc.robot.bobot.utils.Toggle;
 import frc.robot.efrat.systems.Lift;
 import frc.robot.efrat.systems.PneumaticDrive;
+import frc.robot.efrat.systems.Shiri;
 import frc.robot.efrat.systems.Stick;
 import org.json.JSONObject;
 
@@ -20,6 +21,7 @@ public class EfratTestingFull extends Bobot {
     // Systems
     protected Stick makel;
     protected Lift lift;
+    protected Shiri shiri;
     protected PneumaticDrive drive;
     protected Toggle drA, drB, drX, drY, drR, drL;
 
@@ -30,7 +32,8 @@ public class EfratTestingFull extends Bobot {
         // RGB
         makel = new Stick();
         lift = new Lift();
-        drive=new PneumaticDrive();
+        shiri = new Shiri();
+        drive = new PneumaticDrive();
         // Instruction Log
         dontLogName();
         log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++");
@@ -64,10 +67,11 @@ public class EfratTestingFull extends Bobot {
     @Override
     public void teleop() {
         updateTriggers();
-        double divide=2.0;
-        drive.setStickNoPID(-driverGamepad.getY(GenericHID.Hand.kLeft)/divide,driverGamepad.getX(GenericHID.Hand.kLeft)/divide);
+        double divide = 2.0;
+        drive.setStickNoPID(-driverGamepad.getY(GenericHID.Hand.kLeft) / divide, -driverGamepad.getX(GenericHID.Hand.kLeft) / divide);
         makel.set(-driverGamepad.getX(GenericHID.Hand.kRight));
         lift.set(driverGamepad.getY(GenericHID.Hand.kRight));
+        shiri.set((driverGamepad.getTriggerAxis(GenericHID.Hand.kRight) - driverGamepad.getTriggerAxis(GenericHID.Hand.kLeft)) / divide);
     }
 
     protected void robotStatus() {

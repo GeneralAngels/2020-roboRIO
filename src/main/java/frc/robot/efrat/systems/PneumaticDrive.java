@@ -30,6 +30,7 @@ public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {
         left.setEncoder(new Encoder(7, 6));
         right.setEncoder(new Encoder(4, 5));
         left.setDirection(Drivebox.DIRECTION_BACKWARD);
+        right.setDirection(Drivebox.DIRECTION_BACKWARD);
 //        left.getEncoder().reset();
 //        right.getEncoder().reset();
         gyro = new Gyroscope();
