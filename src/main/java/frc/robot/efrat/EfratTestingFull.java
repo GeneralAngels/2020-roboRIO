@@ -5,10 +5,11 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.bobot.Bobot;
 import frc.robot.bobot.utils.Toggle;
 import frc.robot.efrat.systems.Lift;
+import frc.robot.efrat.systems.PneumaticDrive;
 import frc.robot.efrat.systems.Stick;
 import org.json.JSONObject;
 
-public class EfratTestingShanti extends Bobot {
+public class EfratTestingFull extends Bobot {
 
     protected final String DRIVE = "drive";
 
@@ -19,6 +20,7 @@ public class EfratTestingShanti extends Bobot {
     // Systems
     protected Stick makel;
     protected Lift lift;
+    protected PneumaticDrive drive;
     protected Toggle drA, drB, drX, drY, drR, drL;
 
     @Override
@@ -28,6 +30,7 @@ public class EfratTestingShanti extends Bobot {
         // RGB
         makel = new Stick();
         lift = new Lift();
+        drive=new PneumaticDrive();
         // Instruction Log
         dontLogName();
         log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++");
@@ -61,7 +64,9 @@ public class EfratTestingShanti extends Bobot {
     @Override
     public void teleop() {
         updateTriggers();
-        makel.set(driverGamepad.getY(GenericHID.Hand.kLeft));
+        double divide=2.0;
+        drive.direct(-driverGamepad.getY(GenericHID.Hand.kLeft)/divide,driverGamepad.getX(GenericHID.Hand.kLeft)/divide);
+        makel.set(-driverGamepad.getX(GenericHID.Hand.kRight));
         lift.set(driverGamepad.getY(GenericHID.Hand.kRight));
     }
 

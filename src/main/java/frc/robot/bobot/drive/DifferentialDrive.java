@@ -43,11 +43,31 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         motorControlRight.setPIDF(0, 0, 0, 0.2);
     }
 
+    public static double noPIDCalculateRight(double speed, double turn) {
+        if (speed == 0) {
+            return turn;
+        } else {
+            return (speed + turn);
+        }
+    }
+
+    public static double noPIDCalculateLeft(double speed, double turn) {
+        if (speed == 0) {
+            return turn;
+        } else {
+            return (turn - speed);
+        }
+    }
+
     public void setAutonomous(double v, double w) {
         // If limiting is needed
         // set(v/MAX_V,w/MAX_OMEGA);
         // If not
         set(v, w);
+    }
+
+    public void setStickNoPID(double speed, double turn) {
+        direct(noPIDCalculateLeft(speed, turn), noPIDCalculateRight(speed, turn));
     }
 
     public void set(double speed, double turn) {
@@ -59,7 +79,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         if (Math.abs(setpointOmega) < 0.1) setpointOmega = 0;
         double[] motorOutput = calculateOutputs(setpointV * MAX_V, setpointOmega * MAX_OMEGA);
         realVOmega = getRobotVelocities();
-        log("Il:"+motorControlLeft.getIntegral()+" Ir:"+motorControlRight.getIntegral()+" Vr="+realVOmega[0]+" Left="+motorControlLeft.getDerivative()+ " Right="+motorControlRight.getDerivative());
+        log("Il:" + motorControlLeft.getIntegral() + " Ir:" + motorControlRight.getIntegral() + " Vr=" + realVOmega[0] + " Left=" + motorControlLeft.getDerivative() + " Right=" + motorControlRight.getDerivative());
 
         setPointVPrev = setpointV;
         setPointOmegaPrev = setpointOmega;
@@ -75,7 +95,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         double encoderRight = right.getEncoder().getRaw() * ENCODER_TO_RADIAN;
         double motorOutputLeft = motorControlLeft.pidVelocity(encoderLeft, wheelSetPoints[0]);
         double motorOutputRight = motorControlRight.pidVelocity(encoderRight, wheelSetPoints[1]);
-        log("Sleft:"+wheelSetPoints[0]+" Sright:"+wheelSetPoints[1]+" Pleft:"+motorOutputLeft+" Pright:"+motorOutputRight);
+        log("Sleft:" + wheelSetPoints[0] + " Sright:" + wheelSetPoints[1] + " Pleft:" + motorOutputLeft + " Pright:" + motorOutputRight);
         return new double[]{motorOutputLeft, motorOutputRight};
     }
 

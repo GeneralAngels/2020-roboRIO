@@ -48,6 +48,7 @@ public class Stick extends Subsystem {
     }
 
     public void set(double speed) {
+        speed/=3;
         motor.set(speed);
     }
 
