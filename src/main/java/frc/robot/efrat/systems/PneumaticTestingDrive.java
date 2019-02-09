@@ -1,6 +1,5 @@
 package frc.robot.efrat.systems;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Victor;
@@ -9,7 +8,7 @@ import frc.robot.bobot.drive.Drivebox;
 import frc.robot.bobot.drive.Gyroscope;
 import org.json.JSONObject;
 
-public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {
+public class PneumaticTestingDrive extends DifferentialDrive<Victor> {
 
     private static final String LATESTX = "padx", LATESTY = "pady";
     protected Gyroscope gyro;
@@ -17,7 +16,7 @@ public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {
     private DoubleSolenoid gear1, gear2;
     private double latestX, latestY;
 
-    public PneumaticDrive() {
+    public PneumaticTestingDrive() {
 //        ENCODER_COUNT_PER_REVOLUTION = 8192;
 //        MAX_V = 0.5;
 //        MAX_OMEGA = 0;
@@ -25,8 +24,8 @@ public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {
             gear1 = new DoubleSolenoid(4, 5);
             gear2 = new DoubleSolenoid(6, 7);
         }
-        right.add(new WPI_TalonSRX(0), new WPI_TalonSRX(1));
-        left.add(new WPI_TalonSRX(2), new WPI_TalonSRX(3));
+        right.add(new Victor(0), new Victor(1));
+        left.add(new Victor(2), new Victor(3));
         left.setEncoder(new Encoder(7, 6));
         right.setEncoder(new Encoder(4, 5));
         left.setDirection(Drivebox.DIRECTION_BACKWARD);

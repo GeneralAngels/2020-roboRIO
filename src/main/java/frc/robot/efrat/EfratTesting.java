@@ -6,6 +6,7 @@ import frc.robot.bobot.Bobot;
 import frc.robot.bobot.rgb.RGB;
 import frc.robot.bobot.utils.Toggle;
 import frc.robot.efrat.systems.PneumaticDrive;
+import frc.robot.efrat.systems.PneumaticTestingDrive;
 import frc.robot.efrat.systems.Roller;
 import frc.robot.efrat.systems.rgb.RobotIdle;
 import org.json.JSONArray;
@@ -24,7 +25,7 @@ public class EfratTesting extends Bobot {
     // Controllers
     protected XboxController driverGamepad;
     // Systems
-    protected PneumaticDrive pneumaticDrive;
+    protected PneumaticTestingDrive pneumaticDrive;
     protected Roller roller;
     protected Toggle drA, drB, drX, drY, drR, drL;
     // RGB
@@ -45,7 +46,7 @@ public class EfratTesting extends Bobot {
         robotIdle = new RobotIdle();
         rgb.setPattern(robotIdle);
         // Systems
-        pneumaticDrive = new PneumaticDrive();
+        pneumaticDrive = new PneumaticTestingDrive();
         roller = new Roller();
         // Registering Subsystems
         addToJSON(pneumaticDrive);
