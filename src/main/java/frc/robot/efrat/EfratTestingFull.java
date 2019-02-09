@@ -71,7 +71,7 @@ public class EfratTestingFull extends Bobot {
         drive.setStickNoPID(-driverGamepad.getY(GenericHID.Hand.kLeft) / divide, -driverGamepad.getX(GenericHID.Hand.kLeft) / divide);
         makel.set(-driverGamepad.getX(GenericHID.Hand.kRight));
         lift.set(driverGamepad.getY(GenericHID.Hand.kRight));
-        shiri.set((driverGamepad.getTriggerAxis(GenericHID.Hand.kRight) - driverGamepad.getTriggerAxis(GenericHID.Hand.kLeft)) / divide);
+        shiri.set(-(driverGamepad.getTriggerAxis(GenericHID.Hand.kRight) - driverGamepad.getTriggerAxis(GenericHID.Hand.kLeft)) / divide);
     }
 
     protected void robotStatus() {
