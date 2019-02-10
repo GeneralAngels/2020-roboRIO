@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.bobot.Bobot;
 import frc.robot.bobot.utils.PinManager;
 import frc.robot.bobot.utils.Toggle;
+import frc.robot.efrat.statemachine.StateMachine;
 import frc.robot.efrat.systems.Lift;
 import frc.robot.efrat.systems.PneumaticDrive;
 import frc.robot.efrat.systems.Shiri;
@@ -21,6 +22,7 @@ public class EfratTestingFull extends Bobot {
     // Controllers
     protected XboxController driverGamepad;
     // Systems
+    protected StateMachine stateMachine;
     protected Stick makel;
     protected Lift lift;
     protected Shiri shiri;
@@ -30,6 +32,8 @@ public class EfratTestingFull extends Bobot {
 
     @Override
     public void init() {
+        // StateMachine
+        stateMachine=new StateMachine();
         // Controllers
         compressor.setClosedLoopControl(true);
         driverGamepad = new XboxController(0);
@@ -79,6 +83,7 @@ public class EfratTestingFull extends Bobot {
     @Override
     public void teleop() {
         updateTriggers();
+        stateMachine.update(driverGamepad,null);
         double divide = 2.0;
         drive.setStickNoPID(-driverGamepad.getY(GenericHID.Hand.kLeft) / divide, -driverGamepad.getX(GenericHID.Hand.kLeft) / divide);
 //        makel.set(-driverGamepad.getX(GenericHID.Hand.kRight));
