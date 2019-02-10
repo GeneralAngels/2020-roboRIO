@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.bobot.Bobot;
+import frc.robot.bobot.rgb.RGB;
 import frc.robot.bobot.utils.PinManager;
 import frc.robot.bobot.utils.Toggle;
 import frc.robot.efrat.statemachine.StateMachine;
@@ -11,6 +12,7 @@ import frc.robot.efrat.systems.Lift;
 import frc.robot.efrat.systems.PneumaticDrive;
 import frc.robot.efrat.systems.Shiri;
 import frc.robot.efrat.systems.Stick;
+import frc.robot.efrat.systems.rgb.RobotIdle;
 import org.json.JSONObject;
 
 public class EfratTestingFull extends Bobot {
@@ -22,6 +24,7 @@ public class EfratTestingFull extends Bobot {
     // Controllers
     protected XboxController driverGamepad;
     // Systems
+    protected RGB rgb;
     protected StateMachine stateMachine;
     protected Stick makel;
     protected Lift lift;
@@ -43,6 +46,8 @@ public class EfratTestingFull extends Bobot {
         drive = new PneumaticDrive();
         addToJSON(stateMachine);
         PinManager pinManager = new PinManager();
+        rgb = new RGB(69, 8);
+        rgb.setPattern(new RobotIdle());
         // Instruction Log
         dontLogName();
         log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++");

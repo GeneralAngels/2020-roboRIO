@@ -7,14 +7,15 @@ import org.json.JSONObject;
 
 public class StateMachine extends Subsystem {
     public static final String CURRENT_STATE = "current_state";
-    private State[] stateMap = {new InitState()};
-    private State lastState;
+    private State[] stateMap = {new InitState(), new MyNadiState()};
+    private State tempState;
     private State currentState;
     private Input currentInput = Input.NONE;
     private Toggle drA, drB, drX, drY, dr1, dr2, dr3, dr4;
     private Toggle opA, opB, opX, opY, op1, op2, op3, op4;
 
     public StateMachine() {
+        currentState = stateMap[0];
         drA = new Toggle(toggle -> currentInput = Input.DR_A);
         drB = new Toggle(toggle -> currentInput = Input.DR_B);
         drX = new Toggle(toggle -> currentInput = Input.DR_X);
@@ -55,10 +56,10 @@ public class StateMachine extends Subsystem {
             dr3.update(dr.getPOV() == 180);
             dr4.update(dr.getPOV() == 270);
         }
-        lastState = currentState;
         if (currentState != null) {
-            currentState = currentState.nextState(currentInput, stateMap);
-            if (currentState != null) {
+            tempState = currentState.nextState(currentInput, stateMap);
+            if (tempState != null) {
+                currentState = tempState;
                 currentState.apply();
             }
         }
