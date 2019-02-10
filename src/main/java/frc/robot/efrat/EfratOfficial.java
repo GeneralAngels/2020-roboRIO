@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.bobot.Bobot;
 import frc.robot.bobot.rgb.RGB;
 import frc.robot.bobot.utils.Toggle;
+import frc.robot.efrat.statemachine.StateMachine;
 import frc.robot.efrat.systems.*;
 import frc.robot.efrat.systems.rgb.RobotIdle;
 import org.json.JSONArray;
@@ -92,9 +93,13 @@ public class EfratOfficial extends Bobot {
     protected boolean isAutonomous = false;
     // Compressor
     protected Compressor compressor;
+    // StateMachine
+    protected StateMachine stateMachine;
 
     @Override
     public void init() {
+        // StateMachine
+        stateMachine = new StateMachine();
         // Controllers
         driverLeft = new Joystick(0);
         driverRight = new Joystick(1);
@@ -114,6 +119,7 @@ public class EfratOfficial extends Bobot {
         lift = new Lift();
         // Registering Subsystems
         addToJSON(drive);
+        addToJSON(stateMachine);
         // Instruction Log
         dontLogName();
         log("///////////////////////////////////////////////////////");
@@ -192,6 +198,7 @@ public class EfratOfficial extends Bobot {
     public void teleop() {
         updateTriggers();
         loopSubsystems();
+        stateMachine.update(operatorGamepad, null);
         roller.set(operatorGamepad.getBumper(GenericHID.Hand.kRight) ? -0.3 : operatorGamepad.getBumper(GenericHID.Hand.kLeft) ? 0.3 : 0);
         stick.set(operatorGamepad.getY(GenericHID.Hand.kLeft) / 4.0);
         shiri.set(operatorGamepad.getY(GenericHID.Hand.kRight));

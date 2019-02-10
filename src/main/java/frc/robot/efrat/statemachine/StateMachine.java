@@ -1,9 +1,12 @@
 package frc.robot.efrat.statemachine;
 
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.bobot.Subsystem;
 import frc.robot.bobot.utils.Toggle;
+import org.json.JSONObject;
 
-public class StateMachine {
+public class StateMachine extends Subsystem {
+    public static final String CURRENT_STATE = "current_state";
     private State[] stateMap = {new InitState()};
     private State lastState;
     private State currentState;
@@ -59,6 +62,16 @@ public class StateMachine {
                 currentState.apply();
             }
         }
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        if (currentState != null)
+            json.put(CURRENT_STATE, currentState.getName());
+        else
+            json.put(CURRENT_STATE, "none");
+        return json;
     }
 
     public enum Input {

@@ -7,7 +7,7 @@ public class State extends Subsystem {
 
     }
 
-    private State search(String name, State[] map) {
+    protected State search(String name, State[] map) {
         for (State s : map) {
             if (s.getName().toLowerCase().equals(name.toLowerCase())) return s;
         }
