@@ -13,7 +13,7 @@ public class Fork extends Subsystem {
     public Fork() {
         PinManager pinManager = new PinManager();
         solenoid = new DoubleSolenoid(2, 3);
-        cargoIndicator = new DigitalInput(7);
+//        cargoIndicator = new DigitalInput(7);
     }
 
     public boolean isHatchLoaded() {

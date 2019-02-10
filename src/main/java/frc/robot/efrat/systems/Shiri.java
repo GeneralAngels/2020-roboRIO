@@ -1,15 +1,17 @@
 package frc.robot.efrat.systems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.bobot.Subsystem;
 import frc.robot.bobot.utils.PinManager;
 
 public class Shiri extends Subsystem {
 
+    public DigitalInput backReset, grab1, grab2;
     private DoubleSolenoid solenoid;
     private WPI_TalonSRX slideMotor;
-    public DigitalInput backReset, grab1, grab2;
     private Encoder slideEncoder;
 
     public Shiri() {
@@ -17,13 +19,13 @@ public class Shiri extends Subsystem {
         solenoid = new DoubleSolenoid(0, 1);
         slideMotor = new WPI_TalonSRX(4);
         slideEncoder = new Encoder(2, 3);
-        grab1 = new DigitalInput(4);
-        grab2 = new DigitalInput(5);
-        backReset = new DigitalInput(6);
+        grab1 = new DigitalInput(0);
+        grab2 = new DigitalInput(1);
+//        backReset = new DigitalInput(6);
     }
 
     public boolean isHatchLoaded() {
-        return grab1.get();
+        return grab1.get() && grab2.get();
     }
 
     public void open() {

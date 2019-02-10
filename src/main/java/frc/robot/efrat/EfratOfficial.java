@@ -34,37 +34,25 @@ Roller
 /*
 TODO
 canbus map
-0-Right 1
-1-Right 2
-2-Left 1
-3-Left 2
-4-Shiri Slide Motor
-5-Lift 1
-6-Lift 2
-7-Stick Motor
-8-Roller Motor
+0-9-PDP/PCM
+10-Right 1
+11-Right 2
+12-Left 1
+13-Left 2
+14-Shiri Slide Motor
+15-Lift 1
+16-Lift 2
+17-Stick Motor
+18-Roller Motor
  */
 /*
 TODO
 pinmap
 AI0-Lift Potentiometer
-todo remove
-DI2,DI3-Slide Encoder
+DI0,DI1-Shiri Microswitches Grab
 DI4,DI5-Drive Encoder Right
 DI6,DI7-Drive Encoder Left
-todo remove
-DI8,DI9-Stick Encoder
 NavX:
-todo remove
-NXDI0-Lift Reset Down
-NXDI1-Lift Reset Up
-NXDI2-Stick Start
-NXDI3-Stick End
-todo combine
-NXDI4-Shiri Grab N' Go 1
-NXDI5-Shiri Grab N' Go 2
-NXDI6-Shiri Reset Back
-NXDI7-Shiri Reset Front
 NXDI8-Fork Cargo Indicator
 */
 /*

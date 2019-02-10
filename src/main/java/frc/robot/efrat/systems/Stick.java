@@ -35,20 +35,24 @@ public class Stick extends Subsystem {
     }
 
     public void loop() {
-//        if (!startReset.get()) {
-//            // Pressed
-//            location = 0;
-//        }
-//        if (!endReset.get()) {
-//            // Pressed
-//            location = STICK_LENGTH_METERS;
-//        }
+        if (startReset != null) {
+            if (!startReset.get()) {
+                // Pressed
+                location = 0;
+            }
+        }
+        if (startReset != null) {
+            if (!endReset.get()) {
+                // Pressed
+                location = STICK_LENGTH_METERS;
+            }
+        }
         calculateLocation();
         // Do PID Stuff
     }
 
     public void set(double speed) {
-        speed/=3;
+        speed /= 3;
         motor.set(speed);
     }
 

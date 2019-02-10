@@ -2,8 +2,6 @@ package frc.robot.efrat.systems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Victor;
 import frc.robot.bobot.drive.DifferentialDrive;
 import frc.robot.bobot.drive.Drivebox;
 import frc.robot.bobot.drive.Gyroscope;
@@ -14,19 +12,15 @@ public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {
     private static final String LATESTX = "padx", LATESTY = "pady";
     protected Gyroscope gyro;
     private boolean pneumatics = true;
-    private DoubleSolenoid gear1;
     private double latestX, latestY;
+    private DoubleSolenoid gear;
 
     public PneumaticDrive() {
-//        ENCODER_COUNT_PER_REVOLUTION = 8192;
-//        MAX_V = 0.5;
-//        MAX_OMEGA = 0;
         if (pneumatics) {
-            gear1 = new DoubleSolenoid(4, 5);
-//            gear2 = new DoubleSolenoid(6, 7);
+            gear = new DoubleSolenoid(4, 5);
         }
-        right.add(new WPI_TalonSRX(60), new WPI_TalonSRX(1));
-        left.add(new WPI_TalonSRX(2), new WPI_TalonSRX(3));
+        right.add(new WPI_TalonSRX(10), new WPI_TalonSRX(11));
+        left.add(new WPI_TalonSRX(12), new WPI_TalonSRX(13));
 //        left.setEncoder(new Encoder(7, 6));
 //        right.setEncoder(new Encoder(4, 5));
         left.setDirection(Drivebox.DIRECTION_BACKWARD);
@@ -40,9 +34,6 @@ public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {
 
     @Override
     public JSONObject toJSON() {
-//        log("ODOMETRY UPDATE");
-//        odometry.calculate((right.getEncoder().get()/ENCODER_COUNT_PER_REVOLUTION)*(2*WHEEL_RADIUS*Math.PI),(left.getEncoder().get()/ENCODER_COUNT_PER_REVOLUTION)*(2*WHEEL_RADIUS*Math.PI),gyro.getAngle());
-//        log(odometry.toJSON().toString());
         JSONObject json = super.toJSON();
         json.put(LATESTX, latestX);
         json.put(LATESTY, latestY);
@@ -55,15 +46,13 @@ public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {
 
     public void gearUp() {
         if (pneumatics) {
-            gear1.set(DoubleSolenoid.Value.kForward);
-//            gear2.set(DoubleSolenoid.Value.kForward);
+            gear.set(DoubleSolenoid.Value.kForward);
         }
     }
 
     public void gearDown() {
         if (pneumatics) {
-            gear1.set(DoubleSolenoid.Value.kReverse);
-//            gear2.set(DoubleSolenoid.Value.kReverse);
+            gear.set(DoubleSolenoid.Value.kReverse);
         }
     }
 
