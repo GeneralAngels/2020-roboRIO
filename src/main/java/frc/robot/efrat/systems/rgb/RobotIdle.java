@@ -12,10 +12,19 @@ public class RobotIdle implements RGB.Pattern {
     private static final int HATCH = 2;
     private static final int CARGO = 3;
     private static final int COLOR = 4;
+    private static RobotIdle latest;
     private Rainbow rainbow = new Rainbow();
     private int state = RAINBOW;
     private boolean flag = false;
     private Color color;
+
+    public RobotIdle() {
+        latest = this;
+    }
+
+    public static RobotIdle getInstance() {
+        return latest;
+    }
 
     @Override
     public Color color(int length) {

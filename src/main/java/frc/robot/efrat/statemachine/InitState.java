@@ -1,4 +1,6 @@
 package frc.robot.efrat.statemachine;
 
-public class InitState {
+public class InitState extends State {
+    public InitState(){
+    }
 }

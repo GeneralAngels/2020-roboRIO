@@ -12,6 +12,7 @@ public class Stick extends Subsystem {
     private static final String TARGET = "target_location";
     private static final double STICK_LENGTH_METERS = 1.22;
     private static final double RADIUS = 0.05;
+    private static Stick latest;
     private double location = 0;
     private double targetLocation = 0;
     private WPI_TalonSRX motor;
@@ -19,11 +20,16 @@ public class Stick extends Subsystem {
     private Encoder encoder;
 
     public Stick() {
+        latest = this;
         PinManager pinManager = new PinManager();
         motor = new WPI_TalonSRX(7);
         encoder = new Encoder(8, 9);
 //        startReset = new DigitalInput(2);
 //        endReset = new DigitalInput(3);
+    }
+
+    public static Stick getInstance() {
+        return latest;
     }
 
     private void calculateLocation() {

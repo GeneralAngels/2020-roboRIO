@@ -9,12 +9,14 @@ import frc.robot.bobot.utils.PinManager;
 
 public class Shiri extends Subsystem {
 
+    private static Shiri latest;
     public DigitalInput backReset, grab1, grab2;
     private DoubleSolenoid solenoid;
     private WPI_TalonSRX slideMotor;
     private Encoder slideEncoder;
 
     public Shiri() {
+        latest = this;
         PinManager pinManager = new PinManager();
         solenoid = new DoubleSolenoid(0, 1);
         slideMotor = new WPI_TalonSRX(4);
@@ -22,6 +24,10 @@ public class Shiri extends Subsystem {
         grab1 = new DigitalInput(0);
         grab2 = new DigitalInput(1);
 //        backReset = new DigitalInput(6);
+    }
+
+    public static Shiri getInstance() {
+        return latest;
     }
 
     public boolean isHatchLoaded() {

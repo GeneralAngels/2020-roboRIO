@@ -10,6 +10,7 @@ public class Lift extends Subsystem {
 
     public static final double MAX_ANGLE_RADIANS = 1;
     public static final double[] ROCKET_ANGLES_RADIANS = {0, 0.5, 0.9};
+    private static Lift latest;
     public AnalogInput potentiometer;
     private double currentAngle = 0;
     private int targetLevel = 0;
@@ -18,14 +19,18 @@ public class Lift extends Subsystem {
     // todo remove
     private DigitalInput upReset, downReset;
     private WPI_TalonSRX motor1, motor2;
-
     public Lift() {
+        latest = this;
         PinManager pinManager = new PinManager();
         motor1 = new WPI_TalonSRX(5);
         motor2 = new WPI_TalonSRX(6);
         potentiometer = new AnalogInput(2);
 //        downReset = new DigitalInput(0);
 //        upReset = new DigitalInput(1);
+    }
+
+    public static Lift getInstance() {
+        return latest;
     }
 
     public void setTargetLevel(int targetLevel) {

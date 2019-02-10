@@ -8,14 +8,15 @@ import frc.robot.bobot.drive.Gyroscope;
 import org.json.JSONObject;
 
 public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {
-
     private static final String LATESTX = "padx", LATESTY = "pady";
+    private static PneumaticDrive latest;
     protected Gyroscope gyro;
     private boolean pneumatics = true;
     private double latestX, latestY;
     private DoubleSolenoid gear;
 
     public PneumaticDrive() {
+        latest = this;
         if (pneumatics) {
             gear = new DoubleSolenoid(4, 5);
         }
@@ -30,6 +31,10 @@ public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {
 //        gyro = new Gyroscope();
 //        initGyro(gyro);
 
+    }
+
+    public static PneumaticDrive getInstance() {
+        return latest;
     }
 
     @Override

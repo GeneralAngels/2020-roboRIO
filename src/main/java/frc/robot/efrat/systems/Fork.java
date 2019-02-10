@@ -7,13 +7,20 @@ import frc.robot.bobot.utils.PinManager;
 
 public class Fork extends Subsystem {
 
+
+    private static Fork latest;
     private DoubleSolenoid solenoid;
     private DigitalInput cargoIndicator;
 
     public Fork() {
+        latest = this;
         PinManager pinManager = new PinManager();
         solenoid = new DoubleSolenoid(2, 3);
 //        cargoIndicator = new DigitalInput(7);
+    }
+
+    public static Fork getInstance() {
+        return latest;
     }
 
     public boolean isHatchLoaded() {
