@@ -12,7 +12,7 @@ public class PneumaticTestingDrive extends DifferentialDrive<Victor> {
 
     private static final String LATESTX = "padx", LATESTY = "pady";
     protected Gyroscope gyro;
-    private boolean pneumatics = false;
+    private boolean pneumatics = true;
     private DoubleSolenoid gear1, gear2;
     private double latestX, latestY;
 
@@ -22,7 +22,7 @@ public class PneumaticTestingDrive extends DifferentialDrive<Victor> {
 //        MAX_OMEGA = 0;
         if (pneumatics) {
             gear1 = new DoubleSolenoid(4, 5);
-            gear2 = new DoubleSolenoid(6, 7);
+//            gear2 = new DoubleSolenoid(6, 7);
         }
         right.add(new Victor(0), new Victor(1));
         left.add(new Victor(2), new Victor(3));

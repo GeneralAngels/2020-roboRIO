@@ -2,6 +2,7 @@ package frc.robot.efrat.systems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.bobot.Subsystem;
 import frc.robot.bobot.utils.PinManager;
@@ -13,8 +14,8 @@ public class Lift extends Subsystem {
     private double currentAngle = 0;
     private int targetLevel = 0;
     private double targetAngleRadians = 0;
-    private int sensorOffset;
-    private AnalogInput potentiometer;
+    private double sensorOffset;
+    public AnalogInput potentiometer;
     // todo remove
     private DigitalInput upReset, downReset;
     private WPI_TalonSRX motor1, motor2;
@@ -23,9 +24,9 @@ public class Lift extends Subsystem {
         PinManager pinManager = new PinManager();
         motor1 = new WPI_TalonSRX(5);
         motor2 = new WPI_TalonSRX(6);
-        potentiometer = new AnalogInput(0);
-        downReset = new DigitalInput(pinManager.getDIO(0));
-        upReset = new DigitalInput(pinManager.getDIO(1));
+        potentiometer = new AnalogInput(2);
+        downReset = new DigitalInput(0);
+        upReset = new DigitalInput(1);
     }
 
     public void setTargetLevel(int targetLevel) {
@@ -36,13 +37,13 @@ public class Lift extends Subsystem {
     }
 
     private void calculateAngle() {
-        currentAngle = (potentiometer.getValue() - sensorOffset) / (256 * MAX_ANGLE_RADIANS);
+        currentAngle = (potentiometer.getAverageVoltage() - sensorOffset) / (256 * MAX_ANGLE_RADIANS);
     }
 
     public void loop() {
         if (!downReset.get()) {
             // Down Pressed
-            sensorOffset = potentiometer.getValue();
+            sensorOffset = potentiometer.getAverageVoltage();
         }
         calculateAngle();
         // Do PID Stuff

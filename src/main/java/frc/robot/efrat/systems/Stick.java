@@ -22,8 +22,8 @@ public class Stick extends Subsystem {
         PinManager pinManager = new PinManager();
         motor = new WPI_TalonSRX(7);
         encoder = new Encoder(8, 9);
-        startReset = new DigitalInput(pinManager.getDIO(2));
-        endReset = new DigitalInput(pinManager.getDIO(3));
+//        startReset = new DigitalInput(2);
+//        endReset = new DigitalInput(3);
     }
 
     private void calculateLocation() {
@@ -35,14 +35,14 @@ public class Stick extends Subsystem {
     }
 
     public void loop() {
-        if (!startReset.get()) {
-            // Pressed
-            location = 0;
-        }
-        if (!endReset.get()) {
-            // Pressed
-            location = STICK_LENGTH_METERS;
-        }
+//        if (!startReset.get()) {
+//            // Pressed
+//            location = 0;
+//        }
+//        if (!endReset.get()) {
+//            // Pressed
+//            location = STICK_LENGTH_METERS;
+//        }
         calculateLocation();
         // Do PID Stuff
     }

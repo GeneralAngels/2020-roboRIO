@@ -13,8 +13,8 @@ public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {
 
     private static final String LATESTX = "padx", LATESTY = "pady";
     protected Gyroscope gyro;
-    private boolean pneumatics = false;
-    private DoubleSolenoid gear1, gear2;
+    private boolean pneumatics = true;
+    private DoubleSolenoid gear1;
     private double latestX, latestY;
 
     public PneumaticDrive() {
@@ -23,18 +23,18 @@ public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {
 //        MAX_OMEGA = 0;
         if (pneumatics) {
             gear1 = new DoubleSolenoid(4, 5);
-            gear2 = new DoubleSolenoid(6, 7);
+//            gear2 = new DoubleSolenoid(6, 7);
         }
-        right.add(new WPI_TalonSRX(0), new WPI_TalonSRX(1));
+        right.add(new WPI_TalonSRX(60), new WPI_TalonSRX(1));
         left.add(new WPI_TalonSRX(2), new WPI_TalonSRX(3));
-        left.setEncoder(new Encoder(7, 6));
-        right.setEncoder(new Encoder(4, 5));
+//        left.setEncoder(new Encoder(7, 6));
+//        right.setEncoder(new Encoder(4, 5));
         left.setDirection(Drivebox.DIRECTION_BACKWARD);
         right.setDirection(Drivebox.DIRECTION_BACKWARD);
 //        left.getEncoder().reset();
 //        right.getEncoder().reset();
-        gyro = new Gyroscope();
-        initGyro(gyro);
+//        gyro = new Gyroscope();
+//        initGyro(gyro);
 
     }
 
@@ -56,14 +56,14 @@ public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {
     public void gearUp() {
         if (pneumatics) {
             gear1.set(DoubleSolenoid.Value.kForward);
-            gear2.set(DoubleSolenoid.Value.kForward);
+//            gear2.set(DoubleSolenoid.Value.kForward);
         }
     }
 
     public void gearDown() {
         if (pneumatics) {
             gear1.set(DoubleSolenoid.Value.kReverse);
-            gear2.set(DoubleSolenoid.Value.kReverse);
+//            gear2.set(DoubleSolenoid.Value.kReverse);
         }
     }
 

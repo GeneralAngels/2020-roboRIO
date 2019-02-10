@@ -1,5 +1,6 @@
 package frc.robot.efrat;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -101,6 +102,8 @@ public class EfratOfficial extends Bobot {
     protected RGB rgb;
     // ControlMode
     protected boolean isAutonomous = false;
+    // Compressor
+    protected Compressor compressor;
 
     @Override
     public void init() {
@@ -112,6 +115,9 @@ public class EfratOfficial extends Bobot {
         rgb = new RGB(69, 8);
         robotIdle = new RobotIdle();
         rgb.setPattern(robotIdle);
+        // Compressor
+        compressor = new Compressor(0);
+        compressor.setClosedLoopControl(true);
         // Systems
 //        drive = new PneumaticDrive();
         stick = new Stick();
