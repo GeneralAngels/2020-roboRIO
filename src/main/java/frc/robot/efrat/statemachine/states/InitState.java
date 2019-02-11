@@ -8,8 +8,11 @@ import java.awt.*;
 
 public class InitState extends State {
     @Override
-    public State nextState(StateMachine.Input input, State[] stateMap) {
-        if (input == StateMachine.Input.OP_A) return search("mynadistate", stateMap);
+    public State nextState(StateMachine.Input input) {
+        switch (input){
+            case OP_A:
+                return find("cargoready");
+        }
         return null;
     }
 

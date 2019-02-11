@@ -8,8 +8,8 @@ import frc.robot.efrat.statemachine.states.MyNadiState;
 import org.json.JSONObject;
 
 public class StateMachine extends Subsystem {
+    private static final State[] stateMap = {new InitState(), new MyNadiState()};
     public static final String CURRENT_STATE = "current_state";
-    private State[] stateMap = {new InitState(), new MyNadiState()};
     private State currentState;
     private Input currentInput = Input.NONE;
     private Toggle drA, drB, drX, drY, dr1, dr2, dr3, dr4;
@@ -18,6 +18,10 @@ public class StateMachine extends Subsystem {
     public StateMachine() {
         currentState = stateMap[0];
         initToggles();
+    }
+
+    public static State[] getStateMap() {
+        return stateMap;
     }
 
     private void initToggles() {

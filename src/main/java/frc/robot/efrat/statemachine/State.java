@@ -7,14 +7,14 @@ public class State extends Subsystem {
 
     }
 
-    protected State search(String name, State[] map) {
-        for (State s : map) {
+    protected State find(String name) {
+        for (State s : StateMachine.getStateMap()) {
             if (s.getName().toLowerCase().equals(name.toLowerCase())) return s;
         }
         return null;
     }
 
-    public State nextState(StateMachine.Input input, State[] stateMap) {
+    public State nextState(StateMachine.Input input) {
         return null;
     }
 }
