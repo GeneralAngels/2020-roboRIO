@@ -8,7 +8,6 @@ import org.json.JSONObject;
 public class StateMachine extends Subsystem {
     public static final String CURRENT_STATE = "current_state";
     private State[] stateMap = {new InitState(), new MyNadiState()};
-    private State tempState;
     private State currentState;
     private Input currentInput = Input.NONE;
     private Toggle drA, drB, drX, drY, dr1, dr2, dr3, dr4;
@@ -16,6 +15,10 @@ public class StateMachine extends Subsystem {
 
     public StateMachine() {
         currentState = stateMap[0];
+        initToggles();
+    }
+
+    private void initToggles() {
         drA = new Toggle(toggle -> currentInput = Input.DR_A);
         drB = new Toggle(toggle -> currentInput = Input.DR_B);
         drX = new Toggle(toggle -> currentInput = Input.DR_X);
@@ -36,6 +39,14 @@ public class StateMachine extends Subsystem {
 
     public void update(XboxController op, XboxController dr) {
         currentInput = Input.NONE;
+        updateToggles(op, dr);
+        if (currentState != null) {
+            currentState.apply();
+            currentState = currentState.nextState(currentInput, stateMap);
+        }
+    }
+
+    private void updateToggles(XboxController op, XboxController dr) {
         if (op != null) {
             opA.update(op.getAButton());
             opB.update(op.getBButton());
@@ -55,13 +66,6 @@ public class StateMachine extends Subsystem {
             dr2.update(dr.getPOV() == 90);
             dr3.update(dr.getPOV() == 180);
             dr4.update(dr.getPOV() == 270);
-        }
-        if (currentState != null) {
-            tempState = currentState.nextState(currentInput, stateMap);
-            if (tempState != null) {
-                currentState = tempState;
-                currentState.apply();
-            }
         }
     }
 
