@@ -74,15 +74,17 @@ public class StateMachine extends Subsystem {
             currentInput = Input.NONE;
             updateToggles(op, dr);
             if (currentInput != Input.NONE) {
-                log("Input: "+ currentInput.toString());
                 if (currentState != null) {
                     currentState.apply();
                     lastState = currentState;
                     currentState = currentState.nextState(currentInput);
+                    log((lastState!=null?lastState.getName():"none")+" to "+(currentState!=null?currentState.getName():"none"));
                 } else {
                     currentState = lastState;
                     RobotIdle.getInstance().flash(Color.RED);
+                    log("State: No State, Go Back To " + ((lastState != null) ? lastState.getName() : "No State"));
                 }
+
             }
         }).start();
     }

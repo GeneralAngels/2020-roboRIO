@@ -30,7 +30,7 @@ public class Fork extends Subsystem {
 
     public boolean isCargoLoaded() {
         // TODO acctual funt
-        return false;
+        return true;
     }
 
     public void open() {

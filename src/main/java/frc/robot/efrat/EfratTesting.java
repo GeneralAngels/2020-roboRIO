@@ -118,7 +118,7 @@ public class EfratTesting extends Bobot {
 //        updateTriggers();
 //        log("Gyro " + gyro.getYaw());
         stateMachine.update(driverGamepad, null);
-        log(stateMachine.toJSON().toString());
+//        log(stateMachine.toJSON().toString());
         double speed = -driverGamepad.getY(GenericHID.Hand.kLeft);
         double turn = -driverGamepad.getX(GenericHID.Hand.kLeft);
         if (!isAutonomous && !isTestBench) {

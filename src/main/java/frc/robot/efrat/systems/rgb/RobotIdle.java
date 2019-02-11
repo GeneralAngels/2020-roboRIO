@@ -9,9 +9,9 @@ public class RobotIdle implements RGB.Pattern {
 
     private static final int MAX = 255;
     private static RobotIdle latest;
+    private long loop = 0;
     private LEDMode mode = LEDMode.Rainbow;
     private Rainbow rainbow = new Rainbow();
-    private boolean flag = false;
     private Color color;
 
     public RobotIdle() {
@@ -28,7 +28,7 @@ public class RobotIdle implements RGB.Pattern {
             case Rainbow:
                 return rainbow.color(length);
             case Flash:
-                return flag ? color : Color.BLACK;
+                return loop % 5 == 0 ? color : Color.BLACK;
             case Color:
                 return color;
         }
@@ -38,7 +38,7 @@ public class RobotIdle implements RGB.Pattern {
     @Override
     public void next(int ledCount) {
         rainbow.next(ledCount);
-        flag = !flag;
+        loop++;
     }
 
     public void rainbow() {

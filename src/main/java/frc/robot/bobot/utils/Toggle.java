@@ -14,9 +14,10 @@ public class Toggle extends Subsystem {
     public void update(boolean newState) {
         if (newState != state) {
             state = newState;
-            // TODO CHECK!
-            if (state) toggleState = !toggleState;
-            if (change != null) change.change(toggleState);
+            if (state) {
+                toggleState = !toggleState;
+                if (change != null) change.change(toggleState);
+            }
         }
     }
 

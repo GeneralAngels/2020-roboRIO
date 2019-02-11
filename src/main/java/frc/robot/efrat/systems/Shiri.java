@@ -31,8 +31,9 @@ public class Shiri extends Subsystem {
     }
 
     public boolean isHatchLoaded() {
-        if (grab1 == null || grab2 == null) return false;
-        return grab1.get() && grab2.get();
+        return true;// Faked
+//        if (grab1 == null || grab2 == null) return false;
+//        return grab1.get() && grab2.get();
     }
 
     public void open() {
