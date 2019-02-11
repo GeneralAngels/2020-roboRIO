@@ -22,7 +22,7 @@ public class Drivebox<T extends SpeedController> extends Subsystem {
 
     }
 
-    public Drivebox(T... drives) {
+    public Drivebox(T[] drives) {
         add(drives);
     }
 
@@ -30,7 +30,7 @@ public class Drivebox<T extends SpeedController> extends Subsystem {
         setEncoder(encoder);
     }
 
-    public Drivebox(Encoder encoder, T... drives) {
+    public Drivebox(Encoder encoder, T[] drives) {
         add(drives);
         setEncoder(encoder);
     }
@@ -53,7 +53,7 @@ public class Drivebox<T extends SpeedController> extends Subsystem {
         return this;
     }
 
-    public Drivebox add(T... drives) {
+    public Drivebox add(T[] drives) {
         for (T drive : drives) add(drive);
         return this;
     }
