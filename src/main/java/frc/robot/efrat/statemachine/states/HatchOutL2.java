@@ -10,6 +10,12 @@ public class HatchOutL2 extends State {
 
     @Override
     public State nextState(StateMachine.Input input) {
+        switch (input) {
+            case OP_A:
+                return find("cargoready");
+            case OP_B:
+                return find("hatchready");
+        }
         return null;
     }
 }

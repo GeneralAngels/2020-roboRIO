@@ -1,11 +1,12 @@
 package frc.robot.efrat;
 
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.bobot.Bobot;
 import frc.robot.bobot.rgb.RGB;
 import frc.robot.bobot.utils.Toggle;
-import frc.robot.efrat.systems.PneumaticDrive;
+import frc.robot.efrat.statemachine.StateMachine;
 import frc.robot.efrat.systems.PneumaticTestingDrive;
 import frc.robot.efrat.systems.Roller;
 import frc.robot.efrat.systems.rgb.RobotIdle;
@@ -20,6 +21,7 @@ public class EfratTesting extends Bobot {
 
     protected final String DRIVE = "drive";
 
+    protected StateMachine stateMachine;
     // Autonomous Sequences
     protected JSONObject robotStatus;
     // Controllers
@@ -36,15 +38,20 @@ public class EfratTesting extends Bobot {
     protected boolean isTestBench = false;
     // Variables
     protected float testBenchSpeed = 0f;
+    // NEW! GyroBitch!
+    protected AHRS gyro;
 
     @Override
     public void init() {
+        stateMachine = new StateMachine();
         // Controllers
         driverGamepad = new XboxController(0);
         // RGB
         rgb = new RGB(69, 8);
         robotIdle = new RobotIdle();
         rgb.setPattern(robotIdle);
+        // Gyro
+//        gyro = new AHRS(I2C.Port.kMXP);
         // Systems
         pneumaticDrive = new PneumaticTestingDrive();
         roller = new Roller();
@@ -105,6 +112,8 @@ public class EfratTesting extends Bobot {
     @Override
     public void teleop() {
         updateTriggers();
+//        log("Gyro " + gyro.getYaw());
+        stateMachine.update(driverGamepad, null);
         double speed = -driverGamepad.getY(GenericHID.Hand.kLeft);
         double turn = -driverGamepad.getX(GenericHID.Hand.kLeft);
         if (!isAutonomous && !isTestBench) {

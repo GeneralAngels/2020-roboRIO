@@ -32,6 +32,8 @@ public class StateMachine extends Subsystem {
             new HatchOutL3(),
             new TransferHatch1(),
             new TransferHatch2(),
+            new HatchReadyL1Shiri(),
+            new HatchOutL1Shiri(),
             new ClimbZ()
     };
     private State lastState, currentState;

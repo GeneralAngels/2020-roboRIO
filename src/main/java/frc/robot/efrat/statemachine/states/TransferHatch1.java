@@ -10,6 +10,7 @@ public class TransferHatch1 extends State {
 
     @Override
     public State nextState(StateMachine.Input input) {
-        return null;
+        // TODO if shanti is down and shiri is extended find(transferhatch2)
+        return find("transferhatch2");
     }
 }

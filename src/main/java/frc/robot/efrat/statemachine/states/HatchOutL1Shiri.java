@@ -3,9 +3,10 @@ package frc.robot.efrat.statemachine.states;
 import frc.robot.efrat.statemachine.State;
 import frc.robot.efrat.statemachine.StateMachine;
 
-public class HatchOutL1 extends State {
+public class HatchOutL1Shiri extends State {
     @Override
     public void apply() {
+        // TODO shiri out!
     }
 
     @Override

@@ -71,7 +71,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         double l,r;
         l=noPIDCalculateLeft(speed, turn);
         r=noPIDCalculateRight(speed, turn);
-        log("L "+l+" R "+r);
+//        log("L "+l+" R "+r);
         direct(l,r);
     }
 
@@ -84,7 +84,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         if (Math.abs(setpointOmega) < 0.1) setpointOmega = 0;
         double[] motorOutput = calculateOutputs(setpointV * MAX_V, setpointOmega * MAX_OMEGA);
         realVOmega = getRobotVelocities();
-        log("Il:" + motorControlLeft.getIntegral() + " Ir:" + motorControlRight.getIntegral() + " Vr=" + realVOmega[0] + " Left=" + motorControlLeft.getDerivative() + " Right=" + motorControlRight.getDerivative());
+//        log("Il:" + motorControlLeft.getIntegral() + " Ir:" + motorControlRight.getIntegral() + " Vr=" + realVOmega[0] + " Left=" + motorControlLeft.getDerivative() + " Right=" + motorControlRight.getDerivative());
 
         setPointVPrev = setpointV;
         setPointOmegaPrev = setpointOmega;
@@ -100,7 +100,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         double encoderRight = right.getEncoder().getRaw() * ENCODER_TO_RADIAN;
         double motorOutputLeft = motorControlLeft.pidVelocity(encoderLeft, wheelSetPoints[0]);
         double motorOutputRight = motorControlRight.pidVelocity(encoderRight, wheelSetPoints[1]);
-        log("Sleft:" + wheelSetPoints[0] + " Sright:" + wheelSetPoints[1] + " Pleft:" + motorOutputLeft + " Pright:" + motorOutputRight);
+//        log("Sleft:" + wheelSetPoints[0] + " Sright:" + wheelSetPoints[1] + " Pleft:" + motorOutputLeft + " Pright:" + motorOutputRight);
         return new double[]{motorOutputLeft, motorOutputRight};
     }
 
@@ -113,7 +113,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     private double[] robotToWheels(double linear, double angular) {
         double Vleft = (linear / WHEEL_RADIUS) - (angular * WHEEL_DISTANCE) / (2 * WHEEL_RADIUS);
         double Vright = (linear / WHEEL_RADIUS) + (angular * WHEEL_DISTANCE) / (2 * WHEEL_RADIUS);
-        log(Vleft+","+Vright);
+//        log(Vleft+","+Vright);
         return new double[]{Vleft, Vright};
     }
 
