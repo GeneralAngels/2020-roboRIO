@@ -3,14 +3,19 @@ package frc.robot.efrat.statemachine;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.bobot.Subsystem;
 import frc.robot.bobot.utils.Toggle;
+import frc.robot.efrat.statemachine.states.CargoReady;
+import frc.robot.efrat.statemachine.states.HatchReady;
 import frc.robot.efrat.statemachine.states.InitState;
-import frc.robot.efrat.statemachine.states.MyNadiState;
+import frc.robot.efrat.systems.rgb.RobotIdle;
 import org.json.JSONObject;
 
+import java.awt.*;
+
 public class StateMachine extends Subsystem {
-    private static final State[] stateMap = {new InitState(), new MyNadiState()};
     public static final String CURRENT_STATE = "current_state";
-    private State currentState;
+    // TODO to add states, add NEW YOURSTATE() to the array
+    private static final State[] stateMap = {new InitState(), new CargoReady(), new HatchReady()};
+    private State lastState, currentState;
     private Input currentInput = Input.NONE;
     private Toggle drA, drB, drX, drY, dr1, dr2, dr3, dr4;
     private Toggle opA, opB, opX, opY, op1, op2, op3, op4;
@@ -44,12 +49,18 @@ public class StateMachine extends Subsystem {
     }
 
     public void update(XboxController op, XboxController dr) {
-        currentInput = Input.NONE;
-        updateToggles(op, dr);
-        if (currentState != null) {
-            currentState.apply();
-            currentState = currentState.nextState(currentInput);
-        }
+        new Thread(() -> {
+            currentInput = Input.NONE;
+            updateToggles(op, dr);
+            if (currentState != null) {
+                currentState.apply();
+                lastState = currentState;
+                currentState = currentState.nextState(currentInput);
+            } else {
+                currentState = lastState;
+                RobotIdle.getInstance().flash(Color.RED);
+            }
+        }).start();
     }
 
     private void updateToggles(XboxController op, XboxController dr) {
