@@ -2,19 +2,17 @@ package frc.robot.efrat.systems.rgb;
 
 import frc.robot.bobot.rgb.RGB;
 import frc.robot.bobot.rgb.patterns.Rainbow;
+import frc.robot.bobot.rgb.patterns.Sinbow;
 
 import java.awt.*;
 
 public class RobotIdle implements RGB.Pattern {
 
     private static final int MAX = 255;
-    private static final int RAINBOW = 1;
-    private static final int HATCH = 2;
-    private static final int CARGO = 3;
-    private static final int COLOR = 4;
     private static RobotIdle latest;
+    private LEDMode mode = LEDMode.Rainbow;
     private Rainbow rainbow = new Rainbow();
-    private int state = RAINBOW;
+    private Sinbow sinbow = new Sinbow();
     private boolean flag = false;
     private Color color;
 
@@ -28,14 +26,14 @@ public class RobotIdle implements RGB.Pattern {
 
     @Override
     public Color color(int length) {
-        switch (state) {
-            case RAINBOW:
+        switch (mode) {
+            case Rainbow:
                 return rainbow.color(length);
-            case HATCH:
-                return flag ? Color.YELLOW : Color.BLACK;
-            case CARGO:
-                return flag ? Color.RED : Color.BLACK;
-            case COLOR:
+            case Sinbow:
+                return sinbow.color(length);
+            case Flash:
+                return flag ? color : Color.BLACK;
+            case Color:
                 return color;
         }
         return Color.BLACK;
@@ -47,30 +45,28 @@ public class RobotIdle implements RGB.Pattern {
         flag = !flag;
     }
 
-    public void needHatch() {
-        state = HATCH;
-    }
-
-    public void needCargo() {
-        state = CARGO;
-    }
-
     public void rainbow() {
-        state = RAINBOW;
+        mode = LEDMode.Rainbow;
     }
 
-    public void cargoLoaded() {
-        if (state == CARGO)
-            rainbow();
+    public void sinbow() {
+        mode = LEDMode.Sinbow;
     }
 
-    public void hatchLoaded() {
-        if (state == HATCH)
-            rainbow();
+    public void flash(Color color) {
+        mode = LEDMode.Flash;
+        this.color = color;
     }
 
     public void color(Color color) {
-        state = COLOR;
+        mode = LEDMode.Color;
         this.color = color;
+    }
+
+    enum LEDMode {
+        Color,
+        Rainbow,
+        Sinbow,
+        Flash
     }
 }

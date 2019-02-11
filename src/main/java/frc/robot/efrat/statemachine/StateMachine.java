@@ -3,6 +3,8 @@ package frc.robot.efrat.statemachine;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.bobot.Subsystem;
 import frc.robot.bobot.utils.Toggle;
+import frc.robot.efrat.statemachine.states.InitState;
+import frc.robot.efrat.statemachine.states.MyNadiState;
 import org.json.JSONObject;
 
 public class StateMachine extends Subsystem {
