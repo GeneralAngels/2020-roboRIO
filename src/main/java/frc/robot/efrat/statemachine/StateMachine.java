@@ -48,7 +48,7 @@ public class StateMachine extends Subsystem {
         updateToggles(op, dr);
         if (currentState != null) {
             currentState.apply();
-            currentState = currentState.nextState(currentInput, stateMap);
+            currentState = currentState.nextState(currentInput);
         }
     }
 
