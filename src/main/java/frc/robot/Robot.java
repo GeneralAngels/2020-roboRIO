@@ -10,7 +10,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
-            bobot = new EfratTestingFull();
+            bobot = new EfratTesting();
         bobot.init();
     }
 

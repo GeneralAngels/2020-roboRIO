@@ -28,7 +28,7 @@ public class PneumaticTestingDrive extends DifferentialDrive<Victor> {
         left.add(new Victor(2), new Victor(3));
         left.setEncoder(new Encoder(7, 6));
         right.setEncoder(new Encoder(4, 5));
-        left.setDirection(Drivebox.DIRECTION_BACKWARD);
+//        right.setDirection(Drivebox.DIRECTION_BACKWARD);
 //        left.getEncoder().reset();
 //        right.getEncoder().reset();
         gyro = new Gyroscope();

@@ -2,35 +2,37 @@ package frc.robot.efrat.systems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.bobot.Subsystem;
+import frc.robot.bobot.control.PID;
 import frc.robot.bobot.utils.PinManager;
 
 public class Lift extends Subsystem {
 
     public static final double MAX_ANGLE_RADIANS = 1;
     public static final double[] ROCKET_ANGLES_RADIANS = {0, 0.5, 0.9};
-    private static Lift latest;
-    public AnalogInput potentiometer;
     private double currentAngle = 0;
     private int targetLevel = 0;
     private double targetAngleRadians = 0;
     private double sensorOffset;
+    public AnalogInput potentiometer;
+    PID motor1PID, motor2PID;
     // todo remove
     private DigitalInput upReset, downReset;
     private WPI_TalonSRX motor1, motor2;
+
     public Lift() {
-        latest = this;
         PinManager pinManager = new PinManager();
         motor1 = new WPI_TalonSRX(5);
         motor2 = new WPI_TalonSRX(6);
         potentiometer = new AnalogInput(2);
-//        downReset = new DigitalInput(0);
-//        upReset = new DigitalInput(1);
-    }
-
-    public static Lift getInstance() {
-        return latest;
+        downReset = new DigitalInput(0);
+        upReset = new DigitalInput(1);
+        motor1PID = new PID();
+        motor1PID.setPIDF(0,0,0,0);
+        motor2PID = new PID();
+        motor2PID.setPIDF(0,0,0,0);
     }
 
     public void setTargetLevel(int targetLevel) {
@@ -41,23 +43,24 @@ public class Lift extends Subsystem {
     }
 
     private void calculateAngle() {
-        if (potentiometer != null)
-            currentAngle = (potentiometer.getAverageVoltage() - sensorOffset) / (256 * MAX_ANGLE_RADIANS);
+        currentAngle = (potentiometer.getAverageVoltage() - sensorOffset) / (256 * MAX_ANGLE_RADIANS);
     }
 
     public void loop() {
-        if (downReset != null) {
-            if (!downReset.get()) {
-                // Down Pressed
-                sensorOffset = potentiometer.getAverageVoltage();
-            }
+        if (!downReset.get()) {
+            // Down Pressed
+            sensorOffset = potentiometer.getAverageVoltage();
         }
         calculateAngle();
-        // Do PID Stuff
+
+        double motor1Velocity = motor1PID.pidVelocity(currentAngle, targetAngleRadians);
+        double motor2Velocity = motor2PID.pidVelocity(currentAngle, targetAngleRadians);
+
     }
 
     public void set(double speed) {
-        speed /= 6;
+        // why /6?
+        speed/=6;
         motor1.set(speed);
         motor2.set(speed);
     }
