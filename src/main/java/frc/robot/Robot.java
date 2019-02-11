@@ -2,7 +2,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.bobot.Bobot;
-import frc.robot.efrat.EfratTesting;
 import frc.robot.efrat.EfratTestingFull;
 
 public class Robot extends TimedRobot {
@@ -10,7 +9,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
-            bobot = new EfratTesting();
+        bobot = new EfratTestingFull();
         bobot.init();
     }
 

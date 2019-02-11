@@ -13,9 +13,10 @@ public class Sinbow implements RGB.Pattern {
     @Override
     public Color color(int length) {
         int r = 0, g = 0, b = 0;
-        r = (int) ((Math.sin(Math.toRadians(current)) / 2 + 0.5) * MAX);
-        g = (int) ((Math.sin(Math.toRadians(current + sineOffset)) / 2 + 0.5) * MAX);
-        b = (int) ((Math.sin(Math.toRadians(current + 2 * sineOffset)) / 2 + 0.5) * MAX);
+        long c=current;
+        r = (int) ((Math.sin(Math.toRadians(c)) / 2.0 + 0.5) * MAX);
+        g = (int) ((Math.sin(Math.toRadians(c + sineOffset)) / 2.0 + 0.5) * MAX);
+        b = (int) ((Math.sin(Math.toRadians(c + 2 * sineOffset)) / 2.0 + 0.5) * MAX);
         return new Color(r, g, b);
     }
 

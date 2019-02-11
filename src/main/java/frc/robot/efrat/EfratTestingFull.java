@@ -1,8 +1,7 @@
 package frc.robot.efrat;
 
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
+import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj.*;
 import frc.robot.bobot.Bobot;
 import frc.robot.bobot.rgb.RGB;
 import frc.robot.bobot.utils.PinManager;
@@ -32,12 +31,15 @@ public class EfratTestingFull extends Bobot {
     protected PneumaticDrive drive;
     protected Toggle drA, drB, drX, drY, drR, drL;
     protected Compressor compressor = new Compressor(0);
+    protected AHRS gyroBitch;
 
     @Override
     public void init() {
         // StateMachine
         stateMachine = new StateMachine();
         // Controllers
+        gyroBitch = new AHRS(I2C.Port.kMXP);
+
         compressor.setClosedLoopControl(true);
         driverGamepad = new XboxController(0);
         makel = new Stick();
@@ -90,9 +92,11 @@ public class EfratTestingFull extends Bobot {
     public void teleop() {
         updateTriggers();
         stateMachine.update(driverGamepad, null);
+        log("Byro, Gitch: " + gyroBitch.getYaw());
         double divide = 2.0;
         drive.setStickNoPID(-driverGamepad.getY(GenericHID.Hand.kLeft) / divide, -driverGamepad.getX(GenericHID.Hand.kLeft) / divide);
-//        makel.set(-driverGamepad.getX(GenericHID.Hand.kRight));
+
+        //        makel.set(-driverGamepad.getX(GenericHID.Hand.kRight));
 //        lift.set(driverGamepad.getY(GenericHID.Hand.kRight));
 //        log(Double.toString(-(driverGamepad.getTriggerAxis(GenericHID.Hand.kRight) - driverGamepad.getTriggerAxis(GenericHID.Hand.kLeft))));
 //        shiri.set(-(driverGamepad.getTriggerAxis(GenericHID.Hand.kRight) - driverGamepad.getTriggerAxis(GenericHID.Hand.kLeft)));

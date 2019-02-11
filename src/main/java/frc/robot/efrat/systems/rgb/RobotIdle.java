@@ -42,6 +42,7 @@ public class RobotIdle implements RGB.Pattern {
     @Override
     public void next(int ledCount) {
         rainbow.next(ledCount);
+        sinbow.next(ledCount);
         flag = !flag;
     }
 
