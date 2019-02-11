@@ -7,23 +7,23 @@ public class Odometry extends Subsystem {
 
     public static final String X = "x", Y = "y", THETA = "theta", LINEAR = "linear_velocity", ANGULAR = "angular_velocity", LEFT_SETPOINT = "left_setpoint", RIGHT_SETPOINT = "right_setpoint";
 
-    private double x, y, theta, linear, angular, rsp, lsp;
+    private double x, y, theta, linear, angular, rightSetpoint, leftSetpoint;
 
-    public double getRsp() {
-        return rsp;
+    public double getRightSetpoint() {
+        return rightSetpoint;
     }
 
-    public Odometry setRsp(double rsp) {
-        this.rsp = rsp;
+    public Odometry setRightSetpoint(double rightSetpoint) {
+        this.rightSetpoint = rightSetpoint;
         return this;
     }
 
-    public double getLsp() {
-        return lsp;
+    public double getLeftSetpoint() {
+        return leftSetpoint;
     }
 
-    public Odometry setLsp(double lsp) {
-        this.lsp = lsp;
+    public Odometry setLeftSetpoint(double leftSetpoint) {
+        this.leftSetpoint = leftSetpoint;
         return this;
     }
 
@@ -75,8 +75,8 @@ public class Odometry extends Subsystem {
     @Override
     public JSONObject toJSON() {
         JSONObject odometry = new JSONObject();
-        odometry.put(RIGHT_SETPOINT, getRsp());
-        odometry.put(LEFT_SETPOINT, getLsp());
+        odometry.put(RIGHT_SETPOINT, getRightSetpoint());
+        odometry.put(LEFT_SETPOINT, getLeftSetpoint());
         odometry.put(THETA, getTheta());
         odometry.put(X, getX());
         odometry.put(Y, getY());

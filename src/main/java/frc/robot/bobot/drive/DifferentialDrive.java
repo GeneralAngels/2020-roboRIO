@@ -163,8 +163,8 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         odometry.setTheta(theta);
         odometry.setLinear(realVOmega[0]);
         odometry.setAngular(realVOmega[1]);
-        odometry.setRsp(Rsetpoint);
-        odometry.setLsp(Lsetpoint);
+        odometry.setRightSetpoint(Rsetpoint);
+        odometry.setLeftSetpoint(Lsetpoint);
     }
 
     public void initGyro(Gyroscope gyro) {
