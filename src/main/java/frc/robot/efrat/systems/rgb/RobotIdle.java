@@ -55,6 +55,10 @@ public class RobotIdle implements RGB.Pattern {
         this.color = color;
     }
 
+    public void idle() {
+        rainbow();
+    }
+
     enum LEDMode {
         Color,
         Rainbow,

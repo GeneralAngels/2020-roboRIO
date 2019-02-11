@@ -2,10 +2,12 @@ package frc.robot.efrat.statemachine.states;
 
 import frc.robot.efrat.statemachine.State;
 import frc.robot.efrat.statemachine.StateMachine;
+import frc.robot.efrat.systems.rgb.RobotIdle;
 
 public class HatchOutL1Shiri extends State {
     @Override
     public void apply() {
+        RobotIdle.getInstance().idle();
         // TODO shiri out!
     }
 
