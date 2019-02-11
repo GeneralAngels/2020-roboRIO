@@ -73,13 +73,16 @@ public class StateMachine extends Subsystem {
         new Thread(() -> {
             currentInput = Input.NONE;
             updateToggles(op, dr);
-            if (currentState != null) {
-                currentState.apply();
-                lastState = currentState;
-                currentState = currentState.nextState(currentInput);
-            } else {
-                currentState = lastState;
-                RobotIdle.getInstance().flash(Color.RED);
+            if (currentInput != Input.NONE) {
+                log("Input: "+ currentInput.toString());
+                if (currentState != null) {
+                    currentState.apply();
+                    lastState = currentState;
+                    currentState = currentState.nextState(currentInput);
+                } else {
+                    currentState = lastState;
+                    RobotIdle.getInstance().flash(Color.RED);
+                }
             }
         }).start();
     }

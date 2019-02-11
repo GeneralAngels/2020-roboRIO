@@ -15,7 +15,7 @@ public class Fork extends Subsystem {
     public Fork() {
         latest = this;
         PinManager pinManager = new PinManager();
-        solenoid = new DoubleSolenoid(2, 3);
+//        solenoid = new DoubleSolenoid(2, 3);
 //        cargoIndicator = new DigitalInput(7);
     }
 
@@ -34,10 +34,10 @@ public class Fork extends Subsystem {
     }
 
     public void open() {
-        solenoid.set(DoubleSolenoid.Value.kForward);
+        if (solenoid != null) solenoid.set(DoubleSolenoid.Value.kForward);
     }
 
     public void close() {
-        solenoid.set(DoubleSolenoid.Value.kReverse);
+        if (solenoid != null) solenoid.set(DoubleSolenoid.Value.kReverse);
     }
 }

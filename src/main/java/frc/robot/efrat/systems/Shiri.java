@@ -18,7 +18,7 @@ public class Shiri extends Subsystem {
     public Shiri() {
         latest = this;
         PinManager pinManager = new PinManager();
-        solenoid = new DoubleSolenoid(0, 1);
+//        solenoid = new DoubleSolenoid(0, 1);
         slideMotor = new WPI_TalonSRX(4);
         slideEncoder = new Encoder(2, 3);
 //        grab1 = new DigitalInput(0);
@@ -36,11 +36,11 @@ public class Shiri extends Subsystem {
     }
 
     public void open() {
-        solenoid.set(DoubleSolenoid.Value.kForward);
+        if (solenoid != null) solenoid.set(DoubleSolenoid.Value.kForward);
     }
 
     public void close() {
-        solenoid.set(DoubleSolenoid.Value.kReverse);
+        if (solenoid != null) solenoid.set(DoubleSolenoid.Value.kReverse);
     }
 
     public void set(double speed) {

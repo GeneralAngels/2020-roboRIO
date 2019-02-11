@@ -18,6 +18,6 @@ public class InitState extends State {
 
     @Override
     public void apply() {
-        RobotIdle.getInstance().sinbow();
+        RobotIdle.getInstance().idle();
     }
 }
