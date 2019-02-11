@@ -7,14 +7,15 @@ import java.awt.*;
 public class Sinbow implements RGB.Pattern {
 
     private static final int MAX = 255;
-    private int current = 0;
+    private long current = 0;
+    private int sineOffset = 60;
 
     @Override
     public Color color(int length) {
         int r = 0, g = 0, b = 0;
-        r = (int) (Math.sin(current) * MAX + MAX / 2);
-        g = (int) (Math.sin(current + 45) * MAX + MAX / 2);
-        b = (int) (Math.sin(current + 90) * MAX + MAX / 2);
+        r = (int) ((Math.sin(Math.toRadians(current)) / 2 + 0.5) * MAX);
+        g = (int) ((Math.sin(Math.toRadians(current + sineOffset)) / 2 + 0.5) * MAX);
+        b = (int) ((Math.sin(Math.toRadians(current + 2 * sineOffset)) / 2 + 0.5) * MAX);
         return new Color(r, g, b);
     }
 
