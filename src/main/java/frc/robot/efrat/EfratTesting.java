@@ -108,6 +108,7 @@ public class EfratTesting extends Bobot {
         double speed = -driverGamepad.getY(GenericHID.Hand.kLeft);
         double turn = -driverGamepad.getX(GenericHID.Hand.kLeft);
         if (!isAutonomous && !isTestBench) {
+            log("go here");
             pneumaticDrive.set(speed, turn);
         } else if (isTestBench) {
             pneumaticDrive.setBench(testBenchSpeed, turn);
