@@ -3,9 +3,7 @@ package frc.robot.efrat.statemachine;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.bobot.Subsystem;
 import frc.robot.bobot.utils.Toggle;
-import frc.robot.efrat.statemachine.states.CargoReady;
-import frc.robot.efrat.statemachine.states.HatchReady;
-import frc.robot.efrat.statemachine.states.InitState;
+import frc.robot.efrat.statemachine.states.*;
 import frc.robot.efrat.systems.rgb.RobotIdle;
 import org.json.JSONObject;
 
@@ -14,7 +12,28 @@ import java.awt.*;
 public class StateMachine extends Subsystem {
     public static final String CURRENT_STATE = "current_state";
     // TODO to add states, add NEW YOURSTATE() to the array
-    private static final State[] stateMap = {new InitState(), new CargoReady(), new HatchReady()};
+    private static final State[] stateMap = {
+            new InitState(),
+            new CargoReady(),
+            new HatchReady(),
+            new CargoIn(),
+            new HatchIn(),
+            new CargoReadyL1(),
+            new CargoReadyL2(),
+            new CargoReadyL3(),
+            new CargoOutL1(),
+            new CargoOutL2(),
+            new CargoOutL3(),
+            new HatchReadyL1(),
+            new HatchReadyL2(),
+            new HatchReadyL3(),
+            new HatchOutL1(),
+            new HatchOutL2(),
+            new HatchOutL3(),
+            new TransferHatch1(),
+            new TransferHatch2(),
+            new ClimbZ()
+    };
     private State lastState, currentState;
     private Input currentInput = Input.NONE;
     private Toggle drA, drB, drX, drY, dr1, dr2, dr3, dr4;
