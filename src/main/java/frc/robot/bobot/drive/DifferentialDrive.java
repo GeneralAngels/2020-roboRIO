@@ -20,7 +20,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public Gyroscope gyro;
     public double WHEEL_DISTANCE = 0.58;
     public double WHEEL_RADIUS = 0.105;
-    public double MAX_V = 1.2;
+    public double MAX_V = 4;
 //    for good results max omega = max_v * 2 /wheel_distance
     public double MAX_OMEGA = MAX_V * 2 / WHEEL_DISTANCE ;
     public double[] realVOmega;
@@ -40,8 +40,8 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public DifferentialDrive() {
         motorControlLeft = new PID();
         motorControlRight = new PID();
-        motorControlLeft.setPIDF(0, 8/0.08, 0, 0.4);
-        motorControlRight.setPIDF(0, 0.08, 0, 0.4);
+        motorControlLeft.setPIDF(0, 0.12, 0, 0.5);
+        motorControlRight.setPIDF(0, 0.12, 0, 0.5);
     }
 
     public static double noPIDCalculateRight(double speed, double turn) {
@@ -136,6 +136,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         } else {
             theta = Math.toRadians(gyro.getCountedAngle());
         }
+        log(Double.toString(theta)+","+Double.toString(gyro.getAngle()));
 //        log(Double.toString(gyro.countedAngle) + "," + Double.toString(gyro.getAngle()));
 //        log("Rad: "+theta);
         //x += (realVOmega[0] * Math.cos(theta) * 0.02);
