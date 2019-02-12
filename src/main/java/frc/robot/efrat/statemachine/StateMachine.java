@@ -75,23 +75,32 @@ public class StateMachine extends Subsystem {
             updateToggles(op, dr);
             if (currentInput != Input.NONE) {
                 if (currentState != null) {
-                    currentState.apply();
                     lastState = currentState;
                     currentState = currentState.nextState(currentInput);
-                    log((lastState != null ? lastState.getName() : "none") + " to " + (currentState != null ? currentState.getName() : "none"));
+                    if (currentState == null) {
+                        currentState = lastState;
+                        RobotIdle.getInstance().color(Color.RED);
+                    } else {
+                        currentState.apply();
+                    }
+                    notifyChange();
                 } else {
-                    currentState = lastState;
                     RobotIdle.getInstance().flash(Color.RED);
-                    log("State: No State, Go Back To " + ((lastState != null) ? lastState.getName() : "No State"));
+                    log("No State");
                 }
             } else {
                 if (currentState != null && currentState.nextState(Input.NONE) != null && currentState != currentState.nextState(Input.NONE)) {
-                    currentState.apply();
                     lastState = currentState;
                     currentState = currentState.nextState(currentInput);
+                    currentState.apply();
+                    notifyChange();
                 }
             }
         }).start();
+    }
+
+    private void notifyChange() {
+        log((lastState != null ? lastState.getName() : "none") + " to " + (currentState != null ? currentState.getName() : "none"));
     }
 
     private void updateToggles(XboxController op, XboxController dr) {

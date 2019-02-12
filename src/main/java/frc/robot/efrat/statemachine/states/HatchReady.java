@@ -10,7 +10,7 @@ import java.awt.*;
 public class HatchReady extends State {
     @Override
     public void apply() {
-        RobotIdle.getInstance().color(Color.YELLOW);
+        RobotIdle.getInstance().color(Color.MAGENTA);
     }
 
     @Override

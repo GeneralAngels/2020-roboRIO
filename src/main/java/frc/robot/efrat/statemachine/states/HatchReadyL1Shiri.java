@@ -9,7 +9,6 @@ import java.awt.*;
 public class HatchReadyL1Shiri extends State {
     @Override
     public void apply() {
-        RobotIdle.getInstance().flash(Color.PINK);
         // TODO shiri go to front
     }
 

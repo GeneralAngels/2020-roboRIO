@@ -9,7 +9,6 @@ import java.awt.*;
 public class CargoReadyL1 extends State {
     @Override
     public void apply() {
-        RobotIdle.getInstance().flash(Color.PINK);
     }
 
     @Override

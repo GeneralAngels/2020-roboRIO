@@ -10,7 +10,7 @@ import java.awt.*;
 public class CargoReady extends State {
     @Override
     public void apply() {
-        RobotIdle.getInstance().color(Color.ORANGE);
+        RobotIdle.getInstance().color(Color.MAGENTA);
     }
 
     @Override
