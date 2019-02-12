@@ -1,29 +1,25 @@
 package frc.robot.efrat;
 
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.bobot.Bobot;
 import frc.robot.bobot.rgb.RGB;
 import frc.robot.bobot.utils.Toggle;
 import frc.robot.efrat.statemachine.StateMachine;
-import frc.robot.efrat.systems.*;
+import frc.robot.efrat.systems.PneumaticDrive;
+import frc.robot.efrat.systems.Shiri;
+import frc.robot.efrat.systems.Stick;
+import frc.robot.efrat.systems.Tomer;
 import frc.robot.efrat.systems.rgb.RobotIdle;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.awt.*;
-
 import static frc.robot.bobot.drive.DifferentialDrive.OMEGA;
 import static frc.robot.bobot.drive.DifferentialDrive.VELOCITY;
 
-// TODO THIS CODE SHOULD NOT BE RAN ON THE TEST KIT! USE "EfratTesting"!
-// TODO Official Efrat Code with Joysticks
-
 /*
-TODO
 Robot Subsystems:
 Lift
 Stick & Tomer
@@ -33,7 +29,6 @@ Roller
  */
 
 /*
-TODO
 canbus map
 0-9-PDP/PCM
 10-Right 1
@@ -47,7 +42,6 @@ canbus map
 18-Roller Motor
  */
 /*
-TODO
 pinmap
 AI0-Lift Potentiometer
 DI0,DI1-Shiri Microswitches Grab
@@ -57,7 +51,6 @@ NavX:
 NXDI8-Tomer Cargo Indicator
 */
 /*
-TODO
 SolenoidMap
 0,1 - Shiri
 2,3 - Tomer
@@ -68,57 +61,50 @@ SolenoidMap
 
 public class EfratOfficial extends Bobot {
 
-    protected final String DRIVE = "drive";
-    protected final String GEAR = "gear";
-    protected final String LIFT = "lift", TARGET_LEVEL = "target_level";
-
-    // Autonomous Sequences
-    protected JSONObject robotStatus;
-    // Controllers
-    protected Joystick driverLeft, driverRight;
-    protected XboxController operatorGamepad;
-    // Systems
-    protected PneumaticDrive drive;
-    protected Stick stick;
-    protected Tomer tomer;
-    protected Shiri shiri;
-    protected Roller roller;
-    protected Toggle operatorA, operatorB, operatorX, operatorY, operatorStart, operatorBack, operatorPadUp, operatorPadDown;
-    protected Toggle driverLeftT, driverRightT, driverRight5, driverRight3, driverRight6, driverRight4;
-    // RGB
-    protected RobotIdle robotIdle;
-    protected RGB rgb;
-    // ControlMode
-    protected boolean isAutonomous = false;
-    // Compressor
-    protected Compressor compressor;
-    // StateMachine
-    protected StateMachine stateMachine;
+    private JSONObject robotStatus;
+    private Joystick driverLeft, driverRight;
+    private XboxController operatorGamepad;
+    private PneumaticDrive drive;
+    private Stick stick;
+    private Tomer tomer;
+    private Shiri shiri;
+    private Toggle operatorA, operatorB, operatorX, operatorY, operatorStart, operatorBack, operatorPadUp, operatorPadDown;
+    private Toggle driverLeftT, driverRightT, driverRight5, driverRight3, driverRight6, driverRight4;
+    private RobotIdle robotIdle;
+    private RGB rgb;
+    private boolean isAutonomous = false;
+    private Compressor compressor;
+    private StateMachine stateMachine;
 
     @Override
     public void init() {
-        // StateMachine
+        initStateMachine();
+        initControllers();
+        initRGB();
+        initSystems();
+        initCompressor();
+        instructions();
+        initTriggers();
+        super.init();
+    }
+
+    private void initCompressor() {
+        compressor = new Compressor(0);
+        compressor.setClosedLoopControl(true);
+    }
+
+    private void initStateMachine() {
         stateMachine = new StateMachine();
-        // Controllers
+        addToJSON(stateMachine);
+    }
+
+    private void initControllers() {
         driverLeft = new Joystick(0);
         driverRight = new Joystick(1);
         operatorGamepad = new XboxController(2);
-        // RGB
-        rgb = new RGB(69, 8);
-        robotIdle = new RobotIdle();
-        rgb.setPattern(robotIdle);
-        // Compressor
-        compressor = new Compressor(0);
-        compressor.setClosedLoopControl(true);
-        // Systems
-//        drive = new PneumaticDrive();
-        stick = new Stick();
-        tomer = new Tomer();
-        shiri = new Shiri();
-        // Registering Subsystems
-        addToJSON(drive);
-        addToJSON(stateMachine);
-        // Instruction Log
+    }
+
+    private void instructions() {
         dontLogName();
         log("///////////////////////////////////////////////////////");
         log("Efrat Official!!!");
@@ -129,41 +115,27 @@ public class EfratOfficial extends Bobot {
         log("To Begin, Press Enable");
         log("///////////////////////////////////////////////////////");
         doLogName();
-        // Setup Triggers
-        initTriggers();
-        // SuperInit -> TCP Init
-        super.init();
     }
 
-    protected void initTriggers() {
-        operatorA = new Toggle(null);
-        operatorB = new Toggle(toggle -> {
-            if (toggle) {
-                shiri.open();
-            } else {
-                shiri.close();
-            }
-        });
-        operatorX = new Toggle(null);
-        operatorY = new Toggle(toggle -> {
-            if (toggle) {
-                tomer.open();
-            } else {
-                tomer.close();
-            }
-        });
-        operatorBack = new Toggle(toggle -> robotIdle.color(Color.ORANGE));
-        operatorStart = new Toggle(toggle -> robotIdle.color(Color.YELLOW));
-        driverLeftT = new Toggle(toggle -> {
-            if (toggle) {
-                drive.gearUp();
-            } else {
-                drive.gearDown();
-            }
-        });
+    private void initRGB() {
+        rgb = new RGB(69, 8);
+        robotIdle = new RobotIdle();
+        rgb.setPattern(robotIdle);
     }
 
-    protected void updateTriggers() {
+    private void initSystems() {
+        //        drive = new PneumaticDrive();
+        stick = new Stick();
+        tomer = new Tomer();
+        shiri = new Shiri();
+        addToJSON(drive);
+    }
+
+    private void initTriggers() {
+
+    }
+
+    private void updateTriggers() {
         if (operatorGamepad != null) {
             if (operatorA != null) operatorA.update(operatorGamepad.getAButton());
             if (operatorB != null) operatorB.update(operatorGamepad.getBButton());
@@ -186,7 +158,7 @@ public class EfratOfficial extends Bobot {
         }
     }
 
-    private void loopSubsystems(){
+    private void loopSubsystems() {
     }
 
     @Override
@@ -194,16 +166,13 @@ public class EfratOfficial extends Bobot {
         updateTriggers();
         loopSubsystems();
         stateMachine.update(operatorGamepad, null);
-        roller.set(operatorGamepad.getBumper(GenericHID.Hand.kRight) ? -0.3 : operatorGamepad.getBumper(GenericHID.Hand.kLeft) ? 0.3 : 0);
-        stick.set(operatorGamepad.getY(GenericHID.Hand.kLeft) / 4.0);
-        shiri.set(operatorGamepad.getY(GenericHID.Hand.kRight));
         if (!isAutonomous) {
             double[] parameters = drive.wheelsToRobot(-driverLeft.getY(), -driverRight.getY());
             drive.set(parameters[0], parameters[1]);
         }
     }
 
-    protected void robotStatus() {
+    private void robotStatus() {
         robotStatus = new JSONObject();
         JSONArray driverStatus = new JSONArray();
         JSONArray operatorStatus = new JSONArray();
@@ -232,6 +201,7 @@ public class EfratOfficial extends Bobot {
         if (isAutonomous) {
             double v = 0, w = 0;
             try {
+                String DRIVE = "drive";
                 if (object.has(DRIVE)) {
                     JSONObject driveObject = object.getJSONObject(DRIVE);
                     if (driveObject.has(VELOCITY) && driveObject.has(OMEGA)) {
@@ -242,6 +212,7 @@ public class EfratOfficial extends Bobot {
                     } else {
                         log("No \"v\" & \"w\" in json");
                     }
+                    String GEAR = "gear";
                     if (driveObject.has(GEAR)) {
                         if (driveObject.getBoolean(GEAR)) {
                             drive.gearUp();
@@ -251,11 +222,6 @@ public class EfratOfficial extends Bobot {
                     }
                 } else {
                     log("No \"DifferentialDrive\" in json");
-                }
-                if (object.has(LIFT)) {
-                    JSONObject liftObject = object.getJSONObject(LIFT);
-                    if (liftObject.has(TARGET_LEVEL)) {
-                    }
                 }
             } catch (Exception e) {
                 if (e instanceof JSONException) {
