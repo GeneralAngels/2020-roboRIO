@@ -21,8 +21,8 @@ public class Shiri extends Subsystem {
 //        hatch = new DoubleSolenoid(0, 1);
         slideMotor = new WPI_TalonSRX(4);
         slideEncoder = new Encoder(2, 3);
-//        grab1 = new DigitalInput(0);
-//        grab2 = new DigitalInput(1);
+        grab1 = new DigitalInput(0);
+        grab2 = new DigitalInput(1);
 //        backReset = new DigitalInput(6);
     }
 
@@ -48,7 +48,7 @@ public class Shiri extends Subsystem {
     }
 
     public boolean isHatchLoaded() {
-        return grab1 != null && grab2 != null && grab1.get() && grab2.get();
+        return grab1 != null && grab2 != null && !grab1.get() && grab2.get();
     }
 
     public boolean isHatchLocked() {

@@ -80,7 +80,6 @@ public class EfratOfficial extends Bobot {
     // Systems
     protected PneumaticDrive drive;
     protected Stick stick;
-    protected Lift lift;
     protected Tomer tomer;
     protected Shiri shiri;
     protected Roller roller;
@@ -116,7 +115,6 @@ public class EfratOfficial extends Bobot {
         stick = new Stick();
         tomer = new Tomer();
         shiri = new Shiri();
-        lift = new Lift();
         // Registering Subsystems
         addToJSON(drive);
         addToJSON(stateMachine);
@@ -156,8 +154,6 @@ public class EfratOfficial extends Bobot {
         });
         operatorBack = new Toggle(toggle -> robotIdle.color(Color.ORANGE));
         operatorStart = new Toggle(toggle -> robotIdle.color(Color.YELLOW));
-        operatorPadUp = new Toggle(toggle -> lift.levelUp());
-        operatorPadDown = new Toggle(toggle -> lift.levelDown());
         driverLeftT = new Toggle(toggle -> {
             if (toggle) {
                 drive.gearUp();
@@ -190,8 +186,7 @@ public class EfratOfficial extends Bobot {
         }
     }
 
-    private void loopSubsystems() {
-        lift.loop();
+    private void loopSubsystems(){
     }
 
     @Override
@@ -260,7 +255,6 @@ public class EfratOfficial extends Bobot {
                 if (object.has(LIFT)) {
                     JSONObject liftObject = object.getJSONObject(LIFT);
                     if (liftObject.has(TARGET_LEVEL)) {
-                        lift.setTargetLevel(liftObject.getInt(TARGET_LEVEL));
                     }
                 }
             } catch (Exception e) {
