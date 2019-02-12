@@ -7,10 +7,7 @@ import frc.robot.bobot.rgb.RGB;
 import frc.robot.bobot.utils.PinManager;
 import frc.robot.bobot.utils.Toggle;
 import frc.robot.efrat.statemachine.StateMachine;
-import frc.robot.efrat.systems.Lift;
-import frc.robot.efrat.systems.PneumaticDrive;
-import frc.robot.efrat.systems.Shiri;
-import frc.robot.efrat.systems.Stick;
+import frc.robot.efrat.systems.*;
 import frc.robot.efrat.systems.rgb.RobotIdle;
 import org.json.JSONObject;
 
@@ -28,10 +25,13 @@ public class EfratTestingFull extends Bobot {
     protected Stick makel;
     protected Lift lift;
     protected Shiri shiri;
+//    protected Shanti shanti;
     protected PneumaticDrive drive;
     protected Toggle drA, drB, drX, drY, drR, drL;
     protected Compressor compressor = new Compressor(0);
     protected AHRS gyroBitch;
+    protected Stick stick;
+    protected Lift lift1;
 
     @Override
     public void init() {
@@ -40,12 +40,16 @@ public class EfratTestingFull extends Bobot {
         // Controllers
         gyroBitch = new AHRS(I2C.Port.kMXP);
 
+//        shanti = new Shanti();
+
         compressor.setClosedLoopControl(true);
         driverGamepad = new XboxController(0);
-        makel = new Stick();
-        lift = new Lift();
+//        makel = new Stick();
+//        lift = new Lift();
         shiri = new Shiri();
         drive = new PneumaticDrive();
+        lift1 = new Lift();
+        stick = new Stick();
         addToJSON(stateMachine);
         PinManager pinManager = new PinManager();
         rgb = new RGB(69, 8);
@@ -92,14 +96,22 @@ public class EfratTestingFull extends Bobot {
     public void teleop() {
         updateTriggers();
         stateMachine.update(driverGamepad, null);
-        log("Byro, Gitch: " + gyroBitch.getYaw());
+//        shanti.set(0.3,0);
+ //       shanti.print();
+//        log("Byro, Gitch: " + gyroBitch.getYaw());
         double divide = 2.0;
-        drive.setStickNoPID(-driverGamepad.getY(GenericHID.Hand.kLeft) / divide, -driverGamepad.getX(GenericHID.Hand.kLeft) / divide);
-
+//        drive.setBench(driverGamepad.getY(GenericHID.Hand.kLeft)/divide, driverGamepad.getX(GenericHID.Hand.kLeft)/divide);
+        drive.direct(driverGamepad.getY(GenericHID.Hand.kLeft)+driverGamepad.getX(GenericHID.Hand.kLeft),driverGamepad.getY(GenericHID.Hand.kLeft)-driverGamepad.getX(GenericHID.Hand.kLeft));
+ //       drive.set(-driverGamepad.getY(GenericHID.Hand.kLeft) / divide, -driverGamepad.getX(GenericHID.Hand.kLeft) / divide);
+ //       drive.setStickNoPID(-driverGamepad.getY(GenericHID.Hand.kLeft) / divide, -driverGamepad.getX(GenericHID.Hand.kLeft) / divide);
+        stick.set(-driverGamepad.getX(GenericHID.Hand.kRight));
+        log("hello");
         //        makel.set(-driverGamepad.getX(GenericHID.Hand.kRight));
-//        lift.set(driverGamepad.getY(GenericHID.Hand.kRight));
+        lift1.set(driverGamepad.getY(GenericHID.Hand.kRight));
 //        log(Double.toString(-(driverGamepad.getTriggerAxis(GenericHID.Hand.kRight) - driverGamepad.getTriggerAxis(GenericHID.Hand.kLeft))));
-//        shiri.set(-(driverGamepad.getTriggerAxis(GenericHID.Hand.kRight) - driverGamepad.getTriggerAxis(GenericHID.Hand.kLeft)));
+//        log(Double.toString(-(driverGamepad.getTriggerAxis(GenericHID.Hand.kRight) - driverGamepad.getTriggerAxis(GenericHID.Hand.kLeft))));
+
+        shiri.set(-(driverGamepad.getTriggerAxis(GenericHID.Hand.kRight) - driverGamepad.getTriggerAxis(GenericHID.Hand.kLeft)));
 
     }
 

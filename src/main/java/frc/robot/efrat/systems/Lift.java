@@ -20,12 +20,12 @@ public class Lift extends Subsystem {
     PID motor1PID, motor2PID;
     // todo remove
     private DigitalInput upReset, downReset;
-    private WPI_TalonSRX motor1, motor2;
+    public WPI_TalonSRX motor1, motor2;
 
     public Lift() {
         PinManager pinManager = new PinManager();
-        motor1 = new WPI_TalonSRX(5);
-        motor2 = new WPI_TalonSRX(6);
+        motor1 = new WPI_TalonSRX(15);
+        motor2 = new WPI_TalonSRX(16);
         potentiometer = new AnalogInput(2);
         downReset = new DigitalInput(0);
         upReset = new DigitalInput(1);
@@ -43,7 +43,7 @@ public class Lift extends Subsystem {
     }
 
     private void calculateAngle() {
-        currentAngle = (potentiometer.getAverageVoltage() - sensorOffset) / (256 * MAX_ANGLE_RADIANS);
+        currentAngle = (potentiometer.getVoltage() - sensorOffset) / (256 * MAX_ANGLE_RADIANS);
     }
 
     public void loop() {

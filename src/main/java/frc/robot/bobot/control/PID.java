@@ -60,6 +60,7 @@ public class PID extends Subsystem {
     public double pidPosition(double mes, double setPoint, double derivative) {
         setMeasurement(mes);
         error = setPoint - measurement;
+        log("error: "+ error);
         if (Math.abs(error) < tolerance)
             controlSignal = 0;
         else {
