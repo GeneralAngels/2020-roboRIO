@@ -7,7 +7,7 @@ import frc.robot.bobot.Bobot;
 import frc.robot.bobot.rgb.RGB;
 import frc.robot.bobot.utils.Toggle;
 import frc.robot.efrat.statemachine.StateMachine;
-import frc.robot.efrat.systems.Fork;
+import frc.robot.efrat.systems.Tomer;
 import frc.robot.efrat.systems.PneumaticTestingDrive;
 import frc.robot.efrat.systems.Roller;
 import frc.robot.efrat.systems.Shiri;
@@ -52,7 +52,7 @@ public class EfratTesting extends Bobot {
         rgb = new RGB(69, 8);
         robotIdle = new RobotIdle();
         rgb.setPattern(robotIdle);
-        new Fork();
+        new Tomer();
         new Shiri();
         // Gyro
 //        gyro = new AHRS(I2C.Port.kMXP);
@@ -119,13 +119,14 @@ public class EfratTesting extends Bobot {
 //        log("Gyro " + gyro.getYaw());
         stateMachine.update(driverGamepad, null);
 //        log(stateMachine.toJSON().toString());
-        double speed = -driverGamepad.getY(GenericHID.Hand.kLeft);
-        double turn = -driverGamepad.getX(GenericHID.Hand.kLeft);
+//        double speed = -driverGamepad.getY(GenericHID.Hand.kLeft);
+//        double turn = -driverGamepad.getX(GenericHID.Hand.kLeft);
+        pneumaticDrive.direct(-driverGamepad.getY(GenericHID.Hand.kLeft),-driverGamepad.getY(GenericHID.Hand.kRight));
         if (!isAutonomous && !isTestBench) {
 //            log("go here");
 //            pneumaticDrive.set(speed, turn);
         } else if (isTestBench) {
-            pneumaticDrive.setBench(testBenchSpeed, turn);
+//            pneumaticDrive.setBench(testBenchSpeed, turn);
         }
     }
 

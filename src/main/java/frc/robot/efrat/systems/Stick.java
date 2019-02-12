@@ -24,7 +24,7 @@ public class Stick extends Subsystem {
         PinManager pinManager = new PinManager();
         motor = new WPI_TalonSRX(15);
         encoder = new Encoder(8, 9);
-//        startReset = new DigitalInput(2);
+//        frontReset = new DigitalInput(2);
 //        endReset = new DigitalInput(3);
     }
 

@@ -26,7 +26,7 @@ import static frc.robot.bobot.drive.DifferentialDrive.VELOCITY;
 TODO
 Robot Subsystems:
 Lift
-Stick & Fork
+Stick & Tomer
 Shiri Claw & Shiri Slide
 DifferentialDrive & Gears
 Roller
@@ -54,13 +54,13 @@ DI0,DI1-Shiri Microswitches Grab
 DI4,DI5-Drive Encoder Right
 DI6,DI7-Drive Encoder Left
 NavX:
-NXDI8-Fork Cargo Indicator
+NXDI8-Tomer Cargo Indicator
 */
 /*
 TODO
 SolenoidMap
 0,1 - Shiri
-2,3 - Fork
+2,3 - Tomer
 4,5 - DriveA
 6,7 - DriveB
  */
@@ -81,7 +81,7 @@ public class EfratOfficial extends Bobot {
     protected PneumaticDrive drive;
     protected Stick stick;
     protected Lift lift;
-    protected Fork fork;
+    protected Tomer tomer;
     protected Shiri shiri;
     protected Roller roller;
     protected Toggle operatorA, operatorB, operatorX, operatorY, operatorStart, operatorBack, operatorPadUp, operatorPadDown;
@@ -114,7 +114,7 @@ public class EfratOfficial extends Bobot {
         // Systems
 //        drive = new PneumaticDrive();
         stick = new Stick();
-        fork = new Fork();
+        tomer = new Tomer();
         shiri = new Shiri();
         lift = new Lift();
         // Registering Subsystems
@@ -149,9 +149,9 @@ public class EfratOfficial extends Bobot {
         operatorX = new Toggle(null);
         operatorY = new Toggle(toggle -> {
             if (toggle) {
-                fork.open();
+                tomer.open();
             } else {
-                fork.close();
+                tomer.close();
             }
         });
         operatorBack = new Toggle(toggle -> robotIdle.color(Color.ORANGE));

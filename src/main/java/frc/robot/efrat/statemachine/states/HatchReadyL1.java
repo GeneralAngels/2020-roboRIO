@@ -9,6 +9,7 @@ import java.awt.*;
 public class HatchReadyL1 extends State {
     @Override
     public void apply() {
+        // TODO move shiri to back
     }
 
     @Override

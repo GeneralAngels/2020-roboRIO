@@ -18,8 +18,6 @@ public class Shanti extends Subsystem {
     public static final double POT_110_NEG_ANGLE = 4.58;  //TODO: check value
     //-110
     public static final double POT_95_ANGLE = 4.38;  //TODO: check value
-    //95
-    private double measurementPrev = 0;
     private static final String LOCATION = "location";
     private static final String TARGET = "target_location";
     private static final String LIFT = "lift";
@@ -27,8 +25,10 @@ public class Shanti extends Subsystem {
     private static final double STICK_LENGTH_METERS = 1.22;
     private static final double RADIUS = 0.0185;
     private static final double TICKS_PER_REVOLUTIONS = 1024;
-    private static final double ENC_TO_METERS = (2*3.14*RADIUS) / (4*TICKS_PER_REVOLUTIONS);
+    private static final double ENC_TO_METERS = (2 * 3.14 * RADIUS) / (4 * TICKS_PER_REVOLUTIONS);
     private static Shanti latest;
+    //95
+    private double measurementPrev = 0;
     private AnalogInput potentiometer;
     private PID liftMotor1PID, liftMotor2PID;
     private double location = 0;
@@ -50,7 +50,7 @@ public class Shanti extends Subsystem {
         stickMotor = new WPI_TalonSRX(17);
 //        encoder = new Encoder(8, 9);
 //        stickMotor.getSelectedSensorPosition(); // how to get encoder
-//        startReset = new DigitalInput(2);
+//        frontReset = new DigitalInput(2);
 //        endReset = new DigitalInput(3);
 
         liftMotor1 = new WPI_TalonSRX(15);
@@ -73,12 +73,20 @@ public class Shanti extends Subsystem {
         return latest;
     }
 
+    public void moveToExchange() {
+
+    }
+
+    public boolean isAtExchange() {
+        return true;//TODO remove this faked thing
+    }
+
     public void set(double x, double y) {
         double[] rb = xy2rb(x, y);
         double motorOutputRadius = controlRadius(rb[0]);
 //        log("radius:" +Double.toString(motorOutputRadius));
 //        double motorOutputBeta = controlBeta(rb[1]);
-        log("motor:"+motorOutputRadius);
+        log("motor:" + motorOutputRadius);
         stickMotor.set(motorOutputRadius);
 //        liftMotor1.set(motorOutputBeta);
 //        liftMotor2.set(motorOutputBeta);
@@ -91,7 +99,7 @@ public class Shanti extends Subsystem {
     }
 
     public double controlRadius(double setpointRadius) {
-        double currentRadius = stickMotor.getSelectedSensorPosition() * ENC_TO_METERS ;
+        double currentRadius = stickMotor.getSelectedSensorPosition() * ENC_TO_METERS;
 //        log(Double.toString(setpointRadius - currentRadius));
         double output = radiusPID.pidPosition(currentRadius, setpointRadius);
         return output;
@@ -108,22 +116,22 @@ public class Shanti extends Subsystem {
     }
 
     public double mapValues(double measurement) {
-        measurement = (measurement*1000- (measurement*1000%1));
+        measurement = (measurement * 1000 - (measurement * 1000 % 1));
         double meas = measurement;
-        if(-10<(measurement-measurementPrev) && (measurement-measurementPrev)<10
+        if (-10 < (measurement - measurementPrev) && (measurement - measurementPrev) < 10
         ) {
             meas = measurementPrev;
 //            log("yes");
         }
-       // log("mes: "+ meas);
-        double minInput = POT_110_NEG_ANGLE*100; // 4.58
-        double maxInput = POT_95_ANGLE*100; // 4.38
+        // log("mes: "+ meas);
+        double minInput = POT_110_NEG_ANGLE * 100; // 4.58
+        double maxInput = POT_95_ANGLE * 100; // 4.38
         double minOutput = -88;
         double maxOutput = 95;
-       // double minOutput = MIN_POT_VALUE;
-       // double maxOutput = MAX_POT_VALUE;
+        // double minOutput = MIN_POT_VALUE;
+        // double maxOutput = MAX_POT_VALUE;
         measurementPrev = meas;
-        meas = (int)meas/10;
+        meas = (int) meas / 10;
         return Math.toRadians((meas - minInput) * (maxOutput - minOutput) / (maxInput - minInput) + minOutput);
     }
 
@@ -131,8 +139,8 @@ public class Shanti extends Subsystem {
         // TODO Calculate "location"
     }
 
-    public void print(){
-        log("meters: "+stickMotor.getSelectedSensorPosition()*ENC_TO_METERS);
+    public void print() {
+        log("meters: " + stickMotor.getSelectedSensorPosition() * ENC_TO_METERS);
 //        log("potentiometer voltage: "+potentiometer.getVoltage());
 //        log("degrees: "+ mapValues(potentiometer.getVoltage()));
     }

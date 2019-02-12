@@ -10,15 +10,15 @@ import frc.robot.bobot.utils.PinManager;
 public class Shiri extends Subsystem {
 
     private static Shiri latest;
-    public DigitalInput backReset, grab1, grab2;
-    private DoubleSolenoid solenoid;
+    public DigitalInput frontReset, backReset, grab1, grab2;
+    private DoubleSolenoid hatch;
     private WPI_TalonSRX slideMotor;
     private Encoder slideEncoder;
 
     public Shiri() {
         latest = this;
         PinManager pinManager = new PinManager();
-//        solenoid = new DoubleSolenoid(0, 1);
+//        hatch = new DoubleSolenoid(0, 1);
         slideMotor = new WPI_TalonSRX(4);
         slideEncoder = new Encoder(2, 3);
 //        grab1 = new DigitalInput(0);
@@ -30,21 +30,52 @@ public class Shiri extends Subsystem {
         return latest;
     }
 
+    public boolean isAtFront() {
+        return frontReset.get();
+    }
+
+    public boolean isAtBack() {
+        log("Shiri Position-Reset");
+        return backReset.get();
+    }
+
+    public void moveToBack() {
+
+    }
+
+    public void moveToFront() {
+
+    }
+
     public boolean isHatchLoaded() {
-        return true;// Faked
-//        if (grab1 == null || grab2 == null) return false;
-//        return grab1.get() && grab2.get();
+        return grab1 != null && grab2 != null && grab1.get() && grab2.get();
+    }
+
+    public boolean isHatchLocked() {
+        return hatch != null && hatch.get() == DoubleSolenoid.Value.kForward;
     }
 
     public void open() {
-        if (solenoid != null) solenoid.set(DoubleSolenoid.Value.kForward);
+        if (hatch != null) hatch.set(DoubleSolenoid.Value.kForward);
     }
 
     public void close() {
-        if (solenoid != null) solenoid.set(DoubleSolenoid.Value.kReverse);
+        if (hatch != null) hatch.set(DoubleSolenoid.Value.kReverse);
     }
 
     public void set(double speed) {
-        slideMotor.set(speed);
+        if (speed > 0) {
+            if (!frontReset.get())
+                slideMotor.set(speed);
+            else
+                slideMotor.set(0);
+        } else if (speed < 0) {
+            if (!backReset.get())
+                slideMotor.set(speed);
+            else
+                slideMotor.set(0);
+        } else {
+            slideMotor.set(speed);
+        }
     }
 }
