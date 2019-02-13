@@ -5,14 +5,22 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.bobot.Subsystem;
+import frc.robot.bobot.control.PID;
 import frc.robot.bobot.utils.PinMan;
 
 public class Shiri extends Subsystem {
 
     private static Shiri latest;
-    public DigitalInput frontReset, backReset, grab1, grab2;
+    private static final double DISTANCE = 0.66;
+    private static final double LIMIT_V = 0.5;
+    private static final double RADIUS = 0.0185; //TODO: check value
+    private static final double TICKS_PER_REVOLUTIONS = 1024; //TODO: check value
+    private static final double ENC_TO_METERS = (2*3.14*RADIUS) / (4*TICKS_PER_REVOLUTIONS);
+    private DigitalInput frontReset, backReset, grab1, grab2;
     private DoubleSolenoid hatch;
     private WPI_TalonSRX slideMotor;
+    private PID xPID;
+    private double xPrev = 0;
 
     public Shiri() {
         latest = this;
@@ -22,6 +30,8 @@ public class Shiri extends Subsystem {
         grab2 = new DigitalInput(PinMan.getNavDIO(2));
         backReset = new DigitalInput(PinMan.getNavDIO(3));
         frontReset = new DigitalInput(PinMan.getNavDIO(4));
+        xPID = new PID();
+        xPID.setPIDF(0, 0, 0, 0);
     }
 
     public static Shiri getInstance() {
@@ -41,10 +51,6 @@ public class Shiri extends Subsystem {
 
     }
 
-    public void moveToFront() {
-
-    }
-
     public boolean isHatchLoaded() {
         return grab1 != null && grab2 != null && !grab1.get() && grab2.get();
     }
@@ -61,7 +67,7 @@ public class Shiri extends Subsystem {
         if (hatch != null) hatch.set(DoubleSolenoid.Value.kReverse);
     }
 
-    public void set(double speed) {
+    public void setPower(double speed){
         if (speed > 0) {
             if (!frontReset.get())
                 slideMotor.set(speed);
@@ -75,5 +81,37 @@ public class Shiri extends Subsystem {
         } else {
             slideMotor.set(speed);
         }
+    }
+
+    public void set(double x) { //changed method
+//        if(Math.abs((x-xPrev)/0.02) > LIMIT_V)
+//            slideMotor.set(controlX(LIMIT_V*sign(x-xPrev)));
+        slideMotor.set(controlX(x));
+        xPrev = x;
+    }
+
+    public int sign(double a){
+        if (a>0)
+            return 1;
+        else if (a<0)  return -1;
+        return 0;
+    }
+    public void print(){
+        log("meters: "+-slideMotor.getSelectedSensorPosition() * ENC_TO_METERS);
+    }
+
+    public double controlX(double setpointX) {
+        double currentX = -slideMotor.getSelectedSensorPosition() * ENC_TO_METERS ;
+//        log(Double.toString(setpointX - currentX));
+        double output = xPID.pidPosition(currentX, setpointX);
+        return output;
+    }
+
+    public void moveToFront(){ //TODO: add if microSwitch
+        set(DISTANCE);
+    }
+
+    public void moveTOBack(){ //TODO: add if microSwitch
+        set(0);
     }
 }
