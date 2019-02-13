@@ -46,16 +46,13 @@ public class Shanti extends Subsystem {
         latest = this;
         stickMotor = new WPI_TalonSRX(17);
 //        stickMotor.getSelectedSensorPosition(); // how to get encoder
+        potentiometer = new AnalogInput(PinMan.getNavAIN(0));
         downReset = new DigitalInput(PinMan.getNavDIO(6));
         upReset = new DigitalInput(PinMan.getNavDIO(7));
         frontReset = new DigitalInput(PinMan.getNavDIO(8));
         backReset = new DigitalInput(PinMan.getNavDIO(9));
-
         liftMotor1 = new WPI_TalonSRX(15);
         liftMotor2 = new WPI_TalonSRX(16);
-        potentiometer = new AnalogInput(PinMan.getNavAIN(0));
-        downReset = new DigitalInput(PinMan.getNavDIO(6));
-        upReset = new DigitalInput(PinMan.getNavDIO(7));
         liftMotor1PID = new PID();
         liftMotor1PID.setPIDF(3, 0, 0, 0);
         liftMotor2PID = new PID();
