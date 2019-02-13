@@ -4,7 +4,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.bobot.Subsystem;
-import frc.robot.bobot.utils.PinManager;
+import frc.robot.bobot.utils.PinMan;
 import org.json.JSONObject;
 
 public class Stick extends Subsystem {
@@ -21,7 +21,7 @@ public class Stick extends Subsystem {
 
     public Stick() {
         latest = this;
-        PinManager pinManager = new PinManager();
+        PinMan pinManager = new PinMan();
         motor = new WPI_TalonSRX(15);
         encoder = new Encoder(8, 9);
 //        frontReset = new DigitalInput(2);

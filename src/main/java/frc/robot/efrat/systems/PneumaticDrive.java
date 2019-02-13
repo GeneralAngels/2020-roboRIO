@@ -18,7 +18,7 @@ public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {
     public PneumaticDrive() {
         latest = this;
         if (pneumatics) {
-            gear = new DoubleSolenoid(4, 5);
+            gear = new DoubleSolenoid(6, 7);
         }
         right.add(new WPI_TalonSRX(10));
         right.add(new WPI_TalonSRX(11));

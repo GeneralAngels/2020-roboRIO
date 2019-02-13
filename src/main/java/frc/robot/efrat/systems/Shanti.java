@@ -3,15 +3,12 @@ package frc.robot.efrat.systems;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.bobot.Subsystem;
 import frc.robot.bobot.control.PID;
-import frc.robot.bobot.utils.PinManager;
+import frc.robot.bobot.utils.PinMan;
 import org.json.JSONObject;
 
 public class Shanti extends Subsystem {
-    public static final double MAX_ANGLE_RADIANS = 1;
-    public static final double[] ROCKET_ANGLES_RADIANS = {0, 0.5, 0.9};
     public static final double DISTANCE = 0; //TODO: check value
     public static final double MIN_POT_VALUE = 4.58;  //TODO: check value
     public static final double MAX_POT_VALUE = 4.37;  //TODO: check value
@@ -22,22 +19,16 @@ public class Shanti extends Subsystem {
     private static final String TARGET = "target_location";
     private static final String LIFT = "lift";
     private static final String STICK = "stick";
-    private static final double STICK_LENGTH_METERS = 1.22;
     private static final double RADIUS = 0.0185;
     private static final double TICKS_PER_REVOLUTIONS = 1024;
     private static final double ENC_TO_METERS = (2 * 3.14 * RADIUS) / (4 * TICKS_PER_REVOLUTIONS);
     private static Shanti latest;
     //95
+    private double currentAngle = 0, targetAngleRadians = 0;
     private double measurementPrev = 0;
     private AnalogInput potentiometer;
     private PID liftMotor1PID, liftMotor2PID;
-    private double location = 0;
-    private double targetLocation = 0;
-    private DigitalInput startReset, endReset;
-    private Encoder encoder;
-    private double currentAngle = 0;
-    private int targetLevel = 0;
-    private double targetAngleRadians = 0;
+    private DigitalInput frontReset, backReset;
     private DigitalInput upReset, downReset;
     private WPI_TalonSRX liftMotor1, liftMotor2, stickMotor;
     private PID radiusPID;
@@ -46,18 +37,18 @@ public class Shanti extends Subsystem {
 
     public Shanti() {
         latest = this;
-        PinManager pinManager = new PinManager();
         stickMotor = new WPI_TalonSRX(17);
-//        encoder = new Encoder(8, 9);
 //        stickMotor.getSelectedSensorPosition(); // how to get encoder
-//        frontReset = new DigitalInput(2);
-//        endReset = new DigitalInput(3);
+        downReset = new DigitalInput(PinMan.getNavDIO(6));
+        upReset = new DigitalInput(PinMan.getNavDIO(7));
+        frontReset = new DigitalInput(PinMan.getNavDIO(8));
+        backReset = new DigitalInput(PinMan.getNavDIO(9));
 
         liftMotor1 = new WPI_TalonSRX(15);
         liftMotor2 = new WPI_TalonSRX(16);
-        potentiometer = new AnalogInput(2);
-        downReset = new DigitalInput(0);
-        upReset = new DigitalInput(1);
+        potentiometer = new AnalogInput(PinMan.getNavAIN(0));
+        downReset = new DigitalInput(PinMan.getNavDIO(6));
+        upReset = new DigitalInput(PinMan.getNavDIO(7));
         liftMotor1PID = new PID();
         liftMotor1PID.setPIDF(0.7, 0, 0, 0);
         liftMotor2PID = new PID();
@@ -68,7 +59,7 @@ public class Shanti extends Subsystem {
         betaPID.setPIDF(0.1, 0, 0, 0);
     }
 
-    // TODO: add toTSON() to send real x and real y
+    // TODO: add toJSON() to send real x and real y
     public static Shanti getInstance() {
         return latest;
     }
@@ -145,27 +136,6 @@ public class Shanti extends Subsystem {
 //        log("degrees: "+ mapValues(potentiometer.getVoltage()));
     }
 
-    public void setTargetLocation(double targetLocation) {
-        this.targetLocation = targetLocation;
-    }
-
-    public void loopStick() {
-        if (startReset != null) {
-            if (!startReset.get()) {
-                // Pressed
-                location = 0;
-            }
-        }
-        if (startReset != null) {
-            if (!endReset.get()) {
-                // Pressed
-                location = STICK_LENGTH_METERS;
-            }
-        }
-        calculateLocation();
-        // Do PID Stuff
-    }
-
     public void setStick(double speed) {
         speed /= 3;
         stickMotor.set(speed);
@@ -176,21 +146,13 @@ public class Shanti extends Subsystem {
         JSONObject object = super.toJSON();
         JSONObject lift = new JSONObject();
         JSONObject stick = new JSONObject();
-        stick.put(LOCATION, location);
-        stick.put(TARGET, targetLocation);
+        stick.put(LOCATION, 0);
+        stick.put(TARGET, 0);
         // TODO add lift things such as target angle and current angle
         object.put(LIFT, lift);
         object.put(STICK, stick);
         return object;
     }
-
-    public void setTargetLevel(int targetLevel) {
-        if (targetLevel < ROCKET_ANGLES_RADIANS.length) {
-            this.targetLevel = targetLevel;
-            targetAngleRadians = ROCKET_ANGLES_RADIANS[targetLevel];
-        }
-    }
-
 
     public void loopLift() {
         double motor1Velocity = liftMotor1PID.pidVelocity(currentAngle, targetAngleRadians);
@@ -203,19 +165,5 @@ public class Shanti extends Subsystem {
         speed /= 6;
         liftMotor1.set(speed);
         liftMotor2.set(speed);
-    }
-
-    public void levelUp() {
-        if (targetLevel < ROCKET_ANGLES_RADIANS.length - 1) {
-            targetLevel++;
-            targetAngleRadians = ROCKET_ANGLES_RADIANS[targetLevel];
-        }
-    }
-
-    public void levelDown() {
-        if (targetLevel > 0) {
-            targetLevel--;
-            targetAngleRadians = ROCKET_ANGLES_RADIANS[targetLevel];
-        }
     }
 }

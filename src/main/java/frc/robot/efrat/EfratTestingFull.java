@@ -4,7 +4,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.*;
 import frc.robot.bobot.Bobot;
 import frc.robot.bobot.rgb.RGB;
-import frc.robot.bobot.utils.PinManager;
+import frc.robot.bobot.utils.PinMan;
 import frc.robot.bobot.utils.Toggle;
 import frc.robot.efrat.statemachine.StateMachine;
 import frc.robot.efrat.systems.*;
@@ -48,7 +48,7 @@ public class EfratTestingFull extends Bobot {
 //        drive = new PneumaticDrive();
 //        stick = new Stick();
         addToJSON(stateMachine);
-        PinManager pinManager = new PinManager();
+        PinMan pinManager = new PinMan();
         rgb = new RGB(69, 8);
         rgb.setPattern(new RobotIdle());
         // Instruction Log

@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.bobot.Subsystem;
-import frc.robot.bobot.utils.PinManager;
+import frc.robot.bobot.utils.PinMan;
 
 public class Shiri extends Subsystem {
 
@@ -13,17 +13,15 @@ public class Shiri extends Subsystem {
     public DigitalInput frontReset, backReset, grab1, grab2;
     private DoubleSolenoid hatch;
     private WPI_TalonSRX slideMotor;
-    private Encoder slideEncoder;
 
     public Shiri() {
         latest = this;
-        PinManager pinManager = new PinManager();
-//        hatch = new DoubleSolenoid(0, 1);
-        slideMotor = new WPI_TalonSRX(4);
-        slideEncoder = new Encoder(2, 3);
-        grab1 = new DigitalInput(0);
-        grab2 = new DigitalInput(1);
-//        backReset = new DigitalInput(6);
+        hatch = new DoubleSolenoid(0, 1);
+        slideMotor = new WPI_TalonSRX(14);
+        grab1 = new DigitalInput(PinMan.getNavDIO(1));
+        grab2 = new DigitalInput(PinMan.getNavDIO(2));
+        backReset = new DigitalInput(PinMan.getNavDIO(3));
+        frontReset = new DigitalInput(PinMan.getNavDIO(4));
     }
 
     public static Shiri getInstance() {
