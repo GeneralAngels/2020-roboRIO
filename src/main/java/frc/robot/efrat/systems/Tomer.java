@@ -15,22 +15,17 @@ public class Tomer extends Subsystem {
     public Tomer() {
         latest = this;
         PinManager pinManager = new PinManager();
-//        claw = new DoubleSolenoid(2, 3);
-//        cargoIndicator = new DigitalInput(7);
+        claw = new DoubleSolenoid(2, 3);
+        cargoIndicator = new DigitalInput(7);
     }
 
     public static Tomer getInstance() {
         return latest;
     }
 
-    public boolean isHatchLoaded() {
-        // TODO acctual funt
-        return false;
-    }
-
     public boolean isCargoLoaded() {
         // TODO acctual funt
-        return true;
+        return cargoIndicator != null && cargoIndicator.get();
     }
 
     public boolean isDown() {
@@ -49,11 +44,11 @@ public class Tomer extends Subsystem {
         if (claw != null) claw.set(DoubleSolenoid.Value.kReverse);
     }
 
-    public void drop(){
-        if(pivot!=null)pivot.set(DoubleSolenoid.Value.kReverse);
+    public void drop() {
+        if (pivot != null) pivot.set(DoubleSolenoid.Value.kReverse);
     }
 
-    public void lift(){
-        if(pivot!=null)pivot.set(DoubleSolenoid.Value.kForward);
+    public void lift() {
+        if (pivot != null) pivot.set(DoubleSolenoid.Value.kForward);
     }
 }

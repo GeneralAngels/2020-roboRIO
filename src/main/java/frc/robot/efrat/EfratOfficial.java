@@ -19,46 +19,6 @@ import org.json.JSONObject;
 import static frc.robot.bobot.drive.DifferentialDrive.OMEGA;
 import static frc.robot.bobot.drive.DifferentialDrive.VELOCITY;
 
-/*
-Robot Subsystems:
-Lift
-Stick & Tomer
-Shiri Claw & Shiri Slide
-DifferentialDrive & Gears
-Roller
- */
-
-/*
-canbus map
-0-9-PDP/PCM
-10-Right 1
-11-Right 2
-12-Left 1
-13-Left 2
-14-Shiri Slide Motor
-15-Lift 1
-16-Lift 2
-17-Stick Motor
-18-Roller Motor
- */
-/*
-pinmap
-AI0-Lift Potentiometer
-DI0,DI1-Shiri Microswitches Grab
-DI4,DI5-Drive Encoder Right
-DI6,DI7-Drive Encoder Left
-NavX:
-NXDI8-Tomer Cargo Indicator
-*/
-/*
-SolenoidMap
-0,1 - Shiri
-2,3 - Tomer
-4,5 - DriveA
-6,7 - DriveB
- */
-// Roller Gripper pull is right
-
 public class EfratOfficial extends Bobot {
 
     private JSONObject robotStatus;
