@@ -21,6 +21,7 @@ public class Shiri extends Subsystem {
     private WPI_TalonSRX slideMotor;
     private PID xPID;
     private double xPrev = 0;
+    private double targetX=0.54;
 
     public Shiri() {
         latest = this;
@@ -89,9 +90,7 @@ public class Shiri extends Subsystem {
     }
 
     public void set(double x) { //changed method
-        double slideMotor_output = controlX(x);
-        log("pid shiri:" + slideMotor_output);
-        slideMotor.set(-slideMotor_output);
+        targetX=x;
     }
 
     public int sign(double a){
@@ -109,6 +108,12 @@ public class Shiri extends Subsystem {
         double currentX = (0.54-((slideMotor.getSelectedSensorPosition()/10.0) * ENC_TO_METERS));
         double output = xPID.pidPosition(currentX, setpointX);
         return output;
+    }
+    // Notice! if you call loop before set, the target location will be the farthest back.
+    public void loop(){
+        double slideMotor_output = controlX(targetX);
+        log("pid shiri:" + slideMotor_output);
+        slideMotor.set(-slideMotor_output);
     }
 
     public void moveToFront(){ //TODO: add if microSwitch

@@ -2,6 +2,7 @@ package frc.robot.efrat.statemachine.states;
 
 import frc.robot.efrat.statemachine.State;
 import frc.robot.efrat.statemachine.StateMachine;
+import frc.robot.efrat.systems.Shiri;
 import frc.robot.efrat.systems.rgb.RobotIdle;
 
 public class InitState extends State {
@@ -12,6 +13,8 @@ public class InitState extends State {
                 return find("cargoready");
             case OP_B:
                 return find("hatchready");
+            case DR_X:
+                return find("climbz");
         }
         return null;
     }
@@ -19,5 +22,7 @@ public class InitState extends State {
     @Override
     public void apply() {
         RobotIdle.getInstance().idle();
+        Shiri.getInstance().set(0.54);
+        
     }
 }

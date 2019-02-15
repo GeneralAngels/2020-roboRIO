@@ -65,6 +65,11 @@ public class EfratTestingFull extends Bobot {
 
     }
 
+    private void loopSystems(){
+        shiri.loop();
+        shanti.loop();
+    }
+
     protected void initTriggers() {
         drB = new Toggle(toggle -> {
 //            if (toggle) drive.gearUp();
@@ -99,8 +104,8 @@ public class EfratTestingFull extends Bobot {
         stateMachine.update(driverGamepad, null);
         shanti.set(0.5,0.5);
         shanti.print();
-        shiri.set(0.3);
-        shiri.print();
+//        shiri.set(0.3);
+//        shiri.print();
     }
 
     protected void robotStatus() {

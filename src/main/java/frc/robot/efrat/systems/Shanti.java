@@ -47,6 +47,8 @@ public class Shanti extends Subsystem {
     private double currentBeta = 0;
     private double motorOutputBetaPrev = 0;
     private int loops = 0;
+    public boolean in_place = false;
+    private double targetX=0,targetY=0;
 
     public Shanti() {
         latest = this;
@@ -98,7 +100,12 @@ public class Shanti extends Subsystem {
     }
 
     public void set(double x, double y) {
-        double[] rb = xy2rb(x, y);
+        targetX=x;
+        targetY=y;
+    }
+    // Notice! if set isnt called before loop, the target location will not change.
+    public void loop(){
+        double[] rb = xy2rb(targetX, targetY);
         currentR = (stickMotor.getSelectedSensorPosition() * ENC_TO_METERS) + 0.3;
         currentBeta = mapValues(potentiometer.getVoltage());
         double compensationBeta = GRAVITY_POWER_BETA * (11.45 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.cos(currentBeta);
