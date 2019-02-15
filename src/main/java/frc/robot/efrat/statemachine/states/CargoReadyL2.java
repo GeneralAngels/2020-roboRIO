@@ -16,7 +16,7 @@ public class CargoReadyL2 extends State {
         switch (input){
             case OP_1:
                 return find("cargoreadyL1");
-            case OP_2:
+            case OP_X:
                 return find("cargooutL2");
             case OP_3:
                 return find("cargoreadyL3");

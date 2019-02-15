@@ -15,7 +15,7 @@ public class HatchReadyL1 extends State {
     @Override
     public State nextState(StateMachine.Input input) {
         switch (input) {
-            case OP_1:
+            case OP_X:
                 return find("hatchoutL1");
             case OP_2:
                 return find("hatchreadyL2");

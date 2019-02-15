@@ -20,7 +20,7 @@ public class HatchReadyL3 extends State {
                 return find("hatchreadyL1");
             case OP_2:
                 return find("hatchreadyL2");
-            case OP_3:
+            case OP_X:
                 return find("hatchoutL3");
         }
         return null;

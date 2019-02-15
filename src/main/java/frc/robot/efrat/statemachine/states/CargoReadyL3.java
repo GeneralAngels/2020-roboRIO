@@ -18,7 +18,7 @@ public class CargoReadyL3 extends State {
                 return find("cargoreadyL1");
             case OP_2:
                 return find("cargoreadyL2");
-            case OP_3:
+            case OP_X:
                 return find("cargooutL3");
         }
         return null;

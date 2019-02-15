@@ -16,7 +16,7 @@ public class HatchReadyL2 extends State {
         switch (input) {
             case OP_1:
                 return find("hatchreadyL1");
-            case OP_2:
+            case OP_X:
                 return find("hatchoutL2");
             case OP_3:
                 return find("hatchreadyL3");

@@ -116,25 +116,20 @@ public class StateMachine extends Subsystem {
     }
 
     private void updateToggles(XboxController op, XboxController dr) {
-        if (op != null) {
-            opA.update(op.getAButton());
-            opB.update(op.getBButton());
-            opX.update(op.getXButton());
-            opY.update(op.getYButton());
-            op1.update(op.getPOV() == 0);
-            op2.update(op.getPOV() == 90);
-            op3.update(op.getPOV() == 180);
-            op4.update(op.getPOV() == 270);
-        }
-        if (dr != null) {
-            drA.update(dr.getAButton());
-            drB.update(dr.getBButton());
-            drX.update(dr.getXButton());
-            drY.update(dr.getYButton());
-            dr1.update(dr.getPOV() == 0);
-            dr2.update(dr.getPOV() == 90);
-            dr3.update(dr.getPOV() == 180);
-            dr4.update(dr.getPOV() == 270);
+        update(op, opA, opB, opX, opY, op1, op2, op3, op4);
+        update(dr, drA, drB, drX, drY, dr1, dr2, dr3, dr4);
+    }
+
+    private void update(XboxController controller, Toggle A, Toggle B, Toggle X, Toggle Y, Toggle D1, Toggle D2, Toggle D3, Toggle D4) {
+        if (controller != null) {
+            A.update(controller.getAButton());
+            B.update(controller.getBButton());
+            X.update(controller.getXButton());
+            Y.update(controller.getYButton());
+            D1.update(controller.getPOV() == 180);
+            D2.update(controller.getPOV() == 90);
+            D3.update(controller.getPOV() == 0);
+            D4.update(controller.getPOV() == 270);
         }
     }
 
