@@ -101,12 +101,12 @@ public class Shiri extends Subsystem {
         return 0;
     }
     public void print(){
-        log("meters: "+(0.54-((slideMotor.getSelectedSensorPosition()/10) * ENC_TO_METERS)));
+        log("meters: "+(0.54-((slideMotor.getSelectedSensorPosition()/10.0) * ENC_TO_METERS)));
         log("encoder: "+(slideMotor.getSelectedSensorPosition()/10));
     }
 
     public double controlX(double setpointX) {
-        double currentX = (0.54-((slideMotor.getSelectedSensorPosition()/10) * ENC_TO_METERS));
+        double currentX = (0.54-((slideMotor.getSelectedSensorPosition()/10.0) * ENC_TO_METERS));
         double output = xPID.pidPosition(currentX, setpointX);
         return output;
     }

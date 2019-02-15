@@ -62,6 +62,7 @@ public class EfratTestingFull extends Bobot {
         // SuperInit -> TCP Init
         super.init();
         stateMachine = new StateMachine();
+
     }
 
     protected void initTriggers() {
@@ -96,10 +97,10 @@ public class EfratTestingFull extends Bobot {
     public void teleop() {
 //        updateTriggers();
         stateMachine.update(driverGamepad, null);
-//        shanti.set(0.5,0.5);
-//        shanti.print();
-//        shiri.set(0);
-//        shiri.print();
+        shanti.set(0.5,0.5);
+        shanti.print();
+        shiri.set(0.3);
+        shiri.print();
     }
 
     protected void robotStatus() {

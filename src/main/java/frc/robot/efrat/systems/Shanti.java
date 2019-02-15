@@ -98,9 +98,8 @@ public class Shanti extends Subsystem {
     }
 
     public void set(double x, double y) {
-        loops++;
         double[] rb = xy2rb(x, y);
-        currentR = (stickMotor.getSelectedSensorPosition() * ENC_TO_METERS) + 1.02;
+        currentR = (stickMotor.getSelectedSensorPosition() * ENC_TO_METERS) + 0.3;
         currentBeta = mapValues(potentiometer.getVoltage());
         double compensationBeta = GRAVITY_POWER_BETA * (11.45 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.cos(currentBeta);
         double compensationRadius = GRAVITY_POWER_RADIUS * (12.5 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.sin(currentBeta);
@@ -111,6 +110,8 @@ public class Shanti extends Subsystem {
             liftMotor1.set(motorOutputBeta);
             liftMotor2.set(motorOutputBeta);
         }
+        else
+            loops++;
         motorOutputBetaPrev = motorOutputBeta;
     }
 
@@ -153,7 +154,7 @@ public class Shanti extends Subsystem {
     }
 
     public void print() {
-//        log("meters: " + (stickMotor.getSelectedSensorPosition() * ENC_TO_METERS + 1.02));
+        log("meters: " + (stickMotor.getSelectedSensorPosition() * ENC_TO_METERS + 0.3));
         log("degrees: " + Math.toDegrees(mapValues(potentiometer.getVoltage())));
     }
 
