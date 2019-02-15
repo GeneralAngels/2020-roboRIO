@@ -14,7 +14,7 @@ public class CargoReadyL1 extends State {
     @Override
     public State nextState(StateMachine.Input input) {
         switch (input){
-            case OP_X:
+            case OP_Y:
                 return find("cargooutL1");
             case OP_2:
                 return find("cargoreadyL2");
