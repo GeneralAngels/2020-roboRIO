@@ -42,7 +42,7 @@ public class Subsystem {
         if (progress <= 100) {
             dontLogName();
             int barLength = (int) (progress / 10.0);
-            String toPrint = "[" + getName() + "->" + process + ", " + ((progress < 10) ? "0" : "") + (int) progress + "%] [" + create('#', barLength) + create('_', 10 - barLength) + "]";
+            String toPrint = "[" + getName() + "->" + process + "," + (progress < 100 ? " " : "") + ((progress < 10) ? "0" : "") + (int) progress + "%] [" + create('#', barLength) + create('_', 10 - barLength) + "]";
             log(toPrint);
             doLogName();
         }
