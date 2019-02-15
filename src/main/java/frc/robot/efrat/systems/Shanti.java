@@ -3,6 +3,7 @@ package frc.robot.efrat.systems;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.bobot.Subsystem;
 import frc.robot.bobot.control.PID;
 import frc.robot.bobot.utils.PinMan;
@@ -25,6 +26,8 @@ public class Shanti extends Subsystem {
     //95
     private static final double LIMIT_V = 0.1;
     private static final double LIMIT_OMEGA = 0.1;
+    private static final double GRAVITY_POWER_RADIUS = -0.12;
+    private static final double GRAVITY_POWER_BETA = 0.15;
     private static Shanti latest;
     private double measurementPrev = 0;
     private double currentAngle = 0, targetAngleRadians = 0;
@@ -40,11 +43,15 @@ public class Shanti extends Subsystem {
     private double betaPrev = 0;
     private double betaSetPoint = 0;
     private double outputPrev = 0;
+    private double currentR = 0;
+    private double currentBeta = 0;
+    private double motorOutputBetaPrev = 0;
 
 
     public Shanti() {
         latest = this;
         stickMotor = new WPI_TalonSRX(17);
+//        stickMotor.setInverted(true);
 //        stickMotor.getSelectedSensorPosition(); // how to get encoder
         downReset = new DigitalInput(PinMan.getNavDIO(6));
         upReset = new DigitalInput(PinMan.getNavDIO(7));
@@ -52,18 +59,22 @@ public class Shanti extends Subsystem {
         backReset = new DigitalInput(PinMan.getNavDIO(9));
 
         liftMotor1 = new WPI_TalonSRX(15);
+        liftMotor1.setInverted(true);
         liftMotor2 = new WPI_TalonSRX(16);
-        potentiometer = new AnalogInput(PinMan.getNavAIN(0));
-        downReset = new DigitalInput(PinMan.getNavDIO(6));
-        upReset = new DigitalInput(PinMan.getNavDIO(7));
+        liftMotor2.setInverted(true);
+        potentiometer = new AnalogInput(3);
+//        downReset = new DigitalInput(PinMan.getNavDIO(6));
+//        upReset = new DigitalInput(PinMan.getNavDIO(7));
         liftMotor1PID = new PID();
         liftMotor1PID.setPIDF(3, 0, 0, 0);
         liftMotor2PID = new PID();
         liftMotor2PID.setPIDF(3, 0, 0, 0);
         radiusPID = new PID();
-        radiusPID.setPIDF(0.5, 0.1, 0.6, 0);
+        radiusPID.setPIDF(1, 0.7, 0, 0);
+        radiusPID.minErrorIntegral = 0.1;
         betaPID = new PID();
-        betaPID.setPIDF(0.6, 0.1, 0.3, 0);
+        betaPID.setPIDF(0.3, 0.12, 0.05, 0);
+        betaPID.minErrorIntegral = 0.15;
     }
 
     // TODO: add toJSON() to send real x and real y
@@ -80,67 +91,84 @@ public class Shanti extends Subsystem {
     }
 
     public int sign(double x) {
-        if (x > 0)
+        if (x >= 0)
             return 1;
         else if (x < 0) return -1;
         return 0;
     }
 
     public void set(double x, double y) {
+        double alpha = 1;
         double[] rb = xy2rb(x, y);
-        double motorOutputRadius = controlRadius(rb[0]);
+        currentR = (stickMotor.getSelectedSensorPosition() * ENC_TO_METERS) + 0.41+0.24+0.37;
+        currentBeta = mapValues(potentiometer.getVoltage());
+
+//        double motorOutputRadius = controlRadius(rb[0], currentR);
 //        log("radius:" +Double.toString(motorOutputRadius));
 //        double motorOutputBeta = controlBeta(rb[1]);
-        log("motor:" + motorOutputRadius);
-        double motorOutputBeta = -controlBeta(rb[1]);
-        log("motor:" + motorOutputRadius);
+       // log("motor:" + motorOutputRadius);
+        double compensationBeta = GRAVITY_POWER_BETA *(11.45/DriverStation.getInstance().getBatteryVoltage())*(currentR)*Math.cos(currentBeta);
+        double compensationRadius = GRAVITY_POWER_RADIUS *(12.5/DriverStation.getInstance().getBatteryVoltage())*(currentR)*Math.sin(currentBeta);
+        //log("compensation: " + compensationRadius );
+//        if(currentBeta<0)
+//           compensation = -compensation;
+        double motorOutputBeta = controlBeta(rb[1], currentBeta, compensationBeta);
+        double motorOutputRadius = controlRadius(rb[0], currentR, compensationRadius);
+//        motorOutputBeta = (motorOutputBeta*alpha) + (motorOutputBetaPrev*(1-alpha));
         stickMotor.set(motorOutputRadius);
         liftMotor1.set(motorOutputBeta);
         liftMotor2.set(motorOutputBeta);
-//        liftMotor1.set(motorOutputBeta);
-//        liftMotor2.set(motorOutputBeta);
+        motorOutputBetaPrev = motorOutputBeta;
     }
 
     public double[] xy2rb(double x, double y) {
         double radius = Math.sqrt((Math.pow(x, 2) + Math.pow(y, 2)));
+
         double beta = Math.atan2(y, x);
         return new double[]{radius, beta};
     }
 
 
-    public double controlRadius(double setpointRadius) {
-        double currentRadius = stickMotor.getSelectedSensorPosition() * ENC_TO_METERS + 0.5;
+    public double controlRadius(double setpointRadius, double currentR, double compensation) {
 //        log(Double.toString(setpointRadius - currentRadius));
-        double output = radiusPID.pidPosition(currentRadius, setpointRadius);
+        double output = radiusPID.pidGravity(currentR,setpointRadius, compensation);
+       // log("error:" + (setpointRadius-currentR) + ",output:"+output);
         return output;
     }
 
-    public double controlBeta(double setpointBeta) {
-        double currentBeta = mapValues(potentiometer.getVoltage());
+    public double controlBeta(double setpointBeta, double currentBeta, double compensation) {
         double output = 0;
-        log("error beta: " + (setpointBeta - currentBeta));
 //        if(Math.abs((currentBeta-betaPrev)/0.02) > LIMIT_OMEGA)
 //            output = LIMIT_OMEGA * sign(currentBeta-betaPrev);
 //        else
-        output = betaPID.pidPosition(currentBeta, setpointBeta);
-        double alpha = 0.005;
-        output = (output * alpha) + (outputPrev * (1 - alpha));
+//        if (Math.abs(setpointBeta - currentBeta) >30)
+//            compensation = 0;
+        output = betaPID.pidGravity(setpointBeta,currentBeta, compensation);
+
+        double alpha = 1;
+//        output = (output * alpha) + (outputPrev * (1 - alpha));
         betaPrev = currentBeta;
         outputPrev = output;
         return output;
     }
 
     public double mapValues(double measurement, double minInput, double maxInput, double minOutput, double maxOutput) {
-        return (measurement - minInput) * (maxOutput - minOutput) / (maxInput - minInput) + minOutput;
+//        return (measurement - minInput) * (maxOutput - minOutput) / (maxInput - minInput) + minOutput;
+        double oldRange=(maxInput-minInput);
+        double newRange=(maxOutput-minOutput);
+        return (((measurement-minInput)*newRange)/oldRange)+minOutput;
     }
+
 
     public double mapValues(double measurement) {
         double alpha = 0.1;
         double meas = (measurement * alpha + measurementPrev * (1 - alpha));
         measurementPrev = meas;
-        if (Math.abs(-383 * meas + 1839) >= 90)
-            return betaSetPoint;
-        return Math.toRadians(-383 * meas + 1839);
+//        meas = mapValues(meas,4.63,4.94,95,-60);
+        meas = 58.3*meas  -115;
+//        if (Math.abs(meas) >= 90)
+//            return betaSetPoint;
+        return Math.toRadians(meas);
 //        measurement = (measurement*1000- (measurement*1000%1));
 //        double meas = measurement;
 //        if(-10<(measurement-measurementPrev) && (measurement-measurementPrev)<10) {
@@ -165,8 +193,10 @@ public class Shanti extends Subsystem {
     }
 
     public void print() {
-        log("meters: " + stickMotor.getSelectedSensorPosition() * ENC_TO_METERS);
+        log("meters: " + (stickMotor.getSelectedSensorPosition() * ENC_TO_METERS + 0.41+0.24+0.37));
+//        DriverStation.getInstance().getBatteryVoltage();
         log("degrees: " + Math.toDegrees(mapValues(potentiometer.getVoltage())));
+        //log("compensation: "+ GRAVITY_POWER_BETA *(12/DriverStation.getInstance().getBatteryVoltage())*stickMotor.getSelectedSensorPosition() * ENC_TO_METERS*Math.cos(mapValues(potentiometer.getVoltage())));
 
 //        log("potentiometer voltage: "+potentiometer.getVoltage());
 //        log("degrees: "+ mapValues(potentiometer.getVoltage()));
@@ -198,7 +228,7 @@ public class Shanti extends Subsystem {
 
     public void setLift(double speed) {
         // why /6?k
-        speed /= 6;
+//        speed /= 6;
         liftMotor1.set(speed);
         liftMotor2.set(speed);
     }

@@ -3,7 +3,7 @@ package frc.robot.bobot.control;
 import frc.robot.bobot.Subsystem;
 
 public class PID extends Subsystem {
-    double kp, ki, kd, kf, measurement, measurementPrev, dt, derivative, derivativePrev, error, errorPrev, integral, setPointMin, controlSignal, tolerance, alpha, integralMax, signalMin, signalMax;
+    public double kp, ki, kd, kf, measurement, measurementPrev, dt, derivative, derivativePrev, error, errorPrev, integral, setPointMin, controlSignal, tolerance, alpha, integralMax, signalMin, signalMax, minErrorIntegral;
 
     public PID() {
         this.kp = 1;
@@ -25,6 +25,7 @@ public class PID extends Subsystem {
         this.integralMax = 1;
         this.signalMin = 0;
         this.signalMax = 12;
+        this.minErrorIntegral = 10;
     }
 
     public void setMeasurement(double value) {
@@ -60,7 +61,7 @@ public class PID extends Subsystem {
     public double pidPosition(double mes, double setPoint, double derivative) {
         setMeasurement(mes);
         error = setPoint - measurement;
-        log("error: "+ error);
+//        log("error: "+ error);
         if (Math.abs(error) < tolerance)
             controlSignal = 0;
         else {
@@ -70,9 +71,31 @@ public class PID extends Subsystem {
         }
         errorPrev = error;
         controlSignal = constrain(controlSignal, -signalMax, signalMax);
+
         return controlSignal;
     }
+    public double pidGravity(double setPoint,double mes,double compensation) {
+        calcDerivative();
+        return pidGravity(setPoint,mes,derivative,compensation);
+    }
+    public double pidGravity(double setpoint,double measurement,double derivative,double compensation){
+        setMeasurement(measurement);
+        error = setpoint - measurement;
 
+        if(Math.abs(error) < minErrorIntegral){
+            integral += ((error + errorPrev) * dt) / 2 * ki;
+            integral = constrain(integral, -integralMax, integralMax);
+        }
+        else {
+            integral = 0;
+        }
+        log("derivative+kd: " + derivative*kd+", derivative:" + derivative);
+        controlSignal = (error * kp) + integral - (derivative * kd) + compensation;
+        errorPrev = error;
+        controlSignal = constrain(controlSignal, -signalMax, signalMax);
+//        log("error: "+ error +"controlsignal:" + controlSignal);
+        return controlSignal;
+    }
     public double pidVelocity(double mes, double setPoint) {
         setMeasurement(mes);
         calcDerivative();

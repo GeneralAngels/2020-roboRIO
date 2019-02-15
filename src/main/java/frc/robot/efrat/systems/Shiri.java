@@ -114,4 +114,7 @@ public class Shiri extends Subsystem {
     public void moveTOBack(){ //TODO: add if microSwitch
         set(0);
     }
+    public void set_direct(double power){
+        slideMotor.set(power);
+    }
 }
