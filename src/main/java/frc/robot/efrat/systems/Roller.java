@@ -17,6 +17,10 @@ public class Roller extends Subsystem {
         motor = new VictorSP(4);
     }
 
+    public static void init() {
+        if (getInstance() == null) new Roller();
+    }
+
     public static Roller getInstance() {
         return latest;
     }

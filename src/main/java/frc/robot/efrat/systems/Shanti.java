@@ -47,8 +47,6 @@ public class Shanti extends Subsystem {
     private double currentBeta = 0;
     private double motorOutputBetaPrev = 0;
 
-
-
     public Shanti() {
         latest = this;
         stickMotor = new WPI_TalonSRX(17);
@@ -72,6 +70,10 @@ public class Shanti extends Subsystem {
         betaPID = new PID();
         betaPID.setPIDF(0.3, 0.12, 0.05, 0);
         betaPID.minErrorIntegral = 0.15;
+    }
+
+    public static void init() {
+        if (getInstance() == null) new Shanti();
     }
 
     // TODO: add toJSON() to send real x and real y

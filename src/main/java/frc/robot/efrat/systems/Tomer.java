@@ -3,7 +3,6 @@ package frc.robot.efrat.systems;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import frc.robot.bobot.Subsystem;
-import frc.robot.bobot.utils.PinMan;
 
 public class Tomer extends Subsystem {
 
@@ -16,15 +15,21 @@ public class Tomer extends Subsystem {
         latest = this;
         claw = new DoubleSolenoid(2, 3);
         pivot = new DoubleSolenoid(4, 5);
-        cargoIndicator = new DigitalInput(PinMan.getNavDIO(5));
+//        cargoIndicator = new DigitalInput(PinMan.getNavDIO(5));
     }
 
     public static Tomer getInstance() {
         return latest;
     }
 
+    public static void init() {
+        if (getInstance() == null) new Tomer();
+    }
+
     public boolean isCargoLoaded() {
-        return cargoIndicator != null && cargoIndicator.get();
+        return true;
+        // TODO uncomment that
+//        return cargoIndicator != null && cargoIndicator.get();
     }
 
     public boolean isDown() {

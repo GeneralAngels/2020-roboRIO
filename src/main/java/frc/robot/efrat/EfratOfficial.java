@@ -9,7 +9,6 @@ import frc.robot.bobot.utils.Toggle;
 import frc.robot.efrat.statemachine.StateMachine;
 import frc.robot.efrat.systems.PneumaticDrive;
 import frc.robot.efrat.systems.Shiri;
-import frc.robot.efrat.systems.Stick;
 import frc.robot.efrat.systems.Tomer;
 import frc.robot.efrat.systems.rgb.RobotIdle;
 import org.json.JSONArray;
@@ -25,7 +24,6 @@ public class EfratOfficial extends Bobot {
     private Joystick driverLeft, driverRight;
     private XboxController operatorGamepad;
     private PneumaticDrive drive;
-    private Stick stick;
     private Tomer tomer;
     private Shiri shiri;
     private Toggle operatorA, operatorB, operatorX, operatorY, operatorStart, operatorBack, operatorPadUp, operatorPadDown;
@@ -85,7 +83,6 @@ public class EfratOfficial extends Bobot {
 
     private void initSystems() {
         //        drive = new PneumaticDrive();
-        stick = new Stick();
         tomer = new Tomer();
         shiri = new Shiri();
         addToJSON(drive);

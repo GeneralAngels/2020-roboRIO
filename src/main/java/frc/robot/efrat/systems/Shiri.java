@@ -35,6 +35,10 @@ public class Shiri extends Subsystem {
         xPID.setPIDF(0.9, 0.8, 0, 0);
     }
 
+    public static void init() {
+        if (getInstance() == null) new Shiri();
+    }
+
     public static Shiri getInstance() {
         return latest;
     }

@@ -23,7 +23,6 @@ public class EfratTestingFull extends Bobot {
     // Systems
     protected RGB rgb;
     protected StateMachine stateMachine;
-    protected Stick makel;
     protected Shiri shiri;
     protected Shanti shanti;
     protected PneumaticDrive drive;
@@ -31,13 +30,11 @@ public class EfratTestingFull extends Bobot {
     protected Compressor compressor = new Compressor(0);
     protected AHRS gyroBitch;
     protected WPI_TalonSRX slideMotor;
-    protected Stick stick;
     protected double testing =  0;
 
     @Override
     public void init() {
         // StateMachine
-        stateMachine = new StateMachine();
         // Controllers
         gyroBitch = new AHRS(I2C.Port.kMXP);
 
@@ -64,6 +61,7 @@ public class EfratTestingFull extends Bobot {
         initTriggers();
         // SuperInit -> TCP Init
         super.init();
+        stateMachine = new StateMachine();
     }
 
     protected void initTriggers() {
@@ -96,12 +94,12 @@ public class EfratTestingFull extends Bobot {
 
     @Override
     public void teleop() {
-        updateTriggers();
-//        stateMachine.update(driverGamepad, null);
+//        updateTriggers();
+        stateMachine.update(driverGamepad, null);
 //        shanti.set(0.5,0.5);
-        shanti.print();
-        shiri.set(0);
-        shiri.print();
+//        shanti.print();
+//        shiri.set(0);
+//        shiri.print();
     }
 
     protected void robotStatus() {

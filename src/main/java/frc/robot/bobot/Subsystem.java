@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.Timer;
 import org.json.JSONObject;
 
 public class Subsystem {
-    protected static final char BOX = '=', PROGRESS = '#';
     private boolean logName = true;
     private String name = getClass().getSimpleName();
 
