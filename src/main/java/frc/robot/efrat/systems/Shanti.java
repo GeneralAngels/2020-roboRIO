@@ -46,6 +46,7 @@ public class Shanti extends Subsystem {
     private double currentR = 0;
     private double currentBeta = 0;
     private double motorOutputBetaPrev = 0;
+    private int loops = 0;
 
     public Shanti() {
         latest = this;
@@ -97,16 +98,19 @@ public class Shanti extends Subsystem {
     }
 
     public void set(double x, double y) {
+        loops++;
         double[] rb = xy2rb(x, y);
         currentR = (stickMotor.getSelectedSensorPosition() * ENC_TO_METERS) + 1.02;
         currentBeta = mapValues(potentiometer.getVoltage());
-        double compensationBeta = GRAVITY_POWER_BETA *(11.45/DriverStation.getInstance().getBatteryVoltage())*(currentR)*Math.cos(currentBeta);
-        double compensationRadius = GRAVITY_POWER_RADIUS *(12.5/DriverStation.getInstance().getBatteryVoltage())*(currentR)*Math.sin(currentBeta);
+        double compensationBeta = GRAVITY_POWER_BETA * (11.45 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.cos(currentBeta);
+        double compensationRadius = GRAVITY_POWER_RADIUS * (12.5 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.sin(currentBeta);
         double motorOutputBeta = controlBeta(rb[1], currentBeta, compensationBeta);
         double motorOutputRadius = controlRadius(rb[0], currentR, compensationRadius);
-        stickMotor.set(motorOutputRadius);
-        liftMotor1.set(motorOutputBeta);
-        liftMotor2.set(motorOutputBeta);
+        if (loops > 50) {
+            stickMotor.set(motorOutputRadius);
+            liftMotor1.set(motorOutputBeta);
+            liftMotor2.set(motorOutputBeta);
+        }
         motorOutputBetaPrev = motorOutputBeta;
     }
 
@@ -119,20 +123,20 @@ public class Shanti extends Subsystem {
 
 
     public double controlRadius(double setpointRadius, double currentR, double compensation) {
-        double output = radiusPID.pidGravity(currentR,setpointRadius, compensation);
+        double output = radiusPID.pidGravity(currentR, setpointRadius, compensation);
         return output;
     }
 
     public double controlBeta(double setpointBeta, double currentBeta, double compensation) {
         double output = 0;
-        output = betaPID.pidGravity(setpointBeta,currentBeta, compensation);
+        output = betaPID.pidGravity(setpointBeta, currentBeta, compensation);
         return output;
     }
 
     public double mapValues(double measurement, double minInput, double maxInput, double minOutput, double maxOutput) {
-        double oldRange=(maxInput-minInput);
-        double newRange=(maxOutput-minOutput);
-        return (((measurement-minInput)*newRange)/oldRange)+minOutput;
+        double oldRange = (maxInput - minInput);
+        double newRange = (maxOutput - minOutput);
+        return (((measurement - minInput) * newRange) / oldRange) + minOutput;
     }
 
 
@@ -140,7 +144,7 @@ public class Shanti extends Subsystem {
         double alpha = 0.1;
         double meas = (measurement * alpha + measurementPrev * (1 - alpha));
         measurementPrev = meas;
-        meas = 58.3*meas  -115;
+        meas = 58.3 * meas - 115;
         return Math.toRadians(meas);
     }
 
