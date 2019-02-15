@@ -5,8 +5,6 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import frc.robot.bobot.Subsystem;
 
 public class Tomer extends Subsystem {
-
-
     private static Tomer latest;
     private DoubleSolenoid claw, pivot;
     private DigitalInput cargoIndicator;
@@ -28,7 +26,7 @@ public class Tomer extends Subsystem {
 
     public boolean isCargoLoaded() {
         return true;
-        // TODO uncomment that
+        // TODO uncomment that on real robot
 //        return cargoIndicator != null && cargoIndicator.get();
     }
 

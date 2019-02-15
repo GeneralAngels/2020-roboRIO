@@ -14,7 +14,7 @@ import org.json.JSONObject;
 import java.awt.*;
 
 public class StateMachine extends Subsystem {
-    public static final String CURRENT_STATE = "current_state";
+    private static final String CURRENT_STATE = "current_state";
     // TODO to add states, add NEW YOURSTATE() to the array
     private static final State[] stateMap = {
             new InitState(),
@@ -51,7 +51,7 @@ public class StateMachine extends Subsystem {
         initSubsystems();
     }
 
-    public static State[] getStateMap() {
+    static State[] getStateMap() {
         return stateMap;
     }
 
