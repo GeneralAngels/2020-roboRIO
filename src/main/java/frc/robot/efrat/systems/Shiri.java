@@ -13,7 +13,7 @@ public class Shiri extends Subsystem {
     private static Shiri latest;
     private static final double DISTANCE = 0.66;
     private static final double LIMIT_V = 0.5;
-    private static final double RADIUS = 0.0185; //TODO: check value
+    private static final double RADIUS = 0.0191; //TODO: check value
     private static final double TICKS_PER_REVOLUTIONS = 1024; //TODO: check value
     private static final double ENC_TO_METERS = (2*3.14*RADIUS) / (4*TICKS_PER_REVOLUTIONS);
     private DigitalInput frontReset, backReset, grab1, grab2;
@@ -26,12 +26,13 @@ public class Shiri extends Subsystem {
         latest = this;
         hatch = new DoubleSolenoid(0, 1);
         slideMotor = new WPI_TalonSRX(14);
+//        slideMotor.setInverted(true);
         grab1 = new DigitalInput(PinMan.getNavDIO(1));
         grab2 = new DigitalInput(PinMan.getNavDIO(2));
         backReset = new DigitalInput(PinMan.getNavDIO(3));
         frontReset = new DigitalInput(PinMan.getNavDIO(4));
         xPID = new PID();
-        xPID.setPIDF(0, 0, 0, 0);
+        xPID.setPIDF(0.9, 0.8, 0, 0);
     }
 
     public static Shiri getInstance() {
@@ -84,10 +85,9 @@ public class Shiri extends Subsystem {
     }
 
     public void set(double x) { //changed method
-//        if(Math.abs((x-xPrev)/0.02) > LIMIT_V)
-//            slideMotor.set(controlX(LIMIT_V*sign(x-xPrev)));
-        slideMotor.set(controlX(x));
-        xPrev = x;
+        double slideMotor_output = controlX(x);
+        log("pid shiri:" + slideMotor_output);
+        slideMotor.set(-slideMotor_output);
     }
 
     public int sign(double a){
@@ -97,12 +97,12 @@ public class Shiri extends Subsystem {
         return 0;
     }
     public void print(){
-        log("meters: "+-slideMotor.getSelectedSensorPosition() * ENC_TO_METERS);
+        log("meters: "+(0.54-((slideMotor.getSelectedSensorPosition()/10) * ENC_TO_METERS)));
+        log("encoder: "+(slideMotor.getSelectedSensorPosition()/10));
     }
 
     public double controlX(double setpointX) {
-        double currentX = -slideMotor.getSelectedSensorPosition() * ENC_TO_METERS ;
-//        log(Double.toString(setpointX - currentX));
+        double currentX = (0.54-((slideMotor.getSelectedSensorPosition()/10) * ENC_TO_METERS));
         double output = xPID.pidPosition(currentX, setpointX);
         return output;
     }

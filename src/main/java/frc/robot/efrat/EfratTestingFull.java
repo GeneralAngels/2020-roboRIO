@@ -42,15 +42,10 @@ public class EfratTestingFull extends Bobot {
         gyroBitch = new AHRS(I2C.Port.kMXP);
 
         shanti = new Shanti();
-
+        shiri = new Shiri();
         compressor.setClosedLoopControl(true);
         driverGamepad = new XboxController(0);
-//        makel = new Stick();
-//        lift = new Lift();
-//        shiri = new Shiri();
         slideMotor = new WPI_TalonSRX(14);
-//        drive = new PneumaticDrive();
-//        stick = new Stick();
         addToJSON(stateMachine);
         PinMan pinManager = new PinMan();
         rgb = new RGB(69, 8);
@@ -103,24 +98,10 @@ public class EfratTestingFull extends Bobot {
     public void teleop() {
         updateTriggers();
 //        stateMachine.update(driverGamepad, null);
-//        shanti.setLift();
-//          shanti.setStick(testing);
-//        log("testing:"+testing);
 //        shanti.set(0.5,0.5);
         shanti.print();
-//        log("Byro, Gitch: " + gyroBitch.getYaw());
-//        double divide = 2.0;
-//        drive.setBench(driverGamepad.getY(GenericHID.Hand.kLeft)/divide, driverGamepad.getX(GenericHID.Hand.kLeft)/divide);
-//        drive.direct(driverGamepad.getY(GenericHID.Hand.kLeft)+driverGamepad.getX(GenericHID.Hand.kLeft),driverGamepad.getY(GenericHID.Hand.kLeft)-driverGamepad.getX(GenericHID.Hand.kLeft));
- //       drive.set(-driverGamepad.getY(GenericHID.Hand.kLeft) / divide, -driverGamepad.getX(GenericHID.Hand.kLeft) / divide);
- //       drive.setStickNoPID(-driverGamepad.getY(GenericHID.Hand.kLeft) / divide, -driverGamepad.getX(GenericHID.Hand.kLeft) / divide);
-//        stick.set(-driverGamepad.getX(GenericHID.Hand.kRight));
-        //        makel.set(-driverGamepad.getX(GenericHID.Hand.kRight));
-//        log(Double.toString(-(driverGamepad.getTriggerAxis(GenericHID.Hand.kRight) - driverGamepad.getTriggerAxis(GenericHID.Hand.kLeft))));
-//        log(Double.toString(-(driverGamepad.getTriggerAxis(GenericHID.Hand.kRight) - driverGamepad.getTriggerAxis(GenericHID.Hand.kLeft))));
-        slideMotor.set(testing);
-//        shiri.setPower(testing);
-
+        shiri.set(0);
+        shiri.print();
     }
 
     protected void robotStatus() {

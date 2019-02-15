@@ -61,7 +61,6 @@ public class PID extends Subsystem {
     public double pidPosition(double mes, double setPoint, double derivative) {
         setMeasurement(mes);
         error = setPoint - measurement;
-//        log("error: "+ error);
         if (Math.abs(error) < tolerance)
             controlSignal = 0;
         else {
@@ -89,11 +88,9 @@ public class PID extends Subsystem {
         else {
             integral = 0;
         }
-        log("derivative+kd: " + derivative*kd+", derivative:" + derivative);
         controlSignal = (error * kp) + integral - (derivative * kd) + compensation;
         errorPrev = error;
         controlSignal = constrain(controlSignal, -signalMax, signalMax);
-//        log("error: "+ error +"controlsignal:" + controlSignal);
         return controlSignal;
     }
     public double pidVelocity(double mes, double setPoint) {
