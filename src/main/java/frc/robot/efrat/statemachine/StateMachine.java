@@ -46,10 +46,10 @@ public class StateMachine extends Subsystem {
     private Toggle opA, opB, opX, opY, op1, op2, op3, op4;
 
     public StateMachine() {
-        currentState = stateMap[0];
-        new Thread(() -> currentState.apply()).start();
         initToggles();
         initSubsystems();
+        currentState = stateMap[0];
+        new Thread(() -> currentState.apply()).start();
     }
 
     static State[] getStateMap() {
