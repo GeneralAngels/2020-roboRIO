@@ -101,11 +101,12 @@ public class EfratTestingFull extends Bobot {
     @Override
     public void teleop() {
 //        updateTriggers();
-        stateMachine.update(driverGamepad, null);
-        shanti.set(0.5,0.5);
-        shanti.print();
-//        shiri.set(0.3);
-//        shiri.print();
+//        stateMachine.update(driverGamepad, null);
+ //       shanti.set(0.5,0.5);
+//        shanti.print();
+        shiri.set(0);
+        shiri.print();
+        loopSystems();
     }
 
     protected void robotStatus() {

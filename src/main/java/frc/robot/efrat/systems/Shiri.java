@@ -21,7 +21,8 @@ public class Shiri extends Subsystem {
     private WPI_TalonSRX slideMotor;
     private PID xPID;
     private double xPrev = 0;
-    private double targetX=0.54;
+    private double targetX=-1;
+    private double currentX = 0;
 
     public Shiri() {
         latest = this;
@@ -100,24 +101,39 @@ public class Shiri extends Subsystem {
         return 0;
     }
     public void print(){
-        log("meters: "+(0.54-((slideMotor.getSelectedSensorPosition()/10.0) * ENC_TO_METERS)));
+        log("meters: "+(3.15-(((slideMotor.getSelectedSensorPosition()/10.0) * ENC_TO_METERS))));
         log("encoder: "+(slideMotor.getSelectedSensorPosition()/10));
     }
 
     public double controlX(double setpointX) {
-        double currentX = (0.54-((slideMotor.getSelectedSensorPosition()/10.0) * ENC_TO_METERS));
+        currentX = (3.15-(((slideMotor.getSelectedSensorPosition()/10.0) * ENC_TO_METERS)));
         double output = xPID.pidPosition(currentX, setpointX);
         return output;
     }
     // Notice! if you call loop before set, the target location will be the farthest back.
     public void loop(){
-        double slideMotor_output = controlX(targetX);
-        log("pid shiri:" + slideMotor_output);
-        slideMotor.set(-slideMotor_output);
+        currentX = (3.15-(((slideMotor.getSelectedSensorPosition()/10.0) * ENC_TO_METERS)));
+        if (targetX != -1) {
+            double slideMotor_output = controlX(targetX);
+//            log("pid shiri:" + slideMotor_output);
+            slideMotor.set(slideMotor_output);
+        }
     }
 
     public void moveToFront(){ //TODO: add if microSwitch
         set(DISTANCE);
+    }
+
+    public boolean in_place(){
+        if(targetX>0.36) {
+            if ((currentX - Shanti.getInstance().getCurrentx()) > 0.29)
+                return true;
+        }
+        else {
+            if ((Shanti.getInstance().getCurrentx() - currentX) > 0.29)
+                return true;
+        }
+        return false;
     }
 
     public void moveTOBack(){ //TODO: add if microSwitch
@@ -126,4 +142,7 @@ public class Shiri extends Subsystem {
     public void set_direct(double power){
         slideMotor.set(power);
     }
+
+    public double getCurrentX(){return currentX;}
+    public double getTargetX(){return targetX;}
 }

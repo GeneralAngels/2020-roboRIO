@@ -47,8 +47,8 @@ public class Shanti extends Subsystem {
     private double currentBeta = 0;
     private double motorOutputBetaPrev = 0;
     private int loops = 0;
-    public boolean in_place = false;
-    private double targetX=0,targetY=0;
+    private double targetX=-100,targetY=-100;
+    private double currentx=0,currnety = 0;
 
     public Shanti() {
         latest = this;
@@ -103,30 +103,52 @@ public class Shanti extends Subsystem {
         targetX=x;
         targetY=y;
     }
+    public boolean in_place(){
+        if(currnety>-0.58)
+            return true;
+        if(targetX>0.36) {
+            if ((currentx - Shiri.getInstance().getCurrentX()) > 0.29)
+                return true;
+        }
+        else {
+            if ((Shanti.getInstance().getCurrentx() - currentx) > 0.29)
+                return true;
+        }
+        return false;
+    }
     // Notice! if set isnt called before loop, the target location will not change.
     public void loop(){
         double[] rb = xy2rb(targetX, targetY);
         currentR = (stickMotor.getSelectedSensorPosition() * ENC_TO_METERS) + 0.3;
         currentBeta = mapValues(potentiometer.getVoltage());
-        double compensationBeta = GRAVITY_POWER_BETA * (11.45 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.cos(currentBeta);
-        double compensationRadius = GRAVITY_POWER_RADIUS * (12.5 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.sin(currentBeta);
-        double motorOutputBeta = controlBeta(rb[1], currentBeta, compensationBeta);
-        double motorOutputRadius = controlRadius(rb[0], currentR, compensationRadius);
-        if (loops > 50) {
-            stickMotor.set(motorOutputRadius);
-            liftMotor1.set(motorOutputBeta);
-            liftMotor2.set(motorOutputBeta);
+        double[] xy = rb2xy(currentR, currentBeta);
+        currentx = xy[0];
+        currnety = xy[1];
+        if (targetY!=-100 && targetX!=-100) {
+            double compensationBeta = GRAVITY_POWER_BETA * (11.45 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.cos(currentBeta);
+            double compensationRadius = GRAVITY_POWER_RADIUS * (12.5 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.sin(currentBeta);
+            double motorOutputBeta = controlBeta(rb[1], currentBeta, compensationBeta);
+            double motorOutputRadius = controlRadius(rb[0], currentR, compensationRadius);
+            if (loops > 50) {
+                stickMotor.set(motorOutputRadius);
+                liftMotor1.set(motorOutputBeta);
+                liftMotor2.set(motorOutputBeta);
+            } else
+                loops++;
+            motorOutputBetaPrev = motorOutputBeta;
         }
-        else
-            loops++;
-        motorOutputBetaPrev = motorOutputBeta;
     }
 
     public double[] xy2rb(double x, double y) {
         double radius = Math.sqrt((Math.pow(x, 2) + Math.pow(y, 2)));
-
         double beta = Math.atan2(y, x);
-        return new double[]{radius, beta};
+        return new double[]{radius,beta};
+    }
+
+    public double[] rb2xy(double r, double b){
+        double x = r / (Math.sqrt(1+(Math.pow((Math.tan(b)),2))));
+        double y = x * Math.tan(b);
+        return new double[]{x,y};
     }
 
 
@@ -195,4 +217,9 @@ public class Shanti extends Subsystem {
         liftMotor1.set(speed);
         liftMotor2.set(speed);
     }
+
+    public double getCurrentx(){return currentx;}
+    public double getCurrnety(){return currnety;}
+    public double getTargetX(){return targetX;}
+    public double getTargetY(){return targetY;}
 }

@@ -47,6 +47,7 @@ public class StateMachine extends Subsystem {
 
     public StateMachine() {
         currentState = stateMap[0];
+        new Thread(() -> currentState.apply()).start();
         initToggles();
         initSubsystems();
     }
