@@ -25,7 +25,7 @@ public class Tomer extends Subsystem {
     }
 
     public boolean isCargoLoaded() {
-        return true;
+        return false;
         // TODO uncomment that on real robot
 //        return cargoIndicator != null && cargoIndicator.get();
     }

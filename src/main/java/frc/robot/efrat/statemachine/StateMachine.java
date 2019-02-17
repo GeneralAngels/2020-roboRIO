@@ -44,11 +44,12 @@ public class StateMachine extends Subsystem {
     private Input currentInput = Input.NONE;
     private Toggle drA, drB, drX, drY, dr1, dr2, dr3, dr4;
     private Toggle opA, opB, opX, opY, op1, op2, op3, op4;
+    private boolean initApplied = false;
 
     public StateMachine() {
-        currentState = stateMap[0];
         initToggles();
         initSubsystems();
+        currentState = stateMap[0];
     }
 
     static State[] getStateMap() {
@@ -83,29 +84,37 @@ public class StateMachine extends Subsystem {
 
     public void update(XboxController op, XboxController dr) {
         new Thread(() -> {
-            currentInput = Input.NONE;
-            updateToggles(op, dr);
-            if (currentInput != Input.NONE) {
-                if (currentState != null) {
-                    lastState = currentState;
-                    currentState = currentState.nextState(currentInput);
-                    if (currentState == null) {
-                        currentState = lastState;
-                        RobotIdle.getInstance().color(Color.RED);
-                    } else {
-                        currentState.apply();
-                    }
-                    notifyChange();
-                } else {
-                    RobotIdle.getInstance().flash(Color.RED);
-                    log("No State");
-                }
-            } else {
-                if (currentState != null && currentState.nextState(Input.NONE) != null && currentState != currentState.nextState(Input.NONE)) {
-                    lastState = currentState;
-                    currentState = currentState.nextState(currentInput);
+            if (!initApplied) {
+                initApplied = true;
+                if (currentState != null)
                     currentState.apply();
-                    notifyChange();
+                else
+                    log("Fatal error, no initial state!");
+            } else {
+                currentInput = Input.NONE;
+                updateToggles(op, dr);
+                if (currentInput != Input.NONE) {
+                    if (currentState != null) {
+                        lastState = currentState;
+                        currentState = currentState.nextState(currentInput);
+                        if (currentState == null) {
+                            currentState = lastState;
+                            RobotIdle.getInstance().color(Color.RED);
+                        } else {
+                            currentState.apply();
+                        }
+                        notifyChange();
+                    } else {
+                        RobotIdle.getInstance().flash(Color.RED);
+                        log("No State");
+                    }
+                } else {
+                    if (currentState != null && currentState.nextState(Input.NONE) != null && currentState != currentState.nextState(Input.NONE)) {
+                        lastState = currentState;
+                        currentState = currentState.nextState(currentInput);
+                        currentState.apply();
+                        notifyChange();
+                    }
                 }
             }
         }).start();
