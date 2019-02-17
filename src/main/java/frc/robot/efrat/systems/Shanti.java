@@ -27,7 +27,7 @@ public class Shanti extends Subsystem {
     private static final double LIMIT_V = 0.1;
     private static final double LIMIT_OMEGA = 0.1;
     private static final double GRAVITY_POWER_RADIUS = -0.12;
-    private static final double GRAVITY_POWER_BETA = 0.15;
+    private static final double GRAVITY_POWER_BETA = 0.2;
     private static Shanti latest;
     private double measurementPrev = 0;
     private double currentAngle = 0, targetAngleRadians = 0;
@@ -71,7 +71,7 @@ public class Shanti extends Subsystem {
         radiusPID.setPIDF(1, 0.7, 0, 0);
         radiusPID.minErrorIntegral = 0.1;
         betaPID = new PID();
-        betaPID.setPIDF(0.3, 0.12, 0.05, 0);
+        betaPID.setPIDF(0.45, 0.15, 0.05, 0);
         betaPID.minErrorIntegral = 0.15;
     }
 
@@ -103,27 +103,25 @@ public class Shanti extends Subsystem {
         targetX=x;
         targetY=y;
     }
-    public boolean in_place(){
-        if(currnety>-0.58)
-            return true;
-        if(targetX>0.36) {
-            if ((currentx - Shiri.getInstance().getCurrentX()) > 0.29)
-                return true;
+    public boolean in_place(double x,double y,double diffrenceX){
+        boolean place = false;
+        if(currentx>0.36) {
+            place =(currnety>y)||((currentx - x) > diffrenceX);
         }
         else {
-            if ((Shanti.getInstance().getCurrentx() - currentx) > 0.29)
-                return true;
+            place =(currnety>y)|| ((x-currentx) > diffrenceX);
         }
-        return false;
+        return place;
     }
     // Notice! if set isnt called before loop, the target location will not change.
     public void loop(){
         double[] rb = xy2rb(targetX, targetY);
-        currentR = (stickMotor.getSelectedSensorPosition() * ENC_TO_METERS) + 0.3;
+        currentR = (stickMotor.getSensorCollection().getQuadraturePosition() * ENC_TO_METERS) + 0.5-0.03;
         currentBeta = mapValues(potentiometer.getVoltage());
         double[] xy = rb2xy(currentR, currentBeta);
         currentx = xy[0];
         currnety = xy[1];
+        log("x: " + currentx + ",y:" + currnety);
         if (targetY!=-100 && targetX!=-100) {
             double compensationBeta = GRAVITY_POWER_BETA * (11.45 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.cos(currentBeta);
             double compensationRadius = GRAVITY_POWER_RADIUS * (12.5 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.sin(currentBeta);
@@ -183,7 +181,7 @@ public class Shanti extends Subsystem {
     }
 
     public void print() {
-        log("meters: " + (stickMotor.getSelectedSensorPosition() * ENC_TO_METERS + 0.3));
+        log("meters: " + (stickMotor.getSensorCollection().getQuadraturePosition() * ENC_TO_METERS + 0.5-0.03));
         log("degrees: " + Math.toDegrees(mapValues(potentiometer.getVoltage())));
     }
 

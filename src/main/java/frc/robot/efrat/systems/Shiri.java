@@ -23,18 +23,19 @@ public class Shiri extends Subsystem {
     private double xPrev = 0;
     private double targetX=-1;
     private double currentX = 0;
-
+    public double y = -0.5;
     public Shiri() {
         latest = this;
         hatch = new DoubleSolenoid(0, 1);
         slideMotor = new WPI_TalonSRX(14);
-//        slideMotor.setInverted(true);
+//        slideMotor.getSensorCollection().set
+ //       slideMotor.setInverted(true);
         grab1 = new DigitalInput(PinMan.getNavDIO(1));
         grab2 = new DigitalInput(PinMan.getNavDIO(2));
         backReset = new DigitalInput(PinMan.getNavDIO(3));
         frontReset = new DigitalInput(PinMan.getNavDIO(4));
         xPID = new PID();
-        xPID.setPIDF(0.9, 0.8, 0, 0);
+        xPID.setPIDF(1.9, 0.4, 0, 0);
     }
 
     public static void init() {
@@ -101,22 +102,22 @@ public class Shiri extends Subsystem {
         return 0;
     }
     public void print(){
-        log("meters: "+(3.15-(((slideMotor.getSelectedSensorPosition()/10.0) * ENC_TO_METERS))));
-        log("encoder: "+(slideMotor.getSelectedSensorPosition()/10));
+        log("meters: "+((((-slideMotor.getSensorCollection().getQuadraturePosition()/10.0) * ENC_TO_METERS)+0.49-0.195)));
+        log("encoder: "+((-slideMotor.getSelectedSensorPosition())/10));
     }
 
     public double controlX(double setpointX) {
-        currentX = (3.15-(((slideMotor.getSelectedSensorPosition()/10.0) * ENC_TO_METERS)));
+        currentX = ((((-slideMotor.getSensorCollection().getQuadraturePosition()/10.0) * ENC_TO_METERS))+0.49-0.195);
         double output = xPID.pidPosition(currentX, setpointX);
         return output;
     }
     // Notice! if you call loop before set, the target location will be the farthest back.
     public void loop(){
-        currentX = (3.15-(((slideMotor.getSelectedSensorPosition()/10.0) * ENC_TO_METERS)));
+//        log("target x: "+targetX);
+        currentX = ((((-slideMotor.getSensorCollection().getQuadraturePosition()/10.0) * ENC_TO_METERS)+0.49-0.195));
         if (targetX != -1) {
             double slideMotor_output = controlX(targetX);
-//            log("pid shiri:" + slideMotor_output);
-            slideMotor.set(slideMotor_output);
+            slideMotor.set(-slideMotor_output);
         }
     }
 
@@ -124,13 +125,13 @@ public class Shiri extends Subsystem {
         set(DISTANCE);
     }
 
-    public boolean in_place(){
+    public boolean in_place(double x, double diffrenceX){
         if(targetX>0.36) {
-            if ((currentX - Shanti.getInstance().getCurrentx()) > 0.29)
+            if ((currentX- (x-0.23) > diffrenceX))
                 return true;
         }
         else {
-            if ((Shanti.getInstance().getCurrentx() - currentX) > 0.29)
+            if (((x-0.23) - currentX) > diffrenceX)
                 return true;
         }
         return false;

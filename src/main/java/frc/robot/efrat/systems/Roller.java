@@ -5,6 +5,8 @@ import frc.robot.bobot.Subsystem;
 
 public class Roller extends Subsystem {
     private static Roller latest;
+//    public double x =0;
+//    public double y = 0;
     //    private WPI_TalonSRX motor;
 //
 //    public Roller() {

@@ -22,11 +22,15 @@ public class InitState extends State {
 
     @Override
     public void apply() {
-//        RobotIdle.getInstance().idle();
+        RobotIdle.getInstance().idle();
+        Shanti.getInstance().set(0.3, -0.3);
+        while (!Shanti.getInstance().in_place(Shiri.getInstance().getCurrentX(), Shiri.getInstance().y, 0.5)) {
+        }
         Shiri.getInstance().set(0);
-        while (!Shiri.getInstance().in_place()){}
-//        log("tom");
-        Shanti.getInstance().set(0.75,-0.9);
+        while (!Shiri.getInstance().in_place(Shanti.getInstance().getCurrentx(), 0.10)) {
+        }
+        Shanti.getInstance().set(0.65, -0.65);
+        log("state");
 
     }
 }

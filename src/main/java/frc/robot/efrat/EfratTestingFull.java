@@ -31,6 +31,7 @@ public class EfratTestingFull extends Bobot {
     protected AHRS gyroBitch;
     protected WPI_TalonSRX slideMotor;
     protected double testing =  0;
+    protected double counter=0;
 
     @Override
     public void init() {
@@ -101,12 +102,16 @@ public class EfratTestingFull extends Bobot {
     @Override
     public void teleop() {
 //        updateTriggers();
-//        stateMachine.update(driverGamepad, null);
- //       shanti.set(0.5,0.5);
+        if (counter > 50) {
+            stateMachine.update(driverGamepad, null);
+        }
+//        shanti.set(0.5,0.5);
 //        shanti.print();
-        shiri.set(0);
-        shiri.print();
+//        shiri.set(0);
+//        shiri.set_direct(driverGamepad.getY(GenericHID.Hand.kLeft));
+//        shiri.print();
         loopSystems();
+        counter+=1;
     }
 
     protected void robotStatus() {
