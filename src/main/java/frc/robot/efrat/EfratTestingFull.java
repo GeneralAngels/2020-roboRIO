@@ -27,7 +27,7 @@ public class EfratTestingFull extends Bobot {
     protected Shanti shanti;
     protected PneumaticDrive drive;
     protected Toggle drA, drB, drX, drY, drR, drL;
-    protected Compressor compressor = new Compressor(0);
+//    protected Compressor compressor = new Compressor(0);
     protected AHRS gyroBitch;
     protected WPI_TalonSRX slideMotor;
     protected double testing =  0;
@@ -39,11 +39,11 @@ public class EfratTestingFull extends Bobot {
         // Controllers
         gyroBitch = new AHRS(I2C.Port.kMXP);
 
-        shanti = new Shanti();
-        shiri = new Shiri();
-        compressor.setClosedLoopControl(true);
+//        shanti = new Shanti();
+//        shiri = new Shiri();
+//        compressor.setClosedLoopControl(true);
         driverGamepad = new XboxController(0);
-        slideMotor = new WPI_TalonSRX(14);
+//        slideMotor = new WPI_TalonSRX(14);
         addToJSON(stateMachine);
         PinMan pinManager = new PinMan();
         rgb = new RGB(69, 8);
@@ -62,7 +62,7 @@ public class EfratTestingFull extends Bobot {
         initTriggers();
         // SuperInit -> TCP Init
         super.init();
-        stateMachine = new StateMachine();
+        stateMachine = new StateMachine(false);
 
     }
 
@@ -99,19 +99,23 @@ public class EfratTestingFull extends Bobot {
         }
     }
 
+    private long progress=0;
+
     @Override
     public void teleop() {
 //        updateTriggers();
-        if (counter > 50) {
+//        if (counter > 50) {
             stateMachine.update(driverGamepad, null);
-        }
+//        }
 //        shanti.set(0.5,0.5);
 //        shanti.print();
 //        shiri.set(0);
 //        shiri.set_direct(driverGamepad.getY(GenericHID.Hand.kLeft));
 //        shiri.print();
-        loopSystems();
-        counter+=1;
+//        loopSystems();
+//        counter+=1;
+        progress++;
+        progress("My Lil Thing",(progress%200)/2);
     }
 
     protected void robotStatus() {

@@ -52,6 +52,13 @@ public class StateMachine extends Subsystem {
         currentState = stateMap[0];
     }
 
+    public StateMachine(boolean initSystems) {
+        initToggles();
+        if (initSystems)
+            initSubsystems();
+        currentState = stateMap[0];
+    }
+
     static State[] getStateMap() {
         return stateMap;
     }
@@ -122,6 +129,7 @@ public class StateMachine extends Subsystem {
 
     private void notifyChange() {
         log((lastState != null ? lastState.getName() : "none") + " to " + (currentState != null ? currentState.getName() : "none"));
+        log("State->" + currentState.getName() + ";");
     }
 
     private void updateToggles(XboxController op, XboxController dr) {
