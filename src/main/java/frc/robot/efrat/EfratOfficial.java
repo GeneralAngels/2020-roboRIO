@@ -8,6 +8,7 @@ import frc.robot.bobot.rgb.RGB;
 import frc.robot.bobot.utils.Toggle;
 import frc.robot.efrat.statemachine.StateMachine;
 import frc.robot.efrat.systems.PneumaticDrive;
+import frc.robot.efrat.systems.PneumaticDriveSpark;
 import frc.robot.efrat.systems.Shiri;
 import frc.robot.efrat.systems.Tomer;
 import frc.robot.efrat.systems.rgb.RobotIdle;
@@ -23,7 +24,7 @@ public class EfratOfficial extends Bobot {
     private JSONObject robotStatus;
     private Joystick driverLeft, driverRight;
     private XboxController operatorGamepad;
-    private PneumaticDrive drive;
+    private PneumaticDriveSpark drive;
     private Tomer tomer;
     private Shiri shiri;
     private Toggle operatorA, operatorB, operatorX, operatorY, operatorStart, operatorBack, operatorPadUp, operatorPadDown;
