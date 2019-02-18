@@ -3,13 +3,14 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.bobot.Bobot;
 import frc.robot.efrat.EfratTestingFull;
+import frc.robot.yompa.Yompa;
 
 public class Robot extends TimedRobot {
     private Bobot bobot;
 
     @Override
     public void robotInit() {
-        bobot = new EfratTestingFull();
+        bobot = new Yompa();
         bobot.init();
     }
 
