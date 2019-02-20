@@ -21,7 +21,7 @@ public class CargoReady extends State {
         progress("Prep For Cargo",50);
         Shiri.getInstance().set(0);
 //        while(!Shiri.getInstance().in_place())
-        Roller.getInstance().open();
+//        Roller.getInstance().open();
         Shanti.getInstance().set(0.7, -0.65);
         progress("Prep For Cargo",100);
     }
