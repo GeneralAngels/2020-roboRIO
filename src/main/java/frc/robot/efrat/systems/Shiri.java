@@ -24,9 +24,9 @@ public class Shiri extends Subsystem {
     private double targetX=-1;
     private double currentX = 0;
     public double y = -0.5;
-    public Shiri() {
+    public Shiri(){
         latest = this;
-        hatch = new DoubleSolenoid(0, 1);
+        hatch = new DoubleSolenoid(0,0, 1);
         slideMotor = new WPI_TalonSRX(14);
 //        slideMotor.getSensorCollection().set
  //       slideMotor.setInverted(true);
@@ -88,7 +88,8 @@ public class Shiri extends Subsystem {
                 slideMotor.set(0);
         } else {
             slideMotor.set(speed);
-        }
+        }        log("Shiri: "+slideMotor.getSensorCollection().getQuadraturePosition());
+
     }
 
     public void set(double x) { //changed method
@@ -135,6 +136,10 @@ public class Shiri extends Subsystem {
                 return true;
         }
         return false;
+    }
+
+    public void setMotor(double d){
+        slideMotor.set(d);
     }
 
     public void moveTOBack(){ //TODO: add if microSwitch

@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.Timer;
 import org.json.JSONObject;
 
 public class Subsystem {
-    private boolean logName = true;
+    private boolean logName = false;
     private String name = getClass().getSimpleName();
 
     public String getName() {
