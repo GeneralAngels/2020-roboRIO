@@ -17,7 +17,7 @@ public class HatchReady extends State {
         while (!Shanti.getInstance().in_place(Shiri.getInstance().getCurrentX(), Shiri.getInstance().y, 0.29)) {
         }
         progress("Prep For Hatch",50);
-        Shiri.getInstance().set(0.5);
+        Shiri.getInstance().set(0.57);
         while (!Shiri.getInstance().in_place(Shanti.getInstance().getCurrentx(), 0.09)) {
         }
         progress("Prep For Hatch",75);

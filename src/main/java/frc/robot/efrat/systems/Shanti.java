@@ -53,6 +53,7 @@ public class Shanti extends Subsystem {
     public Shanti() {
         latest = this;
         stickMotor = new WPI_TalonSRX(17);
+        stickMotor.getSensorCollection().setQuadraturePosition(stickMotor.getSensorCollection().getPulseWidthPosition(),100);
         downReset = new DigitalInput(PinMan.getNavDIO(6));
         upReset = new DigitalInput(PinMan.getNavDIO(7));
         frontReset = new DigitalInput(PinMan.getNavDIO(8));
@@ -62,7 +63,7 @@ public class Shanti extends Subsystem {
         liftMotor1.setInverted(true);
         liftMotor2 = new WPI_TalonSRX(16);
         liftMotor2.setInverted(true);
-        potentiometer = new AnalogInput(3);
+        potentiometer = new AnalogInput(0);
         liftMotor1PID = new PID();
         liftMotor1PID.setPIDF(3, 0, 0, 0);
         liftMotor2PID = new PID();
@@ -71,7 +72,7 @@ public class Shanti extends Subsystem {
         radiusPID.setPIDF(1, 0.7, 0, 0);
         radiusPID.minErrorIntegral = 0.1;
         betaPID = new PID();
-        betaPID.setPIDF(0.45, 0.15, 0.05, 0);
+        betaPID.setPIDF(0.15, 0.15, 0.05, 0);
         betaPID.minErrorIntegral = 0.15;
     }
 
@@ -106,10 +107,10 @@ public class Shanti extends Subsystem {
     public boolean in_place(double x,double y,double diffrenceX){
         boolean place = false;
         if(currentx>0.36) {
-            place =(currnety>y)||((currentx - x) > diffrenceX);
+            place =(currnety>y)||((currentx-0.23 - x) > diffrenceX);
         }
         else {
-            place =(currnety>y)|| ((x-currentx) > diffrenceX);
+            place =(currnety>y)|| ((x-currentx-0.23) > diffrenceX);
         }
         return place;
     }
@@ -119,7 +120,7 @@ public class Shanti extends Subsystem {
         log("Shanti: "+stickMotor.getSensorCollection().getQuadraturePosition());
         log("ShantiPOTETO: "+potentiometer.getValue()+" "+potentiometer.getVoltage());
         double[] rb = xy2rb(targetX, targetY);
-        currentR = (stickMotor.getSensorCollection().getQuadraturePosition() * ENC_TO_METERS) + 0.5-0.03;
+        currentR = (stickMotor.getSensorCollection().getQuadraturePosition() * ENC_TO_METERS) + 0.5-0.03-0.21+0.439;
         currentBeta = mapValues(potentiometer.getVoltage());
         double[] xy = rb2xy(currentR, currentBeta);
         currentx = xy[0];
@@ -184,8 +185,9 @@ public class Shanti extends Subsystem {
     }
 
     public void print() {
-        log("meters: " + (stickMotor.getSensorCollection().getQuadraturePosition() * ENC_TO_METERS + 0.5-0.03));
-        log("degrees: " + Math.toDegrees(mapValues(potentiometer.getVoltage())));
+//        log("meters: " + (stickMotor.getSensorCollection().getQuadraturePosition() * ENC_TO_METERS + 0.5-0.03-0.21+0.439));
+//        log("degrees: " + Math.toDegrees(mapValues(potentiometer.getVoltage())));
+        log("pot" + potentiometer.getVoltage());
     }
 
     public void setStick(double speed) {
