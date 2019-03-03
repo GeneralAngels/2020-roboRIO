@@ -154,6 +154,11 @@ public class RobotA extends Bobot {
     }
 
     @Override
+    public void autonomous(){
+        teleop();
+    }
+
+    @Override
     public void teleop() {
         updateTriggers();
         loopSubsystems();
