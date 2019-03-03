@@ -28,14 +28,16 @@ public class Shiri extends Subsystem {
         latest = this;
         hatch = new DoubleSolenoid(0,0, 1);
         slideMotor = new WPI_TalonSRX(14);
-//        slideMotor.getSensorCollection().set
+        log(slideMotor.getSensorCollection().getPulseWidthPosition()+"");
+        slideMotor.getSensorCollection().setQuadraturePosition(slideMotor.getSensorCollection().getPulseWidthPosition(),10);
  //       slideMotor.setInverted(true);
+
         grab1 = new DigitalInput(PinMan.getNavDIO(1));
         grab2 = new DigitalInput(PinMan.getNavDIO(2));
         backReset = new DigitalInput(PinMan.getNavDIO(3));
         frontReset = new DigitalInput(PinMan.getNavDIO(4));
         xPID = new PID();
-        xPID.setPIDF(1.9, 0.4, 0, 0);
+        xPID.setPIDF(1.5, 0.3, 0.4, 0);
     }
 
     public static void init() {
@@ -103,19 +105,19 @@ public class Shiri extends Subsystem {
         return 0;
     }
     public void print(){
-        log("meters: "+((((-slideMotor.getSensorCollection().getQuadraturePosition()/10.0) * ENC_TO_METERS)+0.49-0.195)));
-        log("encoder: "+((-slideMotor.getSelectedSensorPosition())/10));
+        log("meters: "+(((-(slideMotor.getSensorCollection().getQuadraturePosition()/10.0)* ENC_TO_METERS ))+0.2689546915039062));
+        log("encoder: "+((slideMotor.getSelectedSensorPosition())/10));
     }
 
     public double controlX(double setpointX) {
-        currentX = ((((-slideMotor.getSensorCollection().getQuadraturePosition()/10.0) * ENC_TO_METERS))+0.49-0.195);
+        currentX = (((-(slideMotor.getSensorCollection().getQuadraturePosition()/10.0)* ENC_TO_METERS ))+0.2689546915039062 );
         double output = xPID.pidPosition(currentX, setpointX);
         return output;
     }
     // Notice! if you call loop before set, the target location will be the farthest back.
     public void loop(){
 //        log("target x: "+targetX);
-        currentX = ((((-slideMotor.getSensorCollection().getQuadraturePosition()/10.0) * ENC_TO_METERS)+0.49-0.195));
+        currentX = (((-(slideMotor.getSensorCollection().getQuadraturePosition()/10.0)* ENC_TO_METERS ))+0.2689546915039062);
         if (targetX != -1) {
             double slideMotor_output = controlX(targetX);
             slideMotor.set(-slideMotor_output);

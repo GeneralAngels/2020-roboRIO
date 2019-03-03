@@ -3,7 +3,7 @@ package frc.robot.bobot.control;
 import frc.robot.bobot.Subsystem;
 
 public class PID extends Subsystem {
-    public double kp, ki, kd, kf, measurement, measurementPrev, dt, derivative, derivativePrev, error, errorPrev, integral, setPointMin, controlSignal, tolerance, alpha, integralMax, signalMin, signalMax, minErrorIntegral;
+    public double kp, ki, kd, kf, measurement, measurementPrev, dt, derivative, derivativePrev, error, errorPrev, integral, setPointMin, controlSignal, tolerance, alpha, integralMax, signalMin, signalMax, minErrorIntegral, lastSetPoints;
 
     public PID() {
         this.kp = 1;
@@ -18,7 +18,7 @@ public class PID extends Subsystem {
         this.error = 0;
         this.errorPrev = 0;
         this.integral = 0;
-        this.setPointMin = 0;
+        this.setPointMin = 0.01;
         this.controlSignal = 0;
         this.tolerance = 0.01;
         this.alpha = 0.5;
@@ -26,6 +26,7 @@ public class PID extends Subsystem {
         this.signalMin = 0;
         this.signalMax = 12;
         this.minErrorIntegral = 10;
+        this.lastSetPoints = 0;
     }
 
     public void setMeasurement(double value) {
@@ -109,6 +110,8 @@ public class PID extends Subsystem {
         controlSignal = constrain(controlSignal, -signalMax, signalMax);
         return controlSignal;
     }
+
+
 
     public void setPIDF(double kP, double kI, double kD, double kF) {
         this.kp = kP;

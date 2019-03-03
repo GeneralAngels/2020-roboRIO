@@ -4,10 +4,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.bobot.Subsystem;
 import frc.robot.bobot.utils.Toggle;
 import frc.robot.efrat.statemachine.states.*;
-import frc.robot.efrat.systems.Roller;
-import frc.robot.efrat.systems.Shanti;
-import frc.robot.efrat.systems.Shiri;
-import frc.robot.efrat.systems.Tomer;
+import frc.robot.efrat.systems.*;
 import frc.robot.efrat.systems.rgb.RobotIdle;
 import org.json.JSONObject;
 
@@ -66,6 +63,7 @@ public class StateMachine extends Subsystem {
     private void initSubsystems() {
         Tomer.init();
         Shiri.init();
+        Klein.init();
         Shanti.init();
         Roller.init();
     }

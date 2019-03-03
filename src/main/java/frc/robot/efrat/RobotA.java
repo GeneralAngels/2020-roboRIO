@@ -166,9 +166,12 @@ public class RobotA extends Bobot {
             // Klein Drive
 //            shanti.setStick(operatorGamepad.getX(GenericHID.Hand.kRight));
 //            shiri.setMotor(operatorGamepad.getX(GenericHID.Hand.kRight));
-            shanti.setLift(operatorGamepad.getY(GenericHID.Hand.kRight));
+//            shanti.setLift(operatorGamepad.getY(GenericHID.Hand.kRight));
+            shiri.print();
+            shiri.set(0.35);
+            shiri.loop();
 //            klein.set(operatorGamepad.getX(GenericHID.Hand.kRight));
-            drive.setStickNoPID(operatorGamepad.getY(GenericHID.Hand.kLeft), operatorGamepad.getX(GenericHID.Hand.kLeft));
+//            drive.setStickNoPID(operatorGamepad.getY(GenericHID.Hand.kLeft), operatorGamepad.getX(GenericHID.Hand.kLeft));
         }
     }
 

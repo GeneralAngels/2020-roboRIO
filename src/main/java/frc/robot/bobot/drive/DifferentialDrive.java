@@ -18,13 +18,14 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public PID motorControlLeft;
     public PID motorControlRight;
     public Gyroscope gyro;
-    public double WHEEL_DISTANCE = 0.58;
-    public double WHEEL_RADIUS = 0.105;
-    public double MAX_V = 4;
+    public double WHEEL_DISTANCE = 0.46715;
+    public double WHEEL_RADIUS = 0.1016;
+    public double MAX_V = 1;
 //    for good results max omega = max_v * 2 /wheel_distance
-    public double MAX_OMEGA = MAX_V * 2 / WHEEL_DISTANCE ;
+//    MAX_V * 2 / WHEEL_DISTANCE
+    public double MAX_OMEGA = 3.14*2;
     public double[] realVOmega;
-    public double ENCODER_COUNT_PER_REVOLUTION = 500;
+    public double ENCODER_COUNT_PER_REVOLUTION = 512;
     public double ENCODER_TO_RADIAN = (Math.PI * 2) / (4 * ENCODER_COUNT_PER_REVOLUTION);
     public double setPointVPrev = 0;
     public double setPointOmegaPrev = 0;
@@ -34,22 +35,23 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public double rightEncPrev = 0;
     public double leftEncPrev = 0;
     public double MAX_WHEEL_VELOCITY = 10;
+    public double lastSetPoints = 0;
     protected Drivebox<T> left = new Drivebox<>(), right = new Drivebox<>();
-    protected Odometry odometry = new Odometry();
+        protected Odometry odometry = new Odometry();
 
     public DifferentialDrive() {
-        motorControlLeft = new PID();
-        motorControlRight = new PID();
-        motorControlLeft.setPIDF(0, 0.12, 0, 0.5);
-        motorControlRight.setPIDF(0, 0.12, 0, 0.5);
-    }
-
-    public static double noPIDCalculateRight(double speed, double turn) {
-        if (speed == 0) {
-            return turn;
-        } else {
-            return (speed + turn);
+            motorControlLeft = new PID();
+            motorControlRight = new PID();
+            motorControlLeft.setPIDF(0, 0.12, 0, 0.7);
+            motorControlRight.setPIDF(0, 0.12, 0, 0.7);
         }
+
+        public static double noPIDCalculateRight(double speed, double turn) {
+            if (speed == 0) {
+                return turn;
+            } else {
+                return (speed + turn);
+            }
     }
 
     public static double noPIDCalculateLeft(double speed, double turn) {
@@ -76,22 +78,37 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     }
 
     public void set(double speed, double turn) {
-        double setpointV = speed;
+        double setpointV = accControl(speed);
+        log(speed + "    0s");
         double setpointOmega = turn;
         setpointV = (setpointV * 0.5) + (setPointVPrev * 0.5);
         setpointOmega = (setpointOmega * 0.5) + (setPointOmegaPrev * 0.5);
-        if (Math.abs(setpointV) < 0.1) setpointV = 0;
-        if (Math.abs(setpointOmega) < 0.1) setpointOmega = 0;
+        if (Math.abs(setpointV) < 0.2) setpointV = 0;
+        if (Math.abs(setpointOmega) < 0.2) setpointOmega = 0;
         double[] motorOutput = calculateOutputs(setpointV * MAX_V, setpointOmega * MAX_OMEGA);
         realVOmega = getRobotVelocities();
 //        log("Il:" + motorControlLeft.getIntegral() + " Ir:" + motorControlRight.getIntegral() + " Vr=" + realVOmega[0] + " Left=" + motorControlLeft.getDerivative() + " Right=" + motorControlRight.getDerivative());
 
         setPointVPrev = setpointV;
         setPointOmegaPrev = setpointOmega;
+        log("left: "+ motorOutput[0]+" right: "+motorOutput[1]);
         direct(motorOutput[0] / 12, motorOutput[1] / 12);
         updateOdometry();
     }
-
+    public double accControl(double currentV){
+        double maxAcc = 0.1; //   12/(m/s^2)
+        double error = currentV - this.lastSetPoints;
+        if (error > maxAcc) {
+            this.lastSetPoints = this.lastSetPoints + maxAcc;
+            return this.lastSetPoints;
+        }
+        else if (error < - maxAcc) {
+            this.lastSetPoints = this.lastSetPoints - maxAcc;
+            return this.lastSetPoints;
+        }
+        this.lastSetPoints = currentV;
+        return currentV;
+    }
     public double[] calculateOutputs(double speed, double turn) {
         double[] wheelSetPoints = robotToWheels(speed, turn);
         Rsetpoint = wheelSetPoints[1];
@@ -113,7 +130,6 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     private double[] robotToWheels(double linear, double angular) {
         double Vleft = (linear / WHEEL_RADIUS) - (angular * WHEEL_DISTANCE) / (2 * WHEEL_RADIUS);
         double Vright = (linear / WHEEL_RADIUS) + (angular * WHEEL_DISTANCE) / (2 * WHEEL_RADIUS);
-//        log(Vleft+","+Vright);
         return new double[]{Vleft, Vright};
     }
 
@@ -126,8 +142,10 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public void updateOdometry() {
         double theta;
         theta = 0;
+
         double encoderLeft = left.getEncoder().getRaw() * ENCODER_TO_RADIAN;
         double encoderRight = right.getEncoder().getRaw() * ENCODER_TO_RADIAN;
+        log("left:" + left.getEncoder().getRaw()+",right:" + right.getEncoder().getRaw());
 //        double deltaWheel = (encoderLeft+encoderRight)*WHEEL_RADIUS/2.0;
 //        double delta_x = ((((right.getEncoder().getRaw() + left.getEncoder().getRaw()) / 2.0) / 9036.0) * 0.659715);
         if (gyro == null) {
@@ -136,7 +154,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         } else {
             theta = Math.toRadians(gyro.getCountedAngle());
         }
-        log(Double.toString(theta)+","+Double.toString(gyro.getAngle()));
+//        log(Double.toString(theta)+","+Double.toString(gyro.getAngle()));
 //        log(Double.toString(gyro.countedAngle) + "," + Double.toString(gyro.getAngle()));
 //        log("Rad: "+theta);
         //x += (realVOmega[0] * Math.cos(theta) * 0.02);

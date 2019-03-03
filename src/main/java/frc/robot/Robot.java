@@ -2,7 +2,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.bobot.Bobot;
-import frc.robot.efrat.EfratTestingFull;
 import frc.robot.efrat.RobotA;
 
 public class Robot extends TimedRobot {
