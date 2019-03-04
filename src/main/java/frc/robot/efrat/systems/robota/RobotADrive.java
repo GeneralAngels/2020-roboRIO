@@ -10,7 +10,7 @@ import frc.robot.bobot.drive.Gyroscope;
 public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
     private static RobotADrive latest;
     protected Gyroscope gyro;
-    private boolean pneumatics = true;
+    private boolean pneumatics = false;
     private double latestX, latestY;
     private DoubleSolenoid gear;
 

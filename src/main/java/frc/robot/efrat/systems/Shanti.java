@@ -69,7 +69,7 @@ public class Shanti extends Subsystem {
         liftMotor2PID = new PID();
         liftMotor2PID.setPIDF(3, 0, 0, 0);
         radiusPID = new PID();
-        radiusPID.setPIDF(1, 0.7, 0, 0);
+        radiusPID.setPIDF(0.4, 0.05, 0, 0);
         radiusPID.minErrorIntegral = 0.1;
         betaPID = new PID();
         betaPID.setPIDF(0.15, 0.15, 0.05, 0);
@@ -117,15 +117,17 @@ public class Shanti extends Subsystem {
     // Notice! if set isnt called before loop, the target location will not change.
     // TODO NOTICE! SHANTI DIRECTIONS FLIPPED
     public void loop(){
-        log("Shanti: "+stickMotor.getSensorCollection().getQuadraturePosition());
-        log("ShantiPOTETO: "+potentiometer.getValue()+" "+potentiometer.getVoltage());
+//        log("Shanti: "+stickMotor.getSensorCollection().getQuadraturePosition());
+//        log("ShantiPOTETO: "+potentiometer.getVoltage());
         double[] rb = xy2rb(targetX, targetY);
-        currentR = (stickMotor.getSensorCollection().getQuadraturePosition() * ENC_TO_METERS) + 0.5-0.03-0.21+0.439;
+        currentR = (3.081-((stickMotor.getSensorCollection().getQuadraturePosition() * ENC_TO_METERS + 0.5-0.03-0.21+0.439+0.8+0.6)));
+        log("currentR: "+currentR);
         currentBeta = mapValues(potentiometer.getVoltage());
+//        log("currentBeta: "+Math.toDegrees(currentBeta));
         double[] xy = rb2xy(currentR, currentBeta);
         currentx = xy[0];
         currnety = xy[1];
-//        log("x: " + currentx + ",y:" + currnety);
+        log("x: " + currentx + ",y:" + currnety);
         if (targetY!=-100 && targetX!=-100) {
             double compensationBeta = GRAVITY_POWER_BETA * (11.45 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.cos(currentBeta);
             double compensationRadius = GRAVITY_POWER_RADIUS * (12.5 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.sin(currentBeta);
@@ -155,7 +157,7 @@ public class Shanti extends Subsystem {
 
 
     public double controlRadius(double setpointRadius, double currentR, double compensation) {
-        double output = radiusPID.pidGravity(currentR, setpointRadius, compensation);
+        double output = radiusPID.pidGravity(setpointRadius,currentR, compensation);
         return output;
     }
 
@@ -176,7 +178,7 @@ public class Shanti extends Subsystem {
         double alpha = 0.1;
         double meas = (measurement * alpha + measurementPrev * (1 - alpha));
         measurementPrev = meas;
-        meas = 58.3 * meas - 115;
+        meas = 54.877 * meas - 98.329;
         return Math.toRadians(meas);
     }
 
@@ -185,9 +187,9 @@ public class Shanti extends Subsystem {
     }
 
     public void print() {
-//        log("meters: " + (stickMotor.getSensorCollection().getQuadraturePosition() * ENC_TO_METERS + 0.5-0.03-0.21+0.439));
+        log("meters: " + (3.081-((stickMotor.getSensorCollection().getQuadraturePosition() * ENC_TO_METERS + 0.5-0.03-0.21+0.439+0.8+0.6))));
 //        log("degrees: " + Math.toDegrees(mapValues(potentiometer.getVoltage())));
-        log("pot" + potentiometer.getVoltage());
+     //   log("pot" + potentiometer.getVoltage());
     }
 
     public void setStick(double speed) {

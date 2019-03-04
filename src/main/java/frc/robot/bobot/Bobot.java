@@ -14,7 +14,7 @@ public class Bobot extends Subsystem {
     public static final String DRIVER_STATUS = "driver_status";
     public static final String OPERATOR_STATUS = "operator_status";
 
-    public static final String DEFAULT_VALUE = "{\"default\":\"If You Get This, Get Your Shit Together.\"}";
+    public static final String DEFAULT_VALUE = "{\"default\":\"If You Get This, Get Your Things Together.\"}";
 
     protected ArrayList<Subsystem> subsystems = new ArrayList<>();
 

@@ -5,13 +5,14 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import frc.robot.bobot.drive.DifferentialDrive;
 import frc.robot.bobot.drive.Drivebox;
 import frc.robot.bobot.drive.Gyroscope;
+import edu.wpi.first.wpilibj.Encoder;
 import org.json.JSONObject;
 
 public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {
     private static final String LATESTX = "padx", LATESTY = "pady";
     private static PneumaticDrive latest;
     protected Gyroscope gyro;
-    private boolean pneumatics = true;
+    private boolean pneumatics = false;
     private double latestX, latestY;
     private DoubleSolenoid gear;
 
@@ -20,16 +21,16 @@ public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {
         if (pneumatics) {
             gear = new DoubleSolenoid(6, 7);
         }
-        right.add(new WPI_TalonSRX(10));
-        right.add(new WPI_TalonSRX(11));
-        left.add(new WPI_TalonSRX(12));
-        left.add(new WPI_TalonSRX(13));
-//        left.setEncoder(new Encoder(7, 6));
-//        right.setEncoder(new Encoder(4, 5));
+        right.add(new WPI_TalonSRX(3));
+        right.add(new WPI_TalonSRX(4));
+        left.add(new WPI_TalonSRX(1));
+        left.add(new WPI_TalonSRX(2));
+        left.setEncoder(new Encoder(4,5));
+        right.setEncoder(new Encoder(2,3));
         left.setDirection(Drivebox.DIRECTION_BACKWARD);
-        right.setDirection(Drivebox.DIRECTION_BACKWARD);
-//        left.getEncoder().reset();
-//        right.getEncoder().reset();
+//        right.setDirection(Drivebox.DIRECTION_BACKWARD);
+        //left.getEncoder().reset();
+        //right.getEncoder().reset();
 //        gyro = new Gyroscope();
 //        initGyro(gyro);
 

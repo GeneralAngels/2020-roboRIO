@@ -50,8 +50,8 @@ public class RobotA extends Bobot {
         initControllers();
         initRGB();
         initSystems();
-        initStateMachine();
-        initCompressor();
+//        initStateMachine();
+//        initCompressor();
         initTriggers();
         super.init();
         instructions();
@@ -94,10 +94,10 @@ public class RobotA extends Bobot {
 
     private void initSystems() {
         drive = new RobotADrive();
-        tomer = new Tomer();
-        shiri = new Shiri();
+//        tomer = new Tomer();
+//        shiri = new Shiri();
         shanti = new Shanti();
-        klein = new Klein();
+//        klein = new Klein();
         addToJSON(drive);
     }
 
@@ -172,9 +172,13 @@ public class RobotA extends Bobot {
 //            shanti.setStick(operatorGamepad.getX(GenericHID.Hand.kRight));
 //            shiri.setMotor(operatorGamepad.getX(GenericHID.Hand.kRight));
 //            shanti.setLift(operatorGamepad.getY(GenericHID.Hand.kRight));
-            shiri.print();
-            shiri.set(0.35);
-            shiri.loop();
+//            shiri.print();
+//            shiri.set(0.35);
+//            shiri.loop();
+            shanti.set(0.5, 0);
+            shanti.loop();
+//              shanti.setLift(0.2);
+            shanti.print();
 //            klein.set(operatorGamepad.getX(GenericHID.Hand.kRight));
 //            drive.setStickNoPID(operatorGamepad.getY(GenericHID.Hand.kLeft), operatorGamepad.getX(GenericHID.Hand.kLeft));
         }

@@ -81,7 +81,7 @@ public class PID extends Subsystem {
     public double pidGravity(double setpoint,double measurement,double derivative,double compensation){
         setMeasurement(measurement);
         error = setpoint - measurement;
-
+//        log("error: "+error);
         if(Math.abs(error) < minErrorIntegral){
             integral += ((error + errorPrev) * dt) / 2 * ki;
             integral = constrain(integral, -integralMax, integralMax);

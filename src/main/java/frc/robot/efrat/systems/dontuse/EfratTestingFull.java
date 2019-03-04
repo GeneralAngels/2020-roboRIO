@@ -33,6 +33,7 @@ public class EfratTestingFull extends Bobot {
     protected WPI_TalonSRX slideMotor;
     protected double testing =  0;
     protected double counter=0;
+    protected PneumaticDrive pneumaticDrive;
 
     @Override
     public void init() {
@@ -43,6 +44,8 @@ public class EfratTestingFull extends Bobot {
 //        shanti = new Shanti();
 //        shiri = new Shiri();
 //        compressor.setClosedLoopControl(true);
+
+        pneumaticDrive = new PneumaticDrive();
         driverGamepad = new XboxController(0);
 //        slideMotor = new WPI_TalonSRX(14);
         addToJSON(stateMachine);
@@ -106,7 +109,7 @@ public class EfratTestingFull extends Bobot {
     public void teleop() {
 //        updateTriggers();
 //        if (counter > 50) {
-            stateMachine.update(driverGamepad, null);
+//            stateMachine.update(driverGamepad, null);
 //        }
 //        shanti.set(0.5,0.5);
 //        shanti.print();
@@ -115,8 +118,10 @@ public class EfratTestingFull extends Bobot {
 //        shiri.print();
 //        loopSystems();
 //        counter+=1;
+//        pneumaticDrive.set(0,0);
+        log("v:" + driverGamepad.getY(GenericHID.Hand.kLeft)+",w:" + driverGamepad.getX(GenericHID.Hand.kLeft));
+        pneumaticDrive.set(driverGamepad.getY(GenericHID.Hand.kLeft),driverGamepad.getX(GenericHID.Hand.kLeft));
         progress++;
-        progress("My Lil Thing",(progress%200)/2);
     }
 
     protected void robotStatus() {
