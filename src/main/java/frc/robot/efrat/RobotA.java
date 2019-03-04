@@ -51,14 +51,14 @@ public class RobotA extends Bobot {
         initRGB();
         initSystems();
 //        initStateMachine();
-//        initCompressor();
+        initCompressor();
         initTriggers();
         super.init();
         instructions();
     }
 
     private void initCompressor() {
-        compressor = new Compressor(0);
+        compressor = new Compressor(1);
         compressor.setClosedLoopControl(true);
     }
 
@@ -94,20 +94,20 @@ public class RobotA extends Bobot {
 
     private void initSystems() {
         drive = new RobotADrive();
-//        tomer = new Tomer();
-//        shiri = new Shiri();
+        tomer = new Tomer();
+        shiri = new Shiri();
         shanti = new Shanti();
-//        klein = new Klein();
+        klein = new Klein();
         addToJSON(drive);
     }
 
     private void initTriggers() {
-        driverLeftT = new Toggle(new Toggle.Change() {
-            @Override
-            public void change(boolean toggle) {
-                isAutonomous = toggle;
-            }
-        });
+//        driverLeftT = new Toggle(new Toggle.Change() {
+//            @Override
+//            public void change(boolean toggle) {
+//                isAutonomous = toggle;
+//            }
+//        });
         driverRightT = new Toggle(new Toggle.Change() {
             @Override
             public void change(boolean toggle) {
@@ -118,13 +118,29 @@ public class RobotA extends Bobot {
                 }
             }
         });
-        operatorBack = new Toggle(new Toggle.Change() {
+//        operatorBack = new Toggle(new Toggle.Change() {
+//            @Override
+//            public void change(boolean toggle) {
+//                if (toggle) drive.gearDown();
+//                if (!toggle) drive.gearUp();
+////               if(toggle)shiri.open();
+////               if(!toggle)shiri.close();
+//            }
+//        });
+//        operatorStart = new Toggle(new Toggle.Change() {
+//            @Override
+//            public void change(boolean toggle) {
+//                if (toggle)
+//                    tomer.open();
+//                else
+//                    tomer.close();
+//            }
+//        });
+        operatorX = new Toggle(new Toggle.Change() {
             @Override
             public void change(boolean toggle) {
-                if (toggle) drive.gearDown();
-                if (!toggle) drive.gearUp();
-//               if(toggle)shiri.open();
-//               if(!toggle)shiri.close();
+                if (toggle) shiri.open();
+                else shiri.close();
             }
         });
     }
@@ -151,10 +167,12 @@ public class RobotA extends Bobot {
     }
 
     private void loopSubsystems() {
+        shiri.loop();
+        shanti.loop();
     }
 
     @Override
-    public void autonomous(){
+    public void autonomous() {
         teleop();
     }
 
@@ -165,22 +183,19 @@ public class RobotA extends Bobot {
 //        stateMachine.update(operatorGamepad, null);
 
         if (!isAutonomous) {
-            // Klein Drive
-//            double[] parameters = drive.wheelsToRobot(-driverLeft.getY(), -driverRight.getY());
-//            drive.set(parameters[0], parameters[1]);
-            // Klein Drive
-//            shanti.setStick(operatorGamepad.getX(GenericHID.Hand.kRight));
-//            shiri.setMotor(operatorGamepad.getX(GenericHID.Hand.kRight));
-//            shanti.setLift(operatorGamepad.getY(GenericHID.Hand.kRight));
+//            shanti.print();
+//            shanti.set(0.4, 0.4);
+//            shiri.set(0.38);
 //            shiri.print();
-//            shiri.set(0.35);
-//            shiri.loop();
-            shanti.set(0.5, 0);
-            shanti.loop();
-//              shanti.setLift(0.2);
-            shanti.print();
-//            klein.set(operatorGamepad.getX(GenericHID.Hand.kRight));
-//            drive.setStickNoPID(operatorGamepad.getY(GenericHID.Hand.kLeft), operatorGamepad.getX(GenericHID.Hand.kLeft));
+//            shanti.loop();
+//              shanti.print();
+//            shiri.set(0.3);
+//            shiri.loop();ss
+            shanti.setLift(operatorGamepad.getY(GenericHID.Hand.kLeft) / 6 - Shanti.getInstance().compensationBeta);
+            shanti.setStick(operatorGamepad.getX(GenericHID.Hand.kLeft) + shanti.getInstance().compensationRadius);
+            shiri.setMotor((-operatorGamepad.getY(GenericHID.Hand.kRight)) / 2.0);
+            drive.setTank(driverRight.getY(), driverLeft.getY());
+            klein.set(operatorGamepad.getBackButton() ? (operatorGamepad.getBumper(GenericHID.Hand.kLeft) ? 1 : operatorGamepad.getBumper(GenericHID.Hand.kRight) ? -1 : 0) : 0);
         }
     }
 

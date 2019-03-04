@@ -11,6 +11,7 @@ public class Tomer extends Subsystem {
 
     public Tomer() {
         latest = this;
+        claw = new DoubleSolenoid(0,2, 3);
 //        claw = new DoubleSolenoid(2, 3);
 //        pivot = new DoubleSolenoid(4, 5);
 //        cargoIndicator = new DigitalInput(PinMan.getNavDIO(5));

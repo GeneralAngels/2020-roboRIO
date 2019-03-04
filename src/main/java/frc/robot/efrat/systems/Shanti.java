@@ -26,8 +26,8 @@ public class Shanti extends Subsystem {
     //95
     private static final double LIMIT_V = 0.1;
     private static final double LIMIT_OMEGA = 0.1;
-    private static final double GRAVITY_POWER_RADIUS = -0.12;
-    private static final double GRAVITY_POWER_BETA = 0.2;
+    private static final double GRAVITY_POWER_RADIUS = -0.11;
+    private static final double GRAVITY_POWER_BETA = 0.12;
     private static Shanti latest;
     private double measurementPrev = 0;
     private double currentAngle = 0, targetAngleRadians = 0;
@@ -49,16 +49,24 @@ public class Shanti extends Subsystem {
     private int loops = 0;
     private double targetX=-100,targetY=-100;
     private double currentx=0,currnety = 0;
+    public  double compensationRadius = 0;
+    public  double compensationBeta = 0;
+
 
     public Shanti() {
         latest = this;
         stickMotor = new WPI_TalonSRX(17);
+        int absulute=stickMotor.getSensorCollection().getPulseWidthPosition();
+        int notAbsulute=stickMotor.getSensorCollection().getQuadraturePosition();
+        log("Abs Pos = "+absulute+", NOT Abs Pos = "+notAbsulute);
         stickMotor.getSensorCollection().setQuadraturePosition(stickMotor.getSensorCollection().getPulseWidthPosition(),100);
         downReset = new DigitalInput(PinMan.getNavDIO(6));
         upReset = new DigitalInput(PinMan.getNavDIO(7));
         frontReset = new DigitalInput(PinMan.getNavDIO(8));
         backReset = new DigitalInput(PinMan.getNavDIO(9));
-
+        stickMotor.getSensorCollection().setPulseWidthPosition(0,0);
+        stickMotor.getSensorCollection().setQuadraturePosition(0,0);
+        stickMotor.getSensorCollection().setAnalogPosition(0,0);
         liftMotor1 = new WPI_TalonSRX(15);
         liftMotor1.setInverted(true);
         liftMotor2 = new WPI_TalonSRX(16);
@@ -69,10 +77,10 @@ public class Shanti extends Subsystem {
         liftMotor2PID = new PID();
         liftMotor2PID.setPIDF(3, 0, 0, 0);
         radiusPID = new PID();
-        radiusPID.setPIDF(0.4, 0.05, 0, 0);
+        radiusPID.setPIDF(0.6, 0.05, 0, 0);
         radiusPID.minErrorIntegral = 0.1;
         betaPID = new PID();
-        betaPID.setPIDF(0.15, 0.15, 0.05, 0);
+        betaPID.setPIDF(0.25, 0.12, 0.05, 0);
         betaPID.minErrorIntegral = 0.15;
     }
 
@@ -119,24 +127,27 @@ public class Shanti extends Subsystem {
     public void loop(){
 //        log("Shanti: "+stickMotor.getSensorCollection().getQuadraturePosition());
 //        log("ShantiPOTETO: "+potentiometer.getVoltage());
+        int absulute=stickMotor.getSensorCollection().getPulseWidthPosition();
+        int notAbsulute=stickMotor.getSensorCollection().getQuadraturePosition();
+        log("Abs Pos = "+absulute+", NOT Abs Pos = "+notAbsulute);
         double[] rb = xy2rb(targetX, targetY);
-        currentR = (3.081-((stickMotor.getSensorCollection().getQuadraturePosition() * ENC_TO_METERS + 0.5-0.03-0.21+0.439+0.8+0.6)));
+        currentR = ((stickMotor.getSensorCollection().getQuadraturePosition() * ENC_TO_METERS +1));
         log("currentR: "+currentR);
         currentBeta = mapValues(potentiometer.getVoltage());
 //        log("currentBeta: "+Math.toDegrees(currentBeta));
         double[] xy = rb2xy(currentR, currentBeta);
         currentx = xy[0];
         currnety = xy[1];
-        log("x: " + currentx + ",y:" + currnety);
+//        log("x: " + currentx + ",y:" + currnety);
+        compensationBeta = GRAVITY_POWER_BETA * (11.45 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.cos(currentBeta);
+        compensationRadius = GRAVITY_POWER_RADIUS * (12.5 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.sin(currentBeta);
         if (targetY!=-100 && targetX!=-100) {
-            double compensationBeta = GRAVITY_POWER_BETA * (11.45 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.cos(currentBeta);
-            double compensationRadius = GRAVITY_POWER_RADIUS * (12.5 / DriverStation.getInstance().getBatteryVoltage()) * (currentR) * Math.sin(currentBeta);
             double motorOutputBeta = controlBeta(rb[1], currentBeta, compensationBeta);
             double motorOutputRadius = controlRadius(rb[0], currentR, compensationRadius);
             if (loops > 50) {
                 stickMotor.set(motorOutputRadius);
-                liftMotor1.set(motorOutputBeta);
-                liftMotor2.set(-motorOutputBeta);
+                liftMotor1.set(-motorOutputBeta);
+                liftMotor2.set(motorOutputBeta);
             } else
                 loops++;
             motorOutputBetaPrev = motorOutputBeta;
@@ -178,7 +189,7 @@ public class Shanti extends Subsystem {
         double alpha = 0.1;
         double meas = (measurement * alpha + measurementPrev * (1 - alpha));
         measurementPrev = meas;
-        meas = 54.877 * meas - 98.329;
+        meas = 109.49 * meas - 448.54;
         return Math.toRadians(meas);
     }
 
@@ -187,9 +198,9 @@ public class Shanti extends Subsystem {
     }
 
     public void print() {
-        log("meters: " + (3.081-((stickMotor.getSensorCollection().getQuadraturePosition() * ENC_TO_METERS + 0.5-0.03-0.21+0.439+0.8+0.6))));
-//        log("degrees: " + Math.toDegrees(mapValues(potentiometer.getVoltage())));
-     //   log("pot" + potentiometer.getVoltage());
+        log("meters: " + (((stickMotor.getSensorCollection().getQuadraturePosition() * ENC_TO_METERS)+0.3)));
+        log("degrees: " + Math.toDegrees(mapValues(potentiometer.getVoltage())));
+        log("pot" + potentiometer.getVoltage());
     }
 
     public void setStick(double speed) {

@@ -53,7 +53,7 @@ public class Gyroscope extends AHRS {
 
             countedAngle += angular_velocity * delta;
         }
-        log("Counted "+countedAngle);
+//        log("Counted "+countedAngle);
 //        log("delta: " + Double.toString(delta)+",offset: " + Double.toString(offset) + ",getRate: " + Double.toString(getRate()) + ",vel: " +  Double.toString(angular_velocity ));
 //        log("get_angle: " + Double.toString(getAngle()) + ",get_counted_angle: " + countedAngle);
         return countedAngle;
