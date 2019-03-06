@@ -5,10 +5,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class Bobot extends Subsystem {
-
-    public static final String ACK = "ack";
-    public static final String REQUEST = "request";
-    public static final String DRIVE = "pneumaticDrive";
+    public static final String TIME = "time";
     public static final String SUBSYSTEMS = "subsystems";
     public static final String ROBOT_STATUS = "robot_status";
     public static final String DRIVER_STATUS = "driver_status";
@@ -48,16 +45,21 @@ public class Bobot extends Subsystem {
     }
 
     public void teleop() {
-
+        loop();
     }
 
     public void autonomous() {
+        loop();
+    }
 
+    protected void loop() {
+        log(toJSON().toString());
     }
 
     @Override
     public JSONObject toJSON() {
         JSONObject returnObject = new JSONObject();
+        returnObject.put(TIME, millis());
         try {
             JSONObject subsystemsObject = new JSONObject();
             for (Subsystem subsystem : subsystems) {
