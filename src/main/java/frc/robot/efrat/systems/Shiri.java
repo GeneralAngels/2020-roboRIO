@@ -3,7 +3,6 @@ package frc.robot.efrat.systems;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.bobot.Subsystem;
 import frc.robot.bobot.control.PID;
 import frc.robot.bobot.utils.PinMan;
@@ -34,7 +33,7 @@ public class Shiri extends Subsystem {
  //       slideMotor.setInverted(true);
         slideMotor.getSensorCollection().setPulseWidthPosition(0,0);
         slideMotor.getSensorCollection().setQuadraturePosition(0,0);
-        slideMotor.getSensorCollection().setAnalogPosition(0,0);
+//        slideMotor.getSensorCollection().setAnalogPosition(0,0);
         grab1 = new DigitalInput(PinMan.getNavDIO(1));
         grab2 = new DigitalInput(PinMan.getNavDIO(2));
         backReset = new DigitalInput(PinMan.getNavDIO(3));
@@ -56,7 +55,7 @@ public class Shiri extends Subsystem {
     }
 
     public boolean isAtBack() {
-        log("Shiri Position-Reset");
+//        log("Shiri Position-Reset");
         return backReset.get();
     }
 
@@ -93,7 +92,8 @@ public class Shiri extends Subsystem {
                 slideMotor.set(0);
         } else {
             slideMotor.set(speed);
-        }        log("Shiri: "+slideMotor.getSensorCollection().getQuadraturePosition());
+        }
+//        log("Shiri: "+slideMotor.getSensorCollection().getQuadraturePosition());
 
     }
 
@@ -108,7 +108,7 @@ public class Shiri extends Subsystem {
         return 0;
     }
     public void print(){
-        log("meters: "+((-(slideMotor.getSensorCollection().getQuadraturePosition()/10.0)* ENC_TO_METERS +0.9253156529296874)));
+//        log("meters: "+((-(slideMotor.getSensorCollection().getQuadraturePosition()/10.0)* ENC_TO_METERS +0.9253156529296874)));
 //        log("encoder: "+((slideMotor.getSelectedSensorPosition())/10));
     }
 
@@ -133,14 +133,11 @@ public class Shiri extends Subsystem {
 
     public boolean in_place(double x, double diffrenceX){
         if(targetX>0.36) {
-            if ((currentX- (x-0.23) > diffrenceX))
-                return true;
+            return (currentX - (x - 0.23) > diffrenceX);
         }
         else {
-            if (((x-0.23) - currentX) > diffrenceX)
-                return true;
+            return ((x - 0.23) - currentX) > diffrenceX;
         }
-        return false;
     }
 
     public void setMotor(double d){

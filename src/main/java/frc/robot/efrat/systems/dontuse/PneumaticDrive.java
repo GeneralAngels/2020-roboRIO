@@ -2,10 +2,10 @@ package frc.robot.efrat.systems.dontuse;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.bobot.drive.DifferentialDrive;
 import frc.robot.bobot.drive.Drivebox;
 import frc.robot.bobot.drive.Gyroscope;
-import edu.wpi.first.wpilibj.Encoder;
 import org.json.JSONObject;
 
 public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {

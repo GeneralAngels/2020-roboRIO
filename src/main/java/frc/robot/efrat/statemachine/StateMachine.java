@@ -93,8 +93,8 @@ public class StateMachine extends Subsystem {
                 initApplied = true;
                 if (currentState != null)
                     currentState.apply();
-                else
-                    log("Fatal error, no initial state!");
+//                else
+//                    log("Fatal error, no initial state!");
             } else {
                 currentInput = Input.NONE;
                 updateToggles(op, dr);
@@ -111,7 +111,7 @@ public class StateMachine extends Subsystem {
                         notifyChange();
                     } else {
                         RobotIdle.getInstance().flash(Color.RED);
-                        log("No State");
+//                        log("No State");
                     }
                 } else {
                     if (currentState != null && currentState.nextState(Input.NONE) != null && currentState != currentState.nextState(Input.NONE)) {
@@ -126,8 +126,8 @@ public class StateMachine extends Subsystem {
     }
 
     private void notifyChange() {
-        log((lastState != null ? lastState.getName() : "none") + " to " + (currentState != null ? currentState.getName() : "none"));
-        log("State->" + currentState.getName() + ";");
+//        log((lastState != null ? lastState.getName() : "none") + " to " + (currentState != null ? currentState.getName() : "none"));
+//        log("State->" + currentState.getName() + ";");
     }
 
     private void updateToggles(XboxController op, XboxController dr) {

@@ -7,7 +7,6 @@ import frc.robot.bobot.Bobot;
 import frc.robot.bobot.rgb.RGB;
 import frc.robot.bobot.utils.Toggle;
 import frc.robot.efrat.statemachine.StateMachine;
-import frc.robot.efrat.systems.dontuse.PneumaticDriveSpark;
 import frc.robot.efrat.systems.Shiri;
 import frc.robot.efrat.systems.Tomer;
 import frc.robot.efrat.systems.rgb.RobotIdle;

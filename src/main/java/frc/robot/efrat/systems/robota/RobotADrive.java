@@ -44,14 +44,14 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
     public void gearUp() {
         if (pneumatics) {
             gear.set(DoubleSolenoid.Value.kForward);
-            log("Gear: UP");
+//            log("Gear: UP");
         }
     }
 
     public void gearDown() {
         if (pneumatics) {
             gear.set(DoubleSolenoid.Value.kReverse);
-            log("Gear: DOWN");
+//            log("Gear: DOWN");
         }
     }
 

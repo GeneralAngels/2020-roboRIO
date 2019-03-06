@@ -66,14 +66,17 @@ public class TCP extends Subsystem {
 
                     try {
                         // Init Params
+                        if (reader == null)
+                            reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
                         builder = new StringBuilder();
-                        reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                         try {
                             // Read Input
                             try {
                                 while ((character = reader.read()) != (int) TERMINATOR) {
                                     builder.append((char) character);
                                 }
+                                //                                reader.close();
                             } catch (Exception e) {
                             }
                             // Parse Input -> Output

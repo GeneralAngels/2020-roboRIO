@@ -58,7 +58,7 @@ public class Shanti extends Subsystem {
         stickMotor = new WPI_TalonSRX(17);
         int absulute=stickMotor.getSensorCollection().getPulseWidthPosition();
         int notAbsulute=stickMotor.getSensorCollection().getQuadraturePosition();
-        log("Abs Pos = "+absulute+", NOT Abs Pos = "+notAbsulute);
+//        log("Abs Pos = "+absulute+", NOT Abs Pos = "+notAbsulute);
         stickMotor.getSensorCollection().setQuadraturePosition(stickMotor.getSensorCollection().getPulseWidthPosition(),100);
         downReset = new DigitalInput(PinMan.getNavDIO(6));
         upReset = new DigitalInput(PinMan.getNavDIO(7));
@@ -129,10 +129,10 @@ public class Shanti extends Subsystem {
 //        log("ShantiPOTETO: "+potentiometer.getVoltage());
         int absulute=stickMotor.getSensorCollection().getPulseWidthPosition();
         int notAbsulute=stickMotor.getSensorCollection().getQuadraturePosition();
-        log("Abs Pos = "+absulute+", NOT Abs Pos = "+notAbsulute);
+//        log("Abs Pos = "+absulute+", NOT Abs Pos = "+notAbsulute);
         double[] rb = xy2rb(targetX, targetY);
         currentR = ((stickMotor.getSensorCollection().getQuadraturePosition() * ENC_TO_METERS +1));
-        log("currentR: "+currentR);
+//        log("currentR: "+currentR);
         currentBeta = mapValues(potentiometer.getVoltage());
 //        log("currentBeta: "+Math.toDegrees(currentBeta));
         double[] xy = rb2xy(currentR, currentBeta);
@@ -206,8 +206,8 @@ public class Shanti extends Subsystem {
     public void setStick(double speed) {
         speed /= 3;
         stickMotor.set(speed);
-        log("Shanti: "+stickMotor.getSensorCollection().getQuadraturePosition());
-        log("ShantiPOTETO: "+potentiometer.getValue()+" "+potentiometer.getVoltage());
+//        log("Shanti: "+stickMotor.getSensorCollection().getQuadraturePosition());
+//        log("ShantiPOTETO: "+potentiometer.getValue()+" "+potentiometer.getVoltage());
     }
 
     @Override
@@ -234,8 +234,8 @@ public class Shanti extends Subsystem {
 //        speed /= 6;
         liftMotor1.set(speed);
         liftMotor2.set(-speed);
-        log("Shanti: "+stickMotor.getSensorCollection().getQuadraturePosition());
-        log("ShantiPOTETO: "+potentiometer.getValue()+" "+potentiometer.getVoltage());
+//        log("Shanti: "+stickMotor.getSensorCollection().getQuadraturePosition());
+//        log("ShantiPOTETO: "+potentiometer.getValue()+" "+potentiometer.getVoltage());
     }
 
     public double getCurrentx(){return currentx;}

@@ -92,14 +92,14 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         double encoderRight = right.getEncoder().getRaw() * ENCODER_TO_RADIAN;
         double motorOutputLeft = motorControlLeft.pidVelocity(encoderLeft, Vl);
         double motorOutputRight = motorControlRight.pidVelocity(encoderRight, Vr);
-        log("encoderL: "+encoderLeft+" encoderR: "+encoderRight);
+//        log("encoderL: "+encoderLeft+" encoderR: "+encoderRight);
         if(Math.abs(motorOutputLeft) < 0.1)
             motorOutputLeft = 0;
         if(Math.abs(motorOutputRight) < 0.1)
             motorOutputRight = 0;
         motorOutputLeft = (0.8*motorOutputLeft) + (0.2*motorOutputLeftPrev);
         motorOutputRight = (0.8*motorOutputRight) + (0.2*motorOutputRightPrev);
-        log("left: " + Vl + " right: " + Vr);
+//        log("left: " + Vl + " right: " + Vr);
         motorOutputLeftPrev = motorOutputLeft;
         motorOutputRightPrev = motorOutputRight;
         direct(motorOutputLeft / 12, motorOutputRight / 12);
