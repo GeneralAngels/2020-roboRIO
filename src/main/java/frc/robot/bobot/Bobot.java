@@ -61,14 +61,12 @@ public class Bobot extends Subsystem {
         JSONObject returnObject = new JSONObject();
         returnObject.put(TIME, millis());
         try {
-            JSONObject subsystemsObject = new JSONObject();
             for (Subsystem subsystem : subsystems) {
                 try {
-                    subsystemsObject.put(subsystem.getName().toLowerCase(), subsystem.toJSON());
+                    returnObject.put(subsystem.getName().toLowerCase(), subsystem.toJSON());
                 } catch (Exception ignored) {
                 }
             }
-            returnObject.put(SUBSYSTEMS, subsystemsObject);
         } catch (Exception ignored) {
         }
         return returnObject;

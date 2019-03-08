@@ -1,7 +1,6 @@
 package frc.robot.efrat;
 
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.bobot.Bobot;
@@ -75,7 +74,6 @@ public class RobotA extends Bobot {
     }
 
     private void instructions() {
-        dontLogName();
         log("=======================================================");
         log("Efrat A");
         log("Configure Controllers!");
@@ -84,7 +82,6 @@ public class RobotA extends Bobot {
         log("Operator Port 2");
         log("To Begin, Press Enable");
         log("=======================================================");
-        doLogName();
     }
 
     private void initRGB() {
@@ -95,10 +92,10 @@ public class RobotA extends Bobot {
 
     private void initSystems() {
         drive = new RobotADrive();
-        tomer = new Tomer();
+//        tomer = new Tomer();
         shiri = new Shiri();
-        shanti = new Shanti();
-        klein = new Klein();
+//        shanti = new Shanti();
+//        klein = new Klein();
         addToJSON(drive);
     }
 
@@ -198,13 +195,15 @@ public class RobotA extends Bobot {
 //              shanti.print();
 //            shiri.set(0.3);
 //            shiri.loop();ss
+
 //            shanti.setLift(operatorGamepad.getY(GenericHID.Hand.kLeft) / 6 - Shanti.getInstance().compensationBeta);
 //            shanti.setStick(operatorGamepad.getX(GenericHID.Hand.kLeft) + shanti.getInstance().compensationRadius);
-            shiri.setMotor((-operatorGamepad.getY(GenericHID.Hand.kRight)) / 2.0);
+//            shiri.setMotor((-operatorGamepad.getY(GenericHID.Hand.kRight)) / 2.0);
 //            drive.set(!driverRight.getTrigger()?driverRight.getY():0,!driverRight.getTrigger()?driverRight.getTwist():0);
             drive.setTank(driverLeft.getY(), driverRight.getY());
-            klein.set(operatorGamepad.getBackButton() ? (operatorGamepad.getBumper(GenericHID.Hand.kLeft) ? 1 : operatorGamepad.getBumper(GenericHID.Hand.kRight) ? -1 : 0) : 0);
+//            klein.set(operatorGamepad.getBackButton() ? (operatorGamepad.getBumper(GenericHID.Hand.kLeft) ? 1 : operatorGamepad.getBumper(GenericHID.Hand.kRight) ? -1 : 0) : 0);
         }
+        super.teleop();
     }
 
     private void robotStatus() {
