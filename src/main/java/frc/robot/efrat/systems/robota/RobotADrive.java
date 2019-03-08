@@ -19,10 +19,17 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
         if (pneumatics) {
             gear = new DoubleSolenoid(2, 3);
         }
+        // ROBOT B
+        // TODO change on robotA
         right.add(new WPI_TalonSRX(10));
-        right.add(new WPI_TalonSRX(11));
+        left.add(new WPI_TalonSRX(11));
         left.add(new WPI_TalonSRX(12));
-        left.add(new WPI_TalonSRX(13));
+        right.add(new WPI_TalonSRX(13));
+        // ROBOT A
+//        right.add(new WPI_TalonSRX(10));
+//        right.add(new WPI_TalonSRX(11));
+//        left.add(new WPI_TalonSRX(12));
+//        left.add(new WPI_TalonSRX(13));
         right.setEncoder(new Encoder(7, 6));
         left.setEncoder(new Encoder(8,9));
         left.setDirection(Drivebox.DIRECTION_BACKWARD);
