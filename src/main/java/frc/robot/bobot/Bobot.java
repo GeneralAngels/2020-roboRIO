@@ -16,8 +16,6 @@ public class Bobot extends Subsystem {
 
     public static final String DEFAULT_VALUE = "{\"default\":\"If You Get This, Get Your Things Together.\"}";
 
-    public static final int LOG_FREQUENCY = 25;
-
     protected NetworkTableInstance nti;
     protected NetworkTable database;
     protected NetworkTableEntry json;
@@ -25,8 +23,6 @@ public class Bobot extends Subsystem {
     protected ArrayList<Subsystem> subsystems = new ArrayList<>();
 
     protected TCP tcp;
-
-    protected int loop = 0;
 
     protected void addToJSON(Subsystem subsystem) {
         subsystems.add(subsystem);
