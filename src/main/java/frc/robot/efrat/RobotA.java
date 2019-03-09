@@ -93,7 +93,7 @@ public class RobotA extends Bobot {
     private void initSystems() {
         drive = new RobotADrive();
 //        tomer = new Tomer();
-        shiri = new Shiri();
+//        shiri = new Shiri();
 //        shanti = new Shanti();
 //        klein = new Klein();
         addToJSON(drive);
@@ -171,7 +171,7 @@ public class RobotA extends Bobot {
     }
 
     private void loopSubsystems() {
-        shiri.loop();
+//        shiri.loop();
 //        shanti.loop();
     }
 
@@ -183,7 +183,7 @@ public class RobotA extends Bobot {
     @Override
     public void teleop() {
         updateTriggers();
-        loopSubsystems();
+//        loopSubsystems();
 //        stateMachine.update(operatorGamepad, null);
 
         if (!isAutonomous) {

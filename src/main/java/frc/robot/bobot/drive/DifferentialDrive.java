@@ -34,7 +34,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public double y = 0;
     public double rightEncPrev = 0;
     public double leftEncPrev = 0;
-    public double MAX_WHEEL_VELOCITY = 25;
+    public double MAX_WHEEL_VELOCITY = 10;
     public double lastSetPointsR = 0;
     public double lastSetPointsL = 0;
     public double lastav = 0;
@@ -42,12 +42,17 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     protected Odometry odometry = new Odometry();
     double motorOutputLeftPrev = 0;
     double motorOutputRightPrev = 0;
+    public double leftMeters;
+    public double rightMeters;
 
     public DifferentialDrive() {
         motorControlLeft = new PID();
         motorControlRight = new PID();
         motorControlLeft.setPIDF(0, 0.12, 0, 0.7);
         motorControlRight.setPIDF(0, 0.12, 0, 0.7);
+//        leftMeters = (left.getEncoder().getRaw()*ENCODER_TO_RADIAN)/(2*Math.PI*WHEEL_RADIUS);
+//        rightMeters = (right.getEncoder().getRaw()*ENCODER_TO_RADIAN)/(2*Math.PI*WHEEL_RADIUS);
+
     }
 
     public static double noPIDCalculateRight(double speed, double turn) {
@@ -90,6 +95,8 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         Vr= Vr * MAX_WHEEL_VELOCITY;
         double encoderLeft = left.getEncoder().getRaw() * ENCODER_TO_RADIAN;
         double encoderRight = right.getEncoder().getRaw() * ENCODER_TO_RADIAN;
+        leftMeters = (left.getEncoder().getRaw() * ENCODER_TO_RADIAN) / (2 * Math.PI * WHEEL_RADIUS);
+        rightMeters = (right.getEncoder().getRaw() * ENCODER_TO_RADIAN) / (2 * Math.PI * WHEEL_RADIUS);
         double motorOutputLeft = motorControlLeft.pidVelocity(encoderLeft, Vl);
         double motorOutputRight = motorControlRight.pidVelocity(encoderRight, Vr);
 //        log("encoderL: "+encoderLeft+" encoderR: "+encoderRight);
@@ -99,7 +106,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
             motorOutputRight = 0;
         motorOutputLeft = (0.8*motorOutputLeft) + (0.2*motorOutputLeftPrev);
         motorOutputRight = (0.8*motorOutputRight) + (0.2*motorOutputRightPrev);
-//        log("left: " + Vl + " right: " + Vr);
+        log("left: " + Vl + " right: " + Vr);
         motorOutputLeftPrev = motorOutputLeft;
         motorOutputRightPrev = motorOutputRight;
         direct(motorOutputLeft / 12, motorOutputRight / 12);
@@ -239,6 +246,8 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         JSONObject returnObject = new JSONObject();
         try {
             returnObject.put(LEFT, left.toJSON());
+            returnObject.put("right Meters: ", rightMeters);
+            returnObject.put("left Meters: ", leftMeters);
             returnObject.put(RIGHT, right.toJSON());
             returnObject.put(ODOMETRY, odometry.toJSON());
         } catch (Exception ignored) {

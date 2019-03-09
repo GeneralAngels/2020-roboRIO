@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.bobot.drive.DifferentialDrive;
 import frc.robot.bobot.drive.Drivebox;
 import frc.robot.bobot.drive.Gyroscope;
+import org.json.JSONObject;
 
 public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
     private static RobotADrive latest;
@@ -60,6 +61,13 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
             gear.set(DoubleSolenoid.Value.kReverse);
 //            log("Gear: DOWN");
         }
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject o = super.toJSON();
+        o.put("gear", gear.get() == DoubleSolenoid.Value.kForward);
+        return o;
     }
 
     @Override
