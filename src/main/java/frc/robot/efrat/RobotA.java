@@ -58,7 +58,7 @@ public class RobotA extends Bobot {
 
 
     private void initCompressor() {
-        compressor = new Compressor(1);
+        compressor = new Compressor(0);
         compressor.setClosedLoopControl(true);
     }
 
@@ -225,6 +225,8 @@ public class RobotA extends Bobot {
         JSONObject currentJSON = super.toJSON();
         robotStatus();
         currentJSON.put(ROBOT_STATUS, robotStatus);
+        currentJSON.put("driverLeft", driverLeft.getY());
+        currentJSON.put("driverRight", driverRight.getY());
         return currentJSON;
     }
 
@@ -243,7 +245,7 @@ public class RobotA extends Bobot {
                         v = driveObject.getFloat(VELOCITY);
                         w = driveObject.getFloat(OMEGA);
 //                        log("AutoTCP - Good");
-                        log(v + " " + w);
+                        //log(v + " " + w);
                     } else {
                         //   log("No \"v\" & \"w\" in json");
                     }

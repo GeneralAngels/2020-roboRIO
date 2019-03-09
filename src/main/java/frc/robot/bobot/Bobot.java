@@ -1,5 +1,8 @@
 package frc.robot.bobot;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -13,11 +16,17 @@ public class Bobot extends Subsystem {
 
     public static final String DEFAULT_VALUE = "{\"default\":\"If You Get This, Get Your Things Together.\"}";
 
+    public static final int LOG_FREQUENCY = 25;
+
+    protected NetworkTableInstance nti;
+    protected NetworkTable database;
+    protected NetworkTableEntry json;
+
     protected ArrayList<Subsystem> subsystems = new ArrayList<>();
 
     protected TCP tcp;
 
-    protected int id = 0;
+    protected int loop = 0;
 
     protected void addToJSON(Subsystem subsystem) {
         subsystems.add(subsystem);
@@ -41,6 +50,9 @@ public class Bobot extends Subsystem {
     }
 
     public void init() {
+        nti = NetworkTableInstance.getDefault();
+        database = nti.getTable("database");
+        json = database.getEntry("json");
         tcpInit();
     }
 
@@ -53,7 +65,7 @@ public class Bobot extends Subsystem {
     }
 
     protected void loop() {
-        log(toJSON().toString());
+        json.setString(toJSON().toString());
     }
 
     @Override

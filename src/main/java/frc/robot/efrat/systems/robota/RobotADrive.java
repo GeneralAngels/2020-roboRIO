@@ -11,7 +11,7 @@ import org.json.JSONObject;
 public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
     private static RobotADrive latest;
     protected Gyroscope gyro;
-    private boolean pneumatics = false;
+    private boolean pneumatics = true;
     private double latestX, latestY;
     private DoubleSolenoid gear;
 
@@ -31,8 +31,8 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
 //        right.add(new WPI_TalonSRX(11));
 //        left.add(new WPI_TalonSRX(12));
 //        left.add(new WPI_TalonSRX(13));
-        right.setEncoder(new Encoder(7, 6));
-        left.setEncoder(new Encoder(8,9));
+        left.setEncoder(new Encoder(7, 6));
+        right.setEncoder(new Encoder(8, 9));
         left.setDirection(Drivebox.DIRECTION_BACKWARD);
 //        right.setDirection(Drivebox.DIRECTION_BACKWARD);
         left.getEncoder().reset();
@@ -66,7 +66,7 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
     @Override
     public JSONObject toJSON() {
         JSONObject o = super.toJSON();
-        o.put("gear", gear.get() == DoubleSolenoid.Value.kForward);
+        if (gear != null) o.put("gear", gear.get() == DoubleSolenoid.Value.kForward);
         return o;
     }
 

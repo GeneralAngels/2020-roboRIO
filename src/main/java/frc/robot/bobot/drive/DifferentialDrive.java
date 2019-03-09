@@ -18,7 +18,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public PID motorControlLeft;
     public PID motorControlRight;
     public Gyroscope gyro;
-    public double WHEEL_DISTANCE = 0.46715;
+    public double WHEEL_DISTANCE = 0.51;
     public double WHEEL_RADIUS = 0.1016;
     public double MAX_V = 1;
     //    for good results max omega = max_v * 2 /wheel_distance
@@ -44,6 +44,9 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     double motorOutputRightPrev = 0;
     public double leftMeters;
     public double rightMeters;
+    public double outputLeft = 0;
+    public double outputRight = 0;
+    public double[] VOmega = {0, 0};
 
     public DifferentialDrive() {
         motorControlLeft = new PID();
@@ -93,6 +96,8 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
 
         Vl = Vl * MAX_WHEEL_VELOCITY;
         Vr= Vr * MAX_WHEEL_VELOCITY;
+        VOmega = wheelsToRobot(Vl, Vr);
+
         double encoderLeft = left.getEncoder().getRaw() * ENCODER_TO_RADIAN;
         double encoderRight = right.getEncoder().getRaw() * ENCODER_TO_RADIAN;
         leftMeters = (left.getEncoder().getRaw() * ENCODER_TO_RADIAN) / (2 * Math.PI * WHEEL_RADIUS);
@@ -104,18 +109,20 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
             motorOutputLeft = 0;
         if(Math.abs(motorOutputRight) < 0.1)
             motorOutputRight = 0;
-        motorOutputLeft = (0.8*motorOutputLeft) + (0.2*motorOutputLeftPrev);
-        motorOutputRight = (0.8*motorOutputRight) + (0.2*motorOutputRightPrev);
-        log("left: " + Vl + " right: " + Vr);
+//        motorOutputLeft = (0.8*motorOutputLeft) + (0.2*motorOutputLeftPrev);
+//        motorOutputRight = (0.8*motorOutputRight) + (0.2*motorOutputRightPrev);
+        //log("left: " + Vl + " right: " + Vr);
         motorOutputLeftPrev = motorOutputLeft;
         motorOutputRightPrev = motorOutputRight;
-        direct(motorOutputLeft / 12, motorOutputRight / 12);
+        outputLeft = motorOutputLeft / 12;
+        outputRight = motorOutputRight / 12;
+        direct(outputLeft, outputRight);
         updateOdometry();
     }
 
     public void set(double speed, double turn) {
         double setpointV = speed;
-        log(speed + "    0s");
+//        log(speed + "    0s");
         double setpointOmega = turn;
         setpointV = (setpointV * 0.5) + (setPointVPrev * 0.5);
         setpointOmega = (setpointOmega * 0.5) + (setPointOmegaPrev * 0.5);
@@ -127,7 +134,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
 
         setPointVPrev = setpointV;
         setPointOmegaPrev = setpointOmega;
-        log("left: " + motorOutput[0] + " right: " + motorOutput[1]);
+//        log("left: " + motorOutput[0] + " right: " + motorOutput[1]);
         direct(motorOutput[0] / 12, motorOutput[1] / 12);
         updateOdometry();
     }
@@ -245,6 +252,10 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public JSONObject toJSON() {
         JSONObject returnObject = new JSONObject();
         try {
+            returnObject.put("V", VOmega[0]);
+            returnObject.put("Omega", VOmega[1]);
+            returnObject.put("outputLeft", outputLeft);
+            returnObject.put("outputRight", outputRight);
             returnObject.put(LEFT, left.toJSON());
             returnObject.put("right Meters: ", rightMeters);
             returnObject.put("left Meters: ", leftMeters);
