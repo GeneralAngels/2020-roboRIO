@@ -1,6 +1,7 @@
 package frc.robot.efrat.systems.robota;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.bobot.drive.DifferentialDrive;
@@ -10,7 +11,7 @@ import org.json.JSONObject;
 
 public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
     private static RobotADrive latest;
-    protected Gyroscope gyro;
+    protected AHRS gyro;
     private boolean pneumatics = true;
     private double latestX, latestY;
     private DoubleSolenoid gear;

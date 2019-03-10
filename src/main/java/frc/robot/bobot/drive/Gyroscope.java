@@ -13,8 +13,12 @@ public class Gyroscope extends AHRS {
 
     public Gyroscope() {
         super(I2C.Port.kMXP);
+
     }
 
+    public float get_roll() {
+        return super.getRoll();
+    }
     protected long millis() {
         return (long) (Timer.getFPGATimestamp() * 1000);
     }

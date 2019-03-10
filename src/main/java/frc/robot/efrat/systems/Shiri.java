@@ -23,6 +23,7 @@ public class Shiri extends Subsystem {
     private double targetX=-1;
     private double currentX = 0;
     public double y = -0.5;
+    public double encoder = 0;
     public Shiri(){
 
         latest = this;
@@ -99,6 +100,7 @@ public class Shiri extends Subsystem {
 
     public void set(double x) { //changed method
         targetX=x;
+        encoder = slideMotor.getSensorCollection().getQuadraturePosition() / 10.0;
     }
 
     public int sign(double a){
@@ -153,4 +155,5 @@ public class Shiri extends Subsystem {
 
     public double getCurrentX(){return currentX;}
     public double getTargetX(){return targetX;}
+
 }

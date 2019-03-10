@@ -42,6 +42,7 @@ public class RobotA extends Bobot {
     // StateMachine
     private StateMachine stateMachine;
     private JSONObject robotStatus;
+    public double v = 0, w = 0;
 
     // Code
     @Override
@@ -54,6 +55,7 @@ public class RobotA extends Bobot {
         initTriggers();
         super.init();
         instructions();
+        shiri = new Shiri();
     }
 
 
@@ -193,8 +195,8 @@ public class RobotA extends Bobot {
 //            shiri.print();
 //            shanti.loop();
 //              shanti.print();
-//            shiri.set(0.3);
-//            shiri.loop();ss
+            shiri.set(0.3);
+//            shiri.loop();
 
 //            shanti.setLift(operatorGamepad.getY(GenericHID.Hand.kLeft) / 6 - Shanti.getInstance().compensationBeta);
 //            shanti.setStick(operatorGamepad.getX(GenericHID.Hand.kLeft) + shanti.getInstance().compensationRadius);
@@ -227,6 +229,9 @@ public class RobotA extends Bobot {
         currentJSON.put(ROBOT_STATUS, robotStatus);
         currentJSON.put("driverLeft", driverLeft.getY());
         currentJSON.put("driverRight", driverRight.getY());
+        currentJSON.put("encoder", shiri.encoder);
+        currentJSON.put("velocity", v);
+        currentJSON.put("omega", w);
         return currentJSON;
     }
 
@@ -236,7 +241,6 @@ public class RobotA extends Bobot {
         // V and W are here:
         // pneumaticDrive -> {v, w}
         if (isAutonomous) {
-            double v = 0, w = 0;
             try {
                 String DRIVE = "drive";
                 if (object.has(DRIVE)) {
@@ -245,7 +249,6 @@ public class RobotA extends Bobot {
                         v = driveObject.getFloat(VELOCITY);
                         w = driveObject.getFloat(OMEGA);
 //                        log("AutoTCP - Good");
-                        //log(v + " " + w);
                     } else {
                         //   log("No \"v\" & \"w\" in json");
                     }

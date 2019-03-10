@@ -1,5 +1,6 @@
 package frc.robot.bobot.drive;
 
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SpeedController;
 import frc.robot.bobot.Subsystem;
 import frc.robot.bobot.control.PID;
@@ -17,7 +18,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public double Rsetpoint = 0;
     public PID motorControlLeft;
     public PID motorControlRight;
-    public Gyroscope gyro;
+    public AHRS gyro;
     public double WHEEL_DISTANCE = 0.51;
     public double WHEEL_RADIUS = 0.1016;
     public double MAX_V = 1;
@@ -25,7 +26,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
 //    MAX_V * 2 / WHEEL_DISTANCE
     public double MAX_OMEGA = 3.14 * 2;
     public double[] realVOmega;
-    public double ENCODER_COUNT_PER_REVOLUTION = 512;
+    public double ENCODER_COUNT_PER_REVOLUTION = 1024;
     public double ENCODER_TO_RADIAN = (Math.PI * 2) / (4 * ENCODER_COUNT_PER_REVOLUTION);
     public double setPointVPrev = 0;
     public double setPointOmegaPrev = 0;
@@ -46,13 +47,21 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public double rightMeters;
     public double outputLeft = 0;
     public double outputRight = 0;
+    public double[] VOmegaReal = {0, 0};
     public double[] VOmega = {0, 0};
+    public double Vleft = 0;
+    public double Vright = 0;
+    public double leftMetersPrev = 0;
+    public double rightMetersPrev = 0;
+    public double[] encoderMeters = {0, 0};
+    public double[] encoders = {0, 0};
+
 
     public DifferentialDrive() {
         motorControlLeft = new PID();
         motorControlRight = new PID();
-        motorControlLeft.setPIDF(0, 0.12, 0, 0.7);
-        motorControlRight.setPIDF(0, 0.12, 0, 0.7);
+        motorControlLeft.setPIDF(0, 0.2, 0, 0.55);
+        motorControlRight.setPIDF(0, 0.2, 0, 0.55);
 //        leftMeters = (left.getEncoder().getRaw()*ENCODER_TO_RADIAN)/(2*Math.PI*WHEEL_RADIUS);
 //        rightMeters = (right.getEncoder().getRaw()*ENCODER_TO_RADIAN)/(2*Math.PI*WHEEL_RADIUS);
 
@@ -96,12 +105,17 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
 
         Vl = Vl * MAX_WHEEL_VELOCITY;
         Vr= Vr * MAX_WHEEL_VELOCITY;
-        VOmega = wheelsToRobot(Vl, Vr);
+        Vleft = Vl;
+        Vright = Vr;
+        VOmega = wheelsToRobot(Vleft, Vright);
+        encoders[0] = left.getEncoder().getRaw();
+        encoders[1] = right.getEncoder().getRaw();
+        double encoderLeft = encoders[0] * ENCODER_TO_RADIAN;
+        double encoderRight = encoders[1] * ENCODER_TO_RADIAN;
 
-        double encoderLeft = left.getEncoder().getRaw() * ENCODER_TO_RADIAN;
-        double encoderRight = right.getEncoder().getRaw() * ENCODER_TO_RADIAN;
-        leftMeters = (left.getEncoder().getRaw() * ENCODER_TO_RADIAN) / (2 * Math.PI * WHEEL_RADIUS);
-        rightMeters = (right.getEncoder().getRaw() * ENCODER_TO_RADIAN) / (2 * Math.PI * WHEEL_RADIUS);
+        encoderMeters[0] = (leftMeters - leftMetersPrev) / 0.02;
+        encoderMeters[1] = (rightMeters - rightMetersPrev) / 0.02;
+        VOmegaReal = wheelsToRobot(encoderMeters[0], encoderMeters[1]);
         double motorOutputLeft = motorControlLeft.pidVelocity(encoderLeft, Vl);
         double motorOutputRight = motorControlRight.pidVelocity(encoderRight, Vr);
 //        log("encoderL: "+encoderLeft+" encoderR: "+encoderRight);
@@ -114,6 +128,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         //log("left: " + Vl + " right: " + Vr);
         motorOutputLeftPrev = motorOutputLeft;
         motorOutputRightPrev = motorOutputRight;
+
         outputLeft = motorOutputLeft / 12;
         outputRight = motorOutputRight / 12;
         direct(outputLeft, outputRight);
@@ -121,6 +136,8 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     }
 
     public void set(double speed, double turn) {
+        VOmega[0] = speed;
+        VOmega[1] = turn;
         double setpointV = speed;
 //        log(speed + "    0s");
         double setpointOmega = turn;
@@ -129,11 +146,19 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         if (Math.abs(setpointV) < 0.2) setpointV = 0;
         if (Math.abs(setpointOmega) < 0.2) setpointOmega = 0;
         double[] motorOutput = calculateOutputs(setpointV * MAX_V, setpointOmega * MAX_OMEGA);
-        realVOmega = getRobotVelocities();
+        encoders[0] = left.getEncoder().getRaw();
+        encoders[1] = right.getEncoder().getRaw();
+        leftMeters = (encoders[0] / (ENCODER_COUNT_PER_REVOLUTION * 4) * (60.0 / 14.0)) * (2 * Math.PI * WHEEL_RADIUS);
+        rightMeters = (encoders[1] / (ENCODER_COUNT_PER_REVOLUTION * 4) * (60.0 / 14.0)) * (2 * Math.PI * WHEEL_RADIUS);
+        encoderMeters[0] = (leftMeters - leftMetersPrev) / 0.02;
+        encoderMeters[1] = (rightMeters - rightMetersPrev) / 0.02;
+        VOmegaReal = wheelsToRobot(encoderMeters[0], encoderMeters[1]);
 //        log("Il:" + motorControlLeft.getIntegral() + " Ir:" + motorControlRight.getIntegral() + " Vr=" + realVOmega[0] + " Left=" + motorControlLeft.getDerivative() + " Right=" + motorControlRight.getDerivative());
 
         setPointVPrev = setpointV;
         setPointOmegaPrev = setpointOmega;
+        leftMetersPrev = leftMeters;
+        rightMetersPrev = rightMeters;
 //        log("left: " + motorOutput[0] + " right: " + motorOutput[1]);
         direct(motorOutput[0] / 12, motorOutput[1] / 12);
         updateOdometry();
@@ -189,27 +214,30 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     }
 
     public void updateOdometry() {
-        double theta;
-        theta = 0;
+        double theta = 0;
 
-        double encoderLeft = left.getEncoder().getRaw() * ENCODER_TO_RADIAN;
-        double encoderRight = right.getEncoder().getRaw() * ENCODER_TO_RADIAN;
+
 //        log("left:" + left.getEncoder().getRaw()+",right:" + right.getEncoder().getRaw());
 //        double deltaWheel = (encoderLeft+encoderRight)*WHEEL_RADIUS/2.0;
 //        double delta_x = ((((right.getEncoder().getRaw() + left.getEncoder().getRaw()) / 2.0) / 9036.0) * 0.659715);
+        encoders[0] = left.getEncoder().getRaw();
+        encoders[1] = right.getEncoder().getRaw();
         if (gyro == null) {
             log("gyro is null");
 //            theta = thetaRobotPrev + (thetaRight - thetaRightPrev - thetaLeft + thetaLeftPrev) * (WHEEL_RADIUS / WHEEL_DISTANCE);
         } else {
-            theta = Math.toRadians(gyro.getCountedAngle());
+            theta = gyro.getPitch();
+            //            log("yaw: " + gyro.getName());
         }
 //        log(Double.toString(theta)+","+Double.toString(gyro.getAngle()));
 //        log(Double.toString(gyro.countedAngle) + "," + Double.toString(gyro.getAngle()));
 //        log("Rad: "+theta);
         //x += (realVOmega[0] * Math.cos(theta) * 0.02);
 //        double distance = (deltaWheel - deltaWheelPrev);
-        double distance = (encoderRight - rightEncPrev + encoderLeft - leftEncPrev) * WHEEL_RADIUS / 2.0;
-
+        leftMeters = (encoders[0] / (ENCODER_COUNT_PER_REVOLUTION * 4) * (60.0 / 14.0)) * (2 * Math.PI * WHEEL_RADIUS);
+        rightMeters = (encoders[1] / (ENCODER_COUNT_PER_REVOLUTION * 4) * (60.0 / 14.0)) * (2 * Math.PI * WHEEL_RADIUS);
+        double distance = (leftMeters - rightMeters + rightMetersPrev - leftMetersPrev) / 2;
+//        log("dis: " + distance);
         x += distance * Math.cos(theta);
 //        y += (realVOmega[0] * Math.sin(theta) * 0.02);
 //        theta = Math.toRadians(gyro.getCountedAngle());
@@ -222,10 +250,12 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
 //        log("right_advance: "+ (encoderRight-rightEncPrev)*WHEEL_RADIUS+" left_advance: "+ (encoderLeft-leftEncPrev)*WHEEL_RADIUS);
         thetaRobotPrev = theta;
 //        deltaWheelPrev = deltaWheel;
-        rightEncPrev = encoderRight;
-        leftEncPrev = encoderLeft;
+//        rightEncPrev = encoderRight;
+//        leftEncPrev = encoderLeft;
 //        xPrev = x;
 //        yPrev = y;
+        leftMetersPrev = leftMeters;
+        rightMetersPrev = rightMeters;
         odometry.setX(x);
         odometry.setY(-y);
         odometry.setTheta(theta);
@@ -237,9 +267,8 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         odometry.setLeftSetpoint(Lsetpoint);
     }
 
-    public void initGyro(Gyroscope gyro) {
+    public void initGyro(AHRS gyro) {
         this.gyro = gyro;
-        this.gyro.calculateRate();
 //        log(Double.toString(this.gyro.offset));
     }
 
@@ -254,12 +283,20 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         try {
             returnObject.put("V", VOmega[0]);
             returnObject.put("Omega", VOmega[1]);
-            returnObject.put("outputLeft", outputLeft);
-            returnObject.put("outputRight", outputRight);
-            returnObject.put(LEFT, left.toJSON());
-            returnObject.put("right Meters: ", rightMeters);
-            returnObject.put("left Meters: ", leftMeters);
-            returnObject.put(RIGHT, right.toJSON());
+            returnObject.put("realV", VOmegaReal[0]);
+            returnObject.put("realOmega", VOmegaReal[1]);
+//            returnObject.put("leftEncoder", encoders[0]);
+//            returnObject.put("rightEncoder", encoders[1]);
+//            returnObject.put("Vleft", -Vleft);
+//            returnObject.put("Vright", -Vright);
+//            returnObject.put("outputLeft", outputLeft);
+//            returnObject.put("outputRight", outputRight);
+//            returnObject.put("VleftEnc", encoderMeters[0]);
+//            returnObject.put("VrightEnc", encoderMeters[1]);
+//            returnObject.put(LEFT, left.toJSON());
+//            returnObject.put("right Meters: ", rightMeters);
+//            returnObject.put("left Meters: ", leftMeters);
+//            returnObject.put(RIGHT, right.toJSON());
             returnObject.put(ODOMETRY, odometry.toJSON());
         } catch (Exception ignored) {
         }
