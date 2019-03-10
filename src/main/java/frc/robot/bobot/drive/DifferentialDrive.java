@@ -282,7 +282,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         JSONObject returnObject = new JSONObject();
         try {
             returnObject.put("V", VOmega[0]);
-            returnObject.put("Omega", VOmega[1]);
+            returnObject.put("omega", VOmega[1]);
             returnObject.put("realV", VOmegaReal[0]);
             returnObject.put("realOmega", VOmegaReal[1]);
 //            returnObject.put("leftEncoder", encoders[0]);
