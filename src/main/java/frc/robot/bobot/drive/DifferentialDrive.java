@@ -226,7 +226,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
             log("gyro is null");
 //            theta = thetaRobotPrev + (thetaRight - thetaRightPrev - thetaLeft + thetaLeftPrev) * (WHEEL_RADIUS / WHEEL_DISTANCE);
         } else {
-            theta = gyro.getPitch();
+            theta = gyro.getYaw();
             //            log("yaw: " + gyro.getName());
         }
 //        log(Double.toString(theta)+","+Double.toString(gyro.getAngle()));

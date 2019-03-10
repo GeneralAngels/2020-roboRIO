@@ -118,9 +118,20 @@ public class RobotA extends Bobot {
                 }
             }
         });
+        operatorY = new Toggle(new Toggle.Change() {
+            @Override
+            public void change(boolean toggle) {
+                if (toggle) {
+                    drive.gearUp();
+                } else {
+                    drive.gearDown();
+                }
+            }
+        });
         operatorStart = new Toggle(new Toggle.Change() {
             @Override
             public void change(boolean toggle) {
+                if (toggle) drive.gearUp();
                 isAutonomous = toggle;
             }
         });
@@ -168,7 +179,7 @@ public class RobotA extends Bobot {
             if (operatorA != null) operatorA.update(operatorGamepad.getAButton());
             if (operatorB != null) operatorB.update(operatorGamepad.getBButton());
             if (operatorX != null) operatorX.update(operatorGamepad.getXButton());
-            if (operatorY != null) operatorA.update(operatorGamepad.getYButton());
+            if (operatorY != null) operatorY.update(operatorGamepad.getYButton());
         }
     }
 
@@ -202,7 +213,7 @@ public class RobotA extends Bobot {
 //            shanti.setStick(operatorGamepad.getX(GenericHID.Hand.kLeft) + shanti.getInstance().compensationRadius);
 //            shiri.setMotor((-operatorGamepad.getY(GenericHID.Hand.kRight)) / 2.0);
 //            drive.set(!driverRight.getTrigger()?driverRight.getY():0,!driverRight.getTrigger()?driverRight.getTwist():0);
-            drive.setTank(driverLeft.getY(), driverRight.getY());
+            drive.setTank(-driverLeft.getY(), -driverRight.getY());
 //            klein.set(operatorGamepad.getBackButton() ? (operatorGamepad.getBumper(GenericHID.Hand.kLeft) ? 1 : operatorGamepad.getBumper(GenericHID.Hand.kRight) ? -1 : 0) : 0);
         }
         super.teleop();
@@ -227,6 +238,7 @@ public class RobotA extends Bobot {
         JSONObject currentJSON = super.toJSON();
         robotStatus();
         currentJSON.put(ROBOT_STATUS, robotStatus);
+        currentJSON.put("autonomous", isAutonomous);
         currentJSON.put("driverLeft", driverLeft.getY());
         currentJSON.put("driverRight", driverRight.getY());
         currentJSON.put("encoder", shiri.encoder);
