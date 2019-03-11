@@ -195,7 +195,6 @@ public class RobotA extends Bobot {
         updateTriggers();
 //        loopSubsystems();
 //        stateMachine.update(operatorGamepad, null);
-
         if (!isAutonomous) {
 //            shanti.print();
 //            shanti.set(0.4, 0.4);

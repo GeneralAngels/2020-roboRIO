@@ -33,6 +33,12 @@ public class Subsystem {
     }
 
     protected void log(String name, Object value) {
+        for (Logable logable : logables) {
+            if (logable.name.equals(name)) {
+                logable.value = value;
+                return;
+            }
+        }
         logables.add(new Logable(name, value));
     }
 

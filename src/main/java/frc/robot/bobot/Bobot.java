@@ -46,7 +46,7 @@ public class Bobot extends Subsystem {
 
     @Override
     public JSONObject toJSON() {
-        JSONObject returnObject = new JSONObject();
+        JSONObject returnObject = super.toJSON();
         returnObject.put(TIME, millis());
         try {
             for (Subsystem subsystem : subsystems) {

@@ -27,7 +27,7 @@ public class Shiri extends Subsystem {
     public Shiri(){
 
         latest = this;
-        hatch = new DoubleSolenoid(0, 4, 5);
+        hatch = new DoubleSolenoid(0, 6, 7);
 //        hatch = new DoubleSolenoid(0,0, 1);
         slideMotor = new WPI_TalonSRX(14);
         //log(slideMotor.getSensorCollection().getPulseWidthPosition()+"");
@@ -75,10 +75,12 @@ public class Shiri extends Subsystem {
 
     public void open() {
         if (hatch != null) hatch.set(DoubleSolenoid.Value.kForward);
+//        log("open");
     }
 
     public void close() {
         if (hatch != null) hatch.set(DoubleSolenoid.Value.kReverse);
+//        log("close");
     }
 
     public void setPower(double speed){

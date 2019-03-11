@@ -13,6 +13,7 @@ public class Communication extends Subsystem {
         NetworkTableEntry command = database.getEntry("command");
         command.addListener(entryNotification -> {
             try {
+//                log(entryNotification.value.getString());
                 bobot.handleJSON(new JSONObject(entryNotification.value.getString()));
             } catch (Exception ignored) {
             }
