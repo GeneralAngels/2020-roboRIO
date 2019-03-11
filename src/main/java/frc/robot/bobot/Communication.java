@@ -12,7 +12,10 @@ public class Communication extends Subsystem {
         NetworkTable database = instance.getTable("database");
         NetworkTableEntry command = database.getEntry("command");
         command.addListener(entryNotification -> {
-            bobot.handleJSON(new JSONObject(entryNotification.value.getString()));
+            try {
+                bobot.handleJSON(new JSONObject(entryNotification.value.getString()));
+            } catch (Exception ignored) {
+            }
         }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
     }
 }
