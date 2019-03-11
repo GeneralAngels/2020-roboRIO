@@ -150,7 +150,7 @@ public class EfratOfficial extends Bobot {
     }
 
     @Override
-    protected JSONObject handleJSON(JSONObject object) {
+    protected void handleJSON(JSONObject object) {
         JSONObject output = toJSON();
         // V and W are here:
         // pneumaticDrive -> {v, w}
@@ -188,6 +188,5 @@ public class EfratOfficial extends Bobot {
             }
             drive.setAutonomous(v, w);
         }
-        return output;
     }
 }

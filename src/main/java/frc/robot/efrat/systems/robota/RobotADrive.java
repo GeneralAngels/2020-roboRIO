@@ -32,8 +32,8 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
 //        right.add(new WPI_TalonSRX(11));
 //        left.add(new WPI_TalonSRX(12));
 //        left.add(new WPI_TalonSRX(13));
-        left.setEncoder(new Encoder(7, 6));
-        right.setEncoder(new Encoder(8, 9));
+        left.setEncoder(new Encoder(6, 7));
+        right.setEncoder(new Encoder(9, 8));
 //        left.setDirection(Drivebox.DIRECTION_BACKWARD);
         right.setDirection(Drivebox.DIRECTION_BACKWARD);
         left.getEncoder().reset();
@@ -53,6 +53,7 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
     public void gearUp() {
         if (pneumatics) {
             gear.set(DoubleSolenoid.Value.kForward);
+            gearRatio = 14.0 / 60.0;
 //            log("Gear: UP");
         }
     }
@@ -60,6 +61,7 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
     public void gearDown() {
         if (pneumatics) {
             gear.set(DoubleSolenoid.Value.kReverse);
+            gearRatio = 20.0 / 44.0;
 //            log("Gear: DOWN");
         }
     }

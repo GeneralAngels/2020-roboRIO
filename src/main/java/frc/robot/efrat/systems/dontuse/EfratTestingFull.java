@@ -137,10 +137,5 @@ public class EfratTestingFull extends Bobot {
         return currentJSON;
     }
 
-    @Override
-    protected JSONObject handleJSON(JSONObject object) {
-        return toJSON();
-    }
-
 
 }

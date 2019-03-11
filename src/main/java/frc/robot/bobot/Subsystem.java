@@ -3,9 +3,12 @@ package frc.robot.bobot;
 import edu.wpi.first.wpilibj.Timer;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 public class Subsystem {
     private boolean logName = false;
     private String name = getClass().getSimpleName();
+    private ArrayList<Logable> logables = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -16,7 +19,9 @@ public class Subsystem {
     }
 
     public JSONObject toJSON() {
-        return new JSONObject();
+        JSONObject json = new JSONObject();
+        for (Logable logable : logables) json.put(logable.name, logable.value.toString());
+        return json;
     }
 
     protected void doLogName() {
@@ -25,6 +30,10 @@ public class Subsystem {
 
     protected void dontLogName() {
         logName = false;
+    }
+
+    protected void log(String name, Object value) {
+        logables.add(new Logable(name, value));
     }
 
     protected void log(String string) {
@@ -48,15 +57,6 @@ public class Subsystem {
         }
     }
 
-    @Deprecated
-    protected void delay(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (Exception e) {
-            log("Failed to delay");
-        }
-    }
-
     protected long millis() {
         return (long) (Timer.getFPGATimestamp() * 1000);
     }
@@ -67,5 +67,15 @@ public class Subsystem {
 
     protected boolean passed(long milli) {
         return millis() > milli;
+    }
+
+    private class Logable {
+        private Object value;
+        private String name;
+
+        private Logable(String name, Object value) {
+            this.value = value;
+            this.name = name;
+        }
     }
 }

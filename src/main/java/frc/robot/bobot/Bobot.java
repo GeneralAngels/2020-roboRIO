@@ -14,42 +14,22 @@ public class Bobot extends Subsystem {
     public static final String DRIVER_STATUS = "driver_status";
     public static final String OPERATOR_STATUS = "operator_status";
 
-    public static final String DEFAULT_VALUE = "{\"default\":\"If You Get This, Get Your Things Together.\"}";
-
     protected NetworkTableInstance nti;
     protected NetworkTable database;
     protected NetworkTableEntry json;
+    protected Communication communication;
 
     protected ArrayList<Subsystem> subsystems = new ArrayList<>();
 
-    protected TCP tcp;
-
     protected void addToJSON(Subsystem subsystem) {
         subsystems.add(subsystem);
-    }
-
-    protected void tcpInit() {
-        tcp = new TCP();
-        tcp.listen(newInput -> {
-
-            if (newInput != null) {
-                JSONObject input;
-                try {
-                    input = new JSONObject(newInput);
-                } catch (Exception e) {
-                    input = new JSONObject();
-                }
-                return handleJSON(input).toString();
-            }
-            return DEFAULT_VALUE;
-        });
     }
 
     public void init() {
         nti = NetworkTableInstance.getDefault();
         database = nti.getTable("database");
         json = database.getEntry("json");
-        tcpInit();
+        communication = new Communication(this);
     }
 
     public void teleop() {
@@ -80,7 +60,6 @@ public class Bobot extends Subsystem {
         return returnObject;
     }
 
-    protected JSONObject handleJSON(JSONObject object) {
-        return toJSON();
+    protected void handleJSON(JSONObject object) {
     }
 }
