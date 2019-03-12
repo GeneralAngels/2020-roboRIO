@@ -226,16 +226,21 @@ public class RobotA extends Bobot {
 //            shanti.setStick(operatorGamepad.getX(GenericHID.Hand.kLeft) + shanti.getInstance().compensationRadius);
             shiri.setMotor((-operatorGamepad.getY(GenericHID.Hand.kRight)) / 2.0);
 //            drive.set(!driverRight.getTrigger()?driverRight.getY():0,!driverRight.getTrigger()?driverRight.getTwist():0);
-            if (driverRight11.getToggleState())
+            if (driverRight11.getToggleState()) {
                 drive.preClimb();
+//                log("yes");
+            }
             else {
+//                log("no");
+                drive.motorControlLeftP.integral = 0;
+                drive.motorControlRightP.integral = 0;
                 drive.check = true;
                 drive.setTank(-driverLeft.getY() / (driverLeftT.getToggleState() ? 2.0 : 1.0), -driverRight.getY() / (driverLeftT.getToggleState() ? 2.0 : 1.0));
             }
 // klein.set(operatorGamepad.getBackButton() ? (operatorGamepad.getBumper(GenericHID.Hand.kLeft) ? 1 : operatorGamepad.getBumper(GenericHID.Hand.kRight) ? -1 : 0) : 0);
         } else {
-//            drive.set(v, w);
-            drive.updateOdometry();
+            drive.set(v, w);
+//            drive.updateOdometry();
         }
         super.teleop();
     }
