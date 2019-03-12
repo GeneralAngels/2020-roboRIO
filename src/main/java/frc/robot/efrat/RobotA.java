@@ -21,6 +21,7 @@ import org.json.JSONObject;
 @SuppressWarnings("ALL")
 public class RobotA extends Bobot {
     public double v = 0, w = 0;
+    double counter = 0;
     private boolean isAutonomous = false;
     // Joysticks
     private Joystick driverLeft, driverRight;
@@ -41,6 +42,7 @@ public class RobotA extends Bobot {
     // StateMachine
     private StateMachine stateMachine;
     private JSONObject robotStatus;
+    private boolean slow = false;
 
     // Code
     @Override
@@ -128,8 +130,8 @@ public class RobotA extends Bobot {
         operatorStart = new Toggle(new Toggle.Change() {
             @Override
             public void change(boolean toggle) {
-                if (toggle) drive.gearUp();
-//                isAutonomous = toggle;
+//                if (toggle) drive.gearUp();
+                isAutonomous = toggle;
             }
         });
 //        operatorBack = new Toggle(new Toggle.Change() {
@@ -155,6 +157,12 @@ public class RobotA extends Bobot {
             public void change(boolean toggle) {
                 if (toggle) shiri.open();
                 else shiri.close();
+            }
+        });
+        driverLeftT = new Toggle(new Toggle.Change() {
+            @Override
+            public void change(boolean toggle) {
+                slow = !slow;
             }
         });
     }
@@ -209,8 +217,10 @@ public class RobotA extends Bobot {
 //            shanti.setStick(operatorGamepad.getX(GenericHID.Hand.kLeft) + shanti.getInstance().compensationRadius);
             shiri.setMotor((-operatorGamepad.getY(GenericHID.Hand.kRight)) / 2.0);
 //            drive.set(!driverRight.getTrigger()?driverRight.getY():0,!driverRight.getTrigger()?driverRight.getTwist():0);
-            drive.setTank(-driverLeft.getY(), -driverRight.getY());
+            drive.setTank(-driverLeft.getY() / (driverLeftT.getToggleState() ? 2.0 : 1.0), -driverRight.getY() / (driverLeftT.getToggleState() ? 2.0 : 1.0));
 //            klein.set(operatorGamepad.getBackButton() ? (operatorGamepad.getBumper(GenericHID.Hand.kLeft) ? 1 : operatorGamepad.getBumper(GenericHID.Hand.kRight) ? -1 : 0) : 0);
+        } else {
+            drive.set(v, w);
         }
         super.teleop();
     }
@@ -235,8 +245,8 @@ public class RobotA extends Bobot {
         robotStatus();
         currentJSON.put(ROBOT_STATUS, robotStatus);
         currentJSON.put("autonomous", isAutonomous);
-        currentJSON.put("driverLeft", -driverLeft.getY() * 10);
-        currentJSON.put("driverRight", -driverRight.getY() * 10);
+        currentJSON.put("driverLeft", -driverLeft.getY() * 25);
+        currentJSON.put("driverRight", -driverRight.getY() * 25);
         currentJSON.put("encoder", shiri.encoder);
         currentJSON.put("velocity", v);
         currentJSON.put("omega", w);
@@ -248,6 +258,7 @@ public class RobotA extends Bobot {
         // V and W are here:
         // pneumaticDrive -> {v, w}
         if (isAutonomous) {
+
             try {
                 String DRIVE = "drive";
                 if (object.has(DRIVE)) {
@@ -256,7 +267,7 @@ public class RobotA extends Bobot {
                     if (driveObject.has("v") && driveObject.has("w")) {
                         v = driveObject.getFloat("v");
                         w = driveObject.getFloat("w");
-                        log("Here?");
+//                        log("Here?");
 //                        log("w:" + w + ",v:" + v);
 //                        log("AutoTCP - Good");
                     } else {
@@ -275,12 +286,11 @@ public class RobotA extends Bobot {
                 }
             } catch (Exception e) {
                 if (e instanceof JSONException) {
-//                    log("JSON syntax error");
+                    log("JSON syntax error");
                 } else {
-//                    log("Error: " + e.toString());
+                    log("Error: " + e.toString());
                 }
             }
-//            drive.setAutonomous(v, w);
         }
     }
 }

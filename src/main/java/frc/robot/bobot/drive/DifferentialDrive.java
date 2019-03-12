@@ -36,7 +36,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public double y = 0;
     public double rightEncPrev = 0;
     public double leftEncPrev = 0;
-    public double MAX_WHEEL_VELOCITY = 15;
+    public double MAX_WHEEL_VELOCITY = 25;
     public double lastSetPointsR = 0;
     public double lastSetPointsL = 0;
     public double lastav = 0;
@@ -63,8 +63,12 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public DifferentialDrive() {
         motorControlLeft = new PID();
         motorControlRight = new PID();
-        motorControlLeft.setPIDF(0, 0.2, 0, 0.44);
-        motorControlRight.setPIDF(0, 0.2, 0, 0.45);
+        motorControlLeft.setPIDF(0, 0.2, 0, 0.45);
+        motorControlRight.setPIDF(0, 0.2, 0, 0.44);
+//        robotA
+//        motorControlLeft.setPIDF(0, 0.1, 0, 0.39);
+//        motorControlRight.setPIDF(0, 0.1, 0, 0.4);
+
 //        leftMeters = (left.getEncoder().getRaw()*ENCODER_TO_RADIAN)/(2*Math.PI*WHEEL_RADIUS);
 //        rightMeters = (right.getEncoder().getRaw()*ENCODER_TO_RADIAN)/(2*Math.PI*WHEEL_RADIUS);
 
@@ -138,8 +142,8 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         double[] V = robotToWheels(VOmega[0], VOmega[1]);
         double setpointV = VOmega[0];
         double setpointOmega = VOmega[1];
-        setpointV = (setpointV * 0.5) + (setPointVPrev * 0.5);
-        setpointOmega = (setpointOmega * 0.5) + (setPointOmegaPrev * 0.5);
+//        setpointV = (setpointV * 0.5) + (setPointVPrev * 0.5);
+//        setpointOmega = (setpointOmega * 0.5) + (setPointOmegaPrev * 0.5);
         if (Math.abs(setpointV) < 0.2) setpointV = 0;
         if (Math.abs(setpointOmega) < 0.2) setpointOmega = 0;
 //        double[] motorOutput = calculateOutputs(setpointV * MAX_V, setpointOmega * MAX_OMEGA);

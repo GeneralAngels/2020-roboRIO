@@ -19,7 +19,7 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
     public RobotADrive() {
         latest = this;
         if (pneumatics) {
-            gear = new DoubleSolenoid(2, 3);
+            gear = new DoubleSolenoid(6, 7);
         }
         // ROBOT B
         // TODO change on robotA

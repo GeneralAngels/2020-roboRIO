@@ -9,6 +9,7 @@ import org.json.JSONObject;
 public class Communication extends Subsystem {
     public Communication(Bobot bobot) {
         NetworkTableInstance instance = NetworkTableInstance.getDefault();
+//        instance.setUpdateRate(0.02);
         NetworkTable database = instance.getTable("database");
         NetworkTableEntry command = database.getEntry("command");
         command.addListener(entryNotification -> {
@@ -16,6 +17,7 @@ public class Communication extends Subsystem {
 //                log(entryNotification.value.getString());
                 bobot.handleJSON(new JSONObject(entryNotification.value.getString()));
             } catch (Exception ignored) {
+                //log("hello", "hello");
             }
         }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
     }

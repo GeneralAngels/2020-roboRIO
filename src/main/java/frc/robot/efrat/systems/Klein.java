@@ -11,6 +11,7 @@ public class Klein extends Subsystem {
         latest = this;
         motor1 = new WPI_TalonSRX(20);
         motor2 = new WPI_TalonSRX(21);
+        motor1.setInverted(true);
     }
 
     public static Klein getInstance() {

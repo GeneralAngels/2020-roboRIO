@@ -27,7 +27,7 @@ public class Shiri extends Subsystem {
     public Shiri(){
 
         latest = this;
-        hatch = new DoubleSolenoid(0, 6, 7);
+        hatch = new DoubleSolenoid(0, 0, 1);
 //        hatch = new DoubleSolenoid(0,0, 1);
         slideMotor = new WPI_TalonSRX(14);
         //log(slideMotor.getSensorCollection().getPulseWidthPosition()+"");
