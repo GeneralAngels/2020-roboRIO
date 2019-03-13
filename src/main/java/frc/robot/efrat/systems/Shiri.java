@@ -19,21 +19,24 @@ public class Shiri extends Subsystem {
     private DoubleSolenoid hatch;
     private WPI_TalonSRX slideMotor;
     private PID xPID;
+    public double currentEncoder = 0;
     private double xPrev = 0;
     private double targetX=-1;
     private double currentX = 0;
     public double y = -0.5;
     public double encoder = 0;
+    public double prevEncoder = 0;
+    private PID PIDV;
     public Shiri(){
-
+        //0.44
         latest = this;
         hatch = new DoubleSolenoid(0, 0, 1);
 //        hatch = new DoubleSolenoid(0,0, 1);
         slideMotor = new WPI_TalonSRX(14);
         //log(slideMotor.getSensorCollection().getPulseWidthPosition()+"");
-        slideMotor.getSensorCollection().setQuadraturePosition(slideMotor.getSensorCollection().getPulseWidthPosition(),10);
+//        slideMotor.getSensorCollection().setQuadraturePosition(slideMotor.getSensorCollection().getPulseWidthPosition(),10);
  //       slideMotor.setInverted(true);
-        slideMotor.getSensorCollection().setPulseWidthPosition(0,0);
+//        slideMotor.getSensorCollection().setPulseWidthPosition(0,0);
         slideMotor.getSensorCollection().setQuadraturePosition(0,0);
 //        slideMotor.getSensorCollection().setAnalogPosition(0,0);
         grab1 = new DigitalInput(PinMan.getNavDIO(1));
@@ -41,6 +44,8 @@ public class Shiri extends Subsystem {
         backReset = new DigitalInput(PinMan.getNavDIO(3));
         frontReset = new DigitalInput(PinMan.getNavDIO(4));
         xPID = new PID();
+        PIDV = new PID();
+        PIDV.setPIDF(0, 0.2, 0, 0.5);
         xPID.setPIDF(1.7, 0.3, 0.2, 0);
     }
 
@@ -113,23 +118,28 @@ public class Shiri extends Subsystem {
         return 0;
     }
     public void print(){
-//        log("meters: "+((-(slideMotor.getSensorCollection().getQuadraturePosition()/10.0)* ENC_TO_METERS +0.9253156529296874)));
+        log("shiri meters: ", (-(slideMotor.getSensorCollection().getQuadraturePosition() / 10.0) * ENC_TO_METERS));
+//        log("meters: "+((-(slideMotor.getSensorCollection().getQuadraturePosition()/10.0)* ENC_TO_METERS +0.9253156529296874-0.6611049985351563)));
 //        log("encoder: "+((slideMotor.getSelectedSensorPosition())/10));
     }
 
     public double controlX(double setpointX) {
-        currentX = -(slideMotor.getSensorCollection().getQuadraturePosition()/10.0)* ENC_TO_METERS +0.9253156529296874;
+        currentX = -((slideMotor.getSensorCollection().getQuadraturePosition() / 10.0) * ENC_TO_METERS);
         double output = xPID.pidPosition(currentX, setpointX);
         return output;
     }
     // Notice! if you call loop before set, the target location will be the farthest back.
     public void loop(){
 //        log("target x: "+targetX);
-        currentX = -(slideMotor.getSensorCollection().getQuadraturePosition()/10.0)* ENC_TO_METERS +0.9253156529296874;
+        currentX = -(((slideMotor.getSensorCollection().getQuadraturePosition() / 10.0) * ENC_TO_METERS - 0.3463674205078125) + 0.4348290705078125 + 0.10874972968749996);
         if (targetX != -1) {
             double slideMotor_output = controlX(targetX);
-            slideMotor.set(-slideMotor_output);
+            slideMotor.set(slideMotor_output);
         }
+    }
+
+    public void loopV(double speed) {
+        slideMotor.set(PIDV.pidVelocity(PIDV.derivative, speed));
     }
 
     public void moveToFront(){ //TODO: add if microSwitch

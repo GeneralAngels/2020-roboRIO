@@ -21,6 +21,16 @@ public class Toggle extends Subsystem {
         }
     }
 
+    public void click() {
+        log("Does this even work?");
+        toggleState = !toggleState;
+        if (change != null) change.change(toggleState);
+    }
+
+    public boolean getState() {
+        return state;
+    }
+
     public boolean getToggleState() {
         return toggleState;
     }

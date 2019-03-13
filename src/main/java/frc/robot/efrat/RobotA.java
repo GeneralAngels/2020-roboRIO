@@ -22,6 +22,8 @@ import org.json.JSONObject;
 public class RobotA extends Bobot {
     public double v = 0, w = 0;
     double counter = 0;
+    public double power = 0;
+    public double previousShiriPower = 0;
     private boolean isAutonomous = false;
     // Joysticks
     private Joystick driverLeft, driverRight;
@@ -32,7 +34,6 @@ public class RobotA extends Bobot {
     private Shiri shiri;
     private Shanti shanti;
     private Klein klein;
-    long count = 0;
     // RGB
     private RobotIdle robotIdle;
     private RGB rgb;
@@ -42,7 +43,10 @@ public class RobotA extends Bobot {
     private StateMachine stateMachine;
     private JSONObject robotStatus;
     private boolean slow = false;
-
+    long count = 0;
+    long last = millis();
+    // Toggles
+    private Toggle operatorA, operatorB, operatorX, operatorY, operatorStart, operatorBack, operatorPadUp, operatorPadDown, driverLeftT, driverRightT, driverRight5, driverRight3, driverRight6, driverRight4, driverRight11;
     // Code
     @Override
     public void init() {
@@ -55,7 +59,6 @@ public class RobotA extends Bobot {
         super.init();
         instructions();
     }
-
 
     private void initCompressor() {
         compressor = new Compressor(0);
@@ -95,13 +98,10 @@ public class RobotA extends Bobot {
 //        tomer = new Tomer();
         shiri = new Shiri();
 //        shanti = new Shanti();
-//        klein = new Klein();
+        klein = new Klein();
+        addToJSON(shiri);
         addToJSON(drive);
     }
-
-    long last = millis();
-    // Toggles
-    private Toggle operatorA, operatorB, operatorX, operatorY, operatorStart, operatorBack, operatorPadUp, operatorPadDown, driverLeftT, driverRightT, driverRight5, driverRight3, driverRight6, driverRight4, driverRight11;
 
     private void loopSubsystems() {
 //        shiri.loop();
@@ -114,12 +114,6 @@ public class RobotA extends Bobot {
     }
 
     private void initTriggers() {
-//        driverLeftT = new Toggle(new Toggle.Change() {
-//            @Override
-//            public void change(boolean toggle) {
-//                isAutonomous = toggle;
-//            }
-//        });
         driverRightT = new Toggle(new Toggle.Change() {
             @Override
             public void change(boolean toggle) {
@@ -147,28 +141,10 @@ public class RobotA extends Bobot {
                 isAutonomous = toggle;
             }
         });
-//        operatorBack = new Toggle(new Toggle.Change() {
-//            @Override
-//            public void change(boolean toggle) {
-//                if (toggle) drive.gearDown();
-//                if (!toggle) drive.gearUp();
-////               if(toggle)shiri.open();
-////               if(!toggle)shiri.close();
-//            }
-//        });
-//        operatorStart = new Toggle(new Toggle.Change() {
-//            @Override
-//            public void change(boolean toggle) {
-//                if (toggle)
-//                    tomer.open();
-//                else
-//                    tomer.close();
-//            }
-//        });
         operatorX = new Toggle(new Toggle.Change() {
             @Override
             public void change(boolean toggle) {
-                if (toggle) shiri.open();
+                if (!toggle) shiri.open();
                 else shiri.close();
             }
         });
@@ -213,44 +189,35 @@ public class RobotA extends Bobot {
 //        loopSubsystems();
 //        stateMachine.update(operatorGamepad, null);
         if (!isAutonomous) {
-//            shanti.print();
-//            shanti.set(0.4, 0.4);
-//            shiri.set(0.38);
-//            shiri.print();
-//            shanti.loop();
-//              shanti.print();
-//            shiri.set(0.3);
-//            shiri.loop();
-
-//            shanti.setLift(operatorGamepad.getY(GenericHID.Hand.kLeft) / 6 - Shanti.getInstance().compensationBeta);
-//            shanti.setStick(operatorGamepad.getX(GenericHID.Hand.kLeft) + shanti.getInstance().compensationRadius);
-            shiri.setMotor((-operatorGamepad.getY(GenericHID.Hand.kRight)) / 2.0);
-//            drive.set(!driverRight.getTrigger()?driverRight.getY():0,!driverRight.getTrigger()?driverRight.getTwist():0);
+            shiri.print();
+            double shiriPower = ((-operatorGamepad.getY(GenericHID.Hand.kRight)) / 1.5);
+            shiri.setMotor(((shiriPower * 0.7) + (previousShiriPower * 0.3)));
             if (driverRight11.getToggleState()) {
                 drive.preClimb();
-//                log("yes");
-            }
-            else {
-//                log("no");
+                if ((drive.motorControlLeftP.error < 0.02) && (drive.motorControlLeftP.error < 0.02))
+                    driverRight11.update(!driverRight11.getState());
+            } else {
                 drive.motorControlLeftP.integral = 0;
                 drive.motorControlRightP.integral = 0;
                 drive.check = true;
                 drive.setTank(-driverLeft.getY() / (driverLeftT.getToggleState() ? 2.0 : 1.0), -driverRight.getY() / (driverLeftT.getToggleState() ? 2.0 : 1.0));
             }
-// klein.set(operatorGamepad.getBackButton() ? (operatorGamepad.getBumper(GenericHID.Hand.kLeft) ? 1 : operatorGamepad.getBumper(GenericHID.Hand.kRight) ? -1 : 0) : 0);
+
+            boolean kleinConfirm = operatorGamepad.getBButton();
+            double kleinSpeed = 0;
+            if (kleinConfirm) {
+                if (operatorGamepad.getPOV() == 0) {
+                    kleinSpeed = 1;
+                } else if (operatorGamepad.getPOV() == 180) {
+                    kleinSpeed = -1;
+                }
+            }
+            klein.set(kleinSpeed);
         } else {
             drive.set(v, w);
-//            drive.updateOdometry();
         }
+        previousShiriPower = power;
         super.teleop();
-    }
-
-    @Override
-    protected void loop() {
-        log("here", count + " del " + (millis() - last));
-        last = millis();
-        count++;
-        super.loop();
     }
 
     private void robotStatus() {
@@ -286,7 +253,6 @@ public class RobotA extends Bobot {
         // V and W are here:
         // pneumaticDrive -> {v, w}
         if (isAutonomous) {
-
             try {
                 String DRIVE = "drive";
                 if (object.has(DRIVE)) {
@@ -295,7 +261,6 @@ public class RobotA extends Bobot {
                     if (driveObject.has("v") && driveObject.has("w")) {
                         v = driveObject.getFloat("v");
                         w = driveObject.getFloat("w");
-//                        log("Here?");
 //                        log("w:" + w + ",v:" + v);
 //                        log("AutoTCP - Good");
                     } else {
