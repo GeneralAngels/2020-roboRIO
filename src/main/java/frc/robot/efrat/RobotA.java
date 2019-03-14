@@ -20,10 +20,12 @@ import org.json.JSONObject;
 
 @SuppressWarnings("ALL")
 public class RobotA extends Bobot {
-    public double v = 0, w = 0;
-    double counter = 0;
+    public double v = 0, w = 0, distance = 0, angle = 0;
     public double power = 0;
     public double previousShiriPower = 0;
+    double counter = 0;
+    long count = 0;
+    long last = millis();
     private boolean isAutonomous = false;
     // Joysticks
     private Joystick driverLeft, driverRight;
@@ -43,10 +45,10 @@ public class RobotA extends Bobot {
     private StateMachine stateMachine;
     private JSONObject robotStatus;
     private boolean slow = false;
-    long count = 0;
-    long last = millis();
+    private boolean idandanMode = false;
     // Toggles
     private Toggle operatorA, operatorB, operatorX, operatorY, operatorStart, operatorBack, operatorPadUp, operatorPadDown, driverLeftT, driverRightT, driverRight5, driverRight3, driverRight6, driverRight4, driverRight11;
+
     // Code
     @Override
     public void init() {
@@ -188,19 +190,31 @@ public class RobotA extends Bobot {
         updateTriggers();
 //        loopSubsystems();
 //        stateMachine.update(operatorGamepad, null);
+        log("errorAngle", angle);
         if (!isAutonomous) {
+            // Idandan angle pid check
+            double angle = 1.57 * operatorGamepad.getX(GenericHID.Hand.kRight);
+            if (operatorGamepad.getAButton()) {
+                idandanMode = true;
+            }
+            if (idandanMode) {
+                this.angle = angle;
+            }
+            log("idandan_mode", idandanMode);
+            log("idandan_angle_override", angle);
             shiri.print();
             double shiriPower = ((-operatorGamepad.getY(GenericHID.Hand.kRight)) / 1.5);
-            shiri.setMotor(((shiriPower * 0.7) + (previousShiriPower * 0.3)));
+            shiri.setMotor(((shiriPower * 0.5) + (previousShiriPower * 0.5)));
             if (driverRight11.getToggleState()) {
                 drive.preClimb();
-                if ((drive.motorControlLeftP.error < 0.02) && (drive.motorControlLeftP.error < 0.02))
+                if ((Math.abs(drive.motorControlLeftP.error) < 0.015) && (Math.abs(drive.motorControlRightP.error) < 0.015)) {
                     driverRight11.update(!driverRight11.getState());
+                }
             } else {
                 drive.motorControlLeftP.integral = 0;
                 drive.motorControlRightP.integral = 0;
                 drive.check = true;
-                drive.setTank(-driverLeft.getY() / (driverLeftT.getToggleState() ? 2.0 : 1.0), -driverRight.getY() / (driverLeftT.getToggleState() ? 2.0 : 1.0));
+                drive.setTank(-driverLeft.getY() / (driverLeft.getTrigger() ? 1.5 : 1.0), -driverRight.getY() / ((driverLeft.getTrigger() ? 1.5 : 1.0)));
             }
 
             boolean kleinConfirm = operatorGamepad.getBButton();
@@ -213,10 +227,10 @@ public class RobotA extends Bobot {
                 }
             }
             klein.set(kleinSpeed);
+            previousShiriPower = shiriPower;
         } else {
-            drive.set(v, w);
+            drive.hatchAlign(angle);
         }
-        previousShiriPower = power;
         super.teleop();
     }
 
@@ -240,11 +254,11 @@ public class RobotA extends Bobot {
         robotStatus();
         currentJSON.put(ROBOT_STATUS, robotStatus);
         currentJSON.put("autonomous", isAutonomous);
-        currentJSON.put("driverLeft", -driverLeft.getY() * 25);
-        currentJSON.put("driverRight", -driverRight.getY() * 25);
-        currentJSON.put("encoder", shiri.encoder);
-        currentJSON.put("velocity", v);
-        currentJSON.put("omega", w);
+//        currentJSON.put("driverLeft", -driverLeft.getY() * 25);
+//        currentJSON.put("driverRight", -driverRight.getY() * 25);
+//        currentJSON.put("encoder", shiri.encoder);
+//        currentJSON.put("velocity", v);
+//        currentJSON.put("omega", w);
         return currentJSON;
     }
 
@@ -255,6 +269,7 @@ public class RobotA extends Bobot {
         if (isAutonomous) {
             try {
                 String DRIVE = "drive";
+                String HATCH = "hatch";
                 if (object.has(DRIVE)) {
                     JSONObject driveObject = object.getJSONObject(DRIVE);
                     log(driveObject.toString());
@@ -274,8 +289,17 @@ public class RobotA extends Bobot {
                             drive.gearDown();
                         }
                     }
-                } else {
-//                    log("No \"DifferentialDrive\" in json");
+                }
+                if (object.has(HATCH)) {
+                    JSONObject hatch = object.getJSONObject(HATCH);
+                    if (!idandanMode) {
+                        if (hatch.has("distance")) {
+                            distance = hatch.getFloat("distance");
+                        }
+                        if (hatch.has("angle")) {
+                            angle = hatch.getFloat("angle");
+                        }
+                    }
                 }
             } catch (Exception e) {
                 if (e instanceof JSONException) {
