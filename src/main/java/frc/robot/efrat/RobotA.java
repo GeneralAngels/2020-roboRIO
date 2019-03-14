@@ -192,17 +192,7 @@ public class RobotA extends Bobot {
 //        stateMachine.update(operatorGamepad, null);
         log("errorAngle", angle);
         if (!isAutonomous) {
-            // Idandan angle pid check
-            double angle = 1.57 * operatorGamepad.getX(GenericHID.Hand.kRight);
-            if (operatorGamepad.getAButton()) {
-                idandanMode = true;
-            }
-            if (idandanMode) {
-                this.angle = angle;
-            }
-            log("idandan_mode", idandanMode);
-            log("idandan_angle_override", angle);
-            shiri.print();
+//            shiri.print();
             double shiriPower = ((-operatorGamepad.getY(GenericHID.Hand.kRight)) / 1.5);
             shiri.setMotor(((shiriPower * 0.5) + (previousShiriPower * 0.5)));
             if (driverRight11.getToggleState()) {
@@ -229,6 +219,16 @@ public class RobotA extends Bobot {
             klein.set(kleinSpeed);
             previousShiriPower = shiriPower;
         } else {
+            // Idandan angle pid check
+            double angle = 1.57 * operatorGamepad.getX(GenericHID.Hand.kLeft);
+            if (operatorGamepad.getAButton()) {
+                idandanMode = true;
+            }
+            if (idandanMode) {
+                this.angle = angle;
+            }
+            log("idandan_mode", idandanMode);
+            log("idandan_angle_override", angle);
             drive.hatchAlign(angle);
         }
         super.teleop();

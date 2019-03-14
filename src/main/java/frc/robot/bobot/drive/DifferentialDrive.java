@@ -97,7 +97,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
 
     public void hatchAlign(double errorAngle) {
         double p = pid.pidPosition(0, errorAngle);
-        log("hatch_align_power", p);
+        log("hatch_align_power", "" + p);
 //        direct(-p,p);
     }
 
