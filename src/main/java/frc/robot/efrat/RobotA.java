@@ -97,11 +97,11 @@ public class RobotA extends Bobot {
     }
 
     private void initRGB() {
-        rgb = new RGB(38, 12);
+        rgb = new RGB(38, 8);
         robotIdle = new RobotIdle();
         rgb.setPattern(robotIdle);
 //        robotIdle.rainbow();
-//        robotIdle.climb();
+        robotIdle.climb();
     }
 
     private void initSystems() {
@@ -215,7 +215,7 @@ public class RobotA extends Bobot {
                     kleinSpeed = -1;
                 }
             }
-//            klein.set(kleinSpeed);
+            klein.set(kleinSpeed);
             if (operatorGamepad.getYButton())
                 drive.hatchAlign(Math.toRadians(drive.gyro.getYaw()));
 

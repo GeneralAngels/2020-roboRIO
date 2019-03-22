@@ -78,6 +78,13 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         motorControlLeftP = new PID();
         motorControlRightP = new PID();
         pid = new PID();
+        //robot b
+//        motorControlLeft.setPIDF(0.5, 0.3, 0, 0.5);
+//        motorControlRight.setPIDF(0.5, 0.3, 0, 0.5);
+//        motorControlLeftP.setPIDF(4, 0.47, 0, 0);
+//        motorControlRightP.setPIDF(4, 0.8, 0, 0);
+//        pid.setPIDF(1, 0.1, 0, 0);
+        //robot a
         motorControlLeft.setPIDF(0.5, 0.3, 0, 0.5);
         motorControlRight.setPIDF(0.5, 0.3, 0, 0.5);
         motorControlLeftP.setPIDF(4, 0.47, 0, 0);
@@ -165,9 +172,9 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         double setpointV = speed;
         double setpointOmega = turn;
         double[] V = robotToWheels(setpointV, setpointOmega);
-        log("Vleft setpoint", V[0]);
-        log("set point v", setpointV);
-        log("set point omega", setpointOmega);
+//        log("Vleft setpoint"+ V[0]);
+//        log("set point v"+ setpointV);
+//        log("set point omega"+ setpointOmega);
         if (Math.abs(setpointV) < 0.2) setpointV = 0;
         if (Math.abs(setpointOmega) < 0.2) setpointOmega = 0;
         encoders[0] = left.getEncoder().getRaw();
@@ -180,9 +187,9 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
             motorOutputLeft = 0;
         if (Math.abs(motorOutputRight) < 0.1)
             motorOutputRight = 0;
-        log("motor output left", motorOutputLeft);
-        log("motor output right", motorOutputRight);
-        log("integralL", motorControlLeft.getIntegral());
+//        log("motor output left", motorOutputLeft);
+//        log("motor output right", motorOutputRight);
+//        log("integralL", motorControlLeft.getIntegral());
         battery = DriverStation.getInstance().getBatteryVoltage();
         battery = (0.5 * battery) + (0.5 * batteryPrev);
         if (battery > 12.0)
@@ -258,6 +265,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         leftMeters = (encoders[0] - encodersPrev[0]) * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
         rightMeters = (encoders[1] - encodersPrev[1]) * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
         VOmegaReal = wheelsToRobot(motorControlLeft.derivative, motorControlRight.derivative);
+//        log("real v:" + VOmegaReal[0]);
         distanceFromEncoders = (leftMeters + rightMeters) / 2.0;
         x += distanceFromEncoders * Math.cos(toRadians(theta));
         y += distanceFromEncoders * Math.sin(toRadians(theta));
