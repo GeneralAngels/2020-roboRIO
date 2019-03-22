@@ -172,9 +172,9 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         double setpointV = speed;
         double setpointOmega = turn;
         double[] V = robotToWheels(setpointV, setpointOmega);
-//        log("Vleft setpoint"+ V[0]);
-//        log("set point v"+ setpointV);
-//        log("set point omega"+ setpointOmega);
+//        log("Vleft setpoint", V[0]);
+        log("set point v", setpointV);
+        log("set point omega", setpointOmega);
         if (Math.abs(setpointV) < 0.2) setpointV = 0;
         if (Math.abs(setpointOmega) < 0.2) setpointOmega = 0;
         encoders[0] = left.getEncoder().getRaw();
@@ -265,7 +265,8 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         leftMeters = (encoders[0] - encodersPrev[0]) * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
         rightMeters = (encoders[1] - encodersPrev[1]) * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
         VOmegaReal = wheelsToRobot(motorControlLeft.derivative, motorControlRight.derivative);
-//        log("real v:" + VOmegaReal[0]);
+        log("real v:", VOmegaReal[0]);
+        log("real w:", VOmegaReal[1]);
         distanceFromEncoders = (leftMeters + rightMeters) / 2.0;
         x += distanceFromEncoders * Math.cos(toRadians(theta));
         y += distanceFromEncoders * Math.sin(toRadians(theta));
@@ -328,8 +329,8 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
             //            returnObject.put("omega_robot_setpoint", VOmega[1]);
 //            returnObject.put("v_robot_real", VOmegaReal[0]);
 //            returnObject.put("omega_robot_real", VOmegaReal[1]);
-//            returnObject.put("left_encoder", encoders[0]);
-//            returnObject.put("right_encoder", encoders[1]);
+            returnObject.put("left_encoder", encoders[0]);
+            returnObject.put("right_encoder", encoders[1]);
 //            returnObject.put("v_left_real", motorControlLeft.derivative);
 //            returnObject.put("v_right_real", motorControlRight.derivative);
 //            returnObject.put("v_left_setpoint", Vleft);

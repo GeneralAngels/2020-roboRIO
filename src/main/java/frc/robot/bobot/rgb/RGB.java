@@ -10,7 +10,7 @@ import java.util.TimerTask;
 public class RGB extends Subsystem {
     // Already OCed To 75Hz. Dont overclock higher!
     // Base clock: 20Hz
-    private static final int REFRESH_RATE = 20;
+    private static final int REFRESH_RATE = 30;
     private int length = 1, divider = 1;
     private Timer timer;
     private SerialPort serial;
@@ -56,8 +56,8 @@ public class RGB extends Subsystem {
             if (fill != null) {
                 packet[0] = (byte) (fill.direction?1:0);
                 packet[1] = (byte) (fill.length);
-                packet[2] = (byte) (fill.color.getGreen() / divider);
-                packet[3] = (byte) (fill.color.getBlue() / divider);
+                packet[2] = (byte) (fill.color.getBlue() / divider);
+                packet[3] = (byte) (fill.color.getGreen() / divider);
                 packet[4] = (byte) (fill.color.getRed() / divider);
             }
             serial.write(packet, 5);

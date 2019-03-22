@@ -32,8 +32,8 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
         right.add(new WPI_TalonSRX(11));
         left.add(new WPI_TalonSRX(12));
         left.add(new WPI_TalonSRX(13));
-        left.setEncoder(new Encoder(6, 7));
-        right.setEncoder(new Encoder(9, 8));
+        left.setEncoder(new Encoder(6, 7));//6 7
+        right.setEncoder(new Encoder(4, 5));// 9 8
         left.setDirection(Drivebox.DIRECTION_BACKWARD);
 //        right.setDirection(Drivebox.DIRECTION_BACKWARD);
         left.getEncoder().reset();

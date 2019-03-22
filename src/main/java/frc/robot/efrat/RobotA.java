@@ -97,11 +97,12 @@ public class RobotA extends Bobot {
     }
 
     private void initRGB() {
-        rgb = new RGB(38, 8);
+        rgb = new RGB(55, 8);
         robotIdle = new RobotIdle();
         rgb.setPattern(robotIdle);
+        robotIdle.color(Color.BLACK);
 //        robotIdle.rainbow();
-        robotIdle.climb();
+//        robotIdle.climb();
     }
 
     private void initSystems() {
