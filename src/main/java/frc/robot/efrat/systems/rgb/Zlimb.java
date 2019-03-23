@@ -15,7 +15,7 @@ public class Zlimb implements RGB.Pattern {
 //        System.out.println(height);
         int target = length / 2 + (length % 2);
         if (paint) {
-            height++;
+            if (loop % 2 == 0) height++;
             if (height % target == 0) paint = false;
             return new RGB.Fill(Color.CYAN, (height % target) + 1, loop % 2 == 0);
         } else {

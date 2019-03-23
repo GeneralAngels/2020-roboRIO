@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import frc.robot.bobot.Subsystem;
 import frc.robot.bobot.control.PID;
 import frc.robot.bobot.utils.PinMan;
+import frc.robot.efrat.systems.rgb.RobotIdle;
 
 public class Shiri extends Subsystem {
 
@@ -74,8 +75,12 @@ public class Shiri extends Subsystem {
 
     public void toggle() {
         if (hatch.get() == DoubleSolenoid.Value.kForward) {
+            if (RobotIdle.getInstance() != null)
+                RobotIdle.getInstance().shiri(false);
             close();
         } else {
+            if (RobotIdle.getInstance() != null)
+                RobotIdle.getInstance().shiri(true);
             open();
         }
 

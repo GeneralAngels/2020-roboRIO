@@ -159,10 +159,14 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     }
 
     public void setTank2(double Vl, double Vr) {
-        if (Math.abs(Vl) < 0.15)
+        if (Math.abs(Vl) < 0.15) {
+//            log("lll");
             Vl = 0;
-        if (Math.abs(Vr) < 0.15)
+        }
+        if (Math.abs(Vr) < 0.15) {
             Vr = 0;
+//            log("rrr");
+        }
         double vSetPoint = (Vl + Vr) / 2.0;
         double omegaSetPoint = (Vr - Vl) / 2.0;
         set(vSetPoint * MAX_V, omegaSetPoint * MAX_OMEGA);
@@ -265,8 +269,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         leftMeters = (encoders[0] - encodersPrev[0]) * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
         rightMeters = (encoders[1] - encodersPrev[1]) * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
         VOmegaReal = wheelsToRobot(motorControlLeft.derivative, motorControlRight.derivative);
-        log("real v:", VOmegaReal[0]);
-        log("real w:", VOmegaReal[1]);
+
         distanceFromEncoders = (leftMeters + rightMeters) / 2.0;
         x += distanceFromEncoders * Math.cos(toRadians(theta));
         y += distanceFromEncoders * Math.sin(toRadians(theta));
@@ -301,8 +304,8 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         direct(-(motorOutputLeft), -(motorOutputRight));
         leftMeters = left.getEncoder().getRaw() * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
         rightMeters = right.getEncoder().getRaw() * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
-        log("left meters: " + leftMeters);
-        log("right meters: " + rightMeters);
+//        log("left meters: " + leftMeters);
+//        log("right meters: " + rightMeters);
     }
 
     public void initGyro(AHRS gyro) {
@@ -325,24 +328,24 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public JSONObject toJSON() {
         JSONObject returnObject = super.toJSON();
         try {
-            //            returnObject.put("v_robot_setpoint", VOmega[0]);
-            //            returnObject.put("omega_robot_setpoint", VOmega[1]);
-//            returnObject.put("v_robot_real", VOmegaReal[0]);
-//            returnObject.put("omega_robot_real", VOmegaReal[1]);
+            returnObject.put("v_robot_real", VOmegaReal[0]);
+            returnObject.put("omega_robot_real", VOmegaReal[1]);
             returnObject.put("left_encoder", encoders[0]);
             returnObject.put("right_encoder", encoders[1]);
+            log("v left real:", motorControlLeft.derivative);
+            log("v right real:", motorControlRight.derivative);
 //            returnObject.put("v_left_real", motorControlLeft.derivative);
 //            returnObject.put("v_right_real", motorControlRight.derivative);
 //            returnObject.put("v_left_setpoint", Vleft);
 //            returnObject.put("v_right_setpoint", Vright);
 //            returnObject.put("output_left", outputLeft);
 //            returnObject.put("output_right", outputRight);
-            returnObject.put("begining P left", currentMetersLeft);
-            returnObject.put("begining P right", currentMetersRight);
-            returnObject.put("left meters", leftMeters);
-            returnObject.put("right meters", rightMeters);
-            returnObject.put("output_left_p", motorOutputLeft);
-            returnObject.put("output_right_p", motorOutputRight);
+//            returnObject.put("begining P left", currentMetersLeft);
+//            returnObject.put("begining P right", currentMetersRight);
+//            returnObject.put("left meters", leftMeters);
+//            returnObject.put("right meters", rightMeters);
+//            returnObject.put("output_left_p", motorOutputLeft);
+//            returnObject.put("output_right_p", motorOutputRight);
 //            returnObject.put("distanceFromEncoders", distanceFromEncoders);
             returnObject.put(ODOMETRY, odometry.toJSON());
         } catch (Exception ignored) {

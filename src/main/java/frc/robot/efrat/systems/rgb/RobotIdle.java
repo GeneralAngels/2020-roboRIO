@@ -13,6 +13,7 @@ public class RobotIdle implements RGB.Pattern {
     private LEDMode mode = LEDMode.Rainbow;
     private Rainbow rainbow = new Rainbow();
     private Zlimb climb = new Zlimb();
+    private Idling idle = new Idling();
     private Color color;
 
     public RobotIdle() {
@@ -26,6 +27,8 @@ public class RobotIdle implements RGB.Pattern {
     @Override
     public RGB.Fill fill(int length) {
         switch (mode) {
+            case Shiri:
+                return idle.fill(length);
             case Climb:
                 return climb.fill(length);
             case Rainbow:
@@ -38,10 +41,16 @@ public class RobotIdle implements RGB.Pattern {
         return new RGB.Fill(Color.BLACK, length, false);
     }
 
+    public void shiri(boolean state) {
+        mode = LEDMode.Shiri;
+        idle.shiri(state);
+    }
+
     @Override
     public void next(int ledCount) {
         rainbow.next(ledCount);
         climb.next(ledCount);
+        idle.next(ledCount);
         loop++;
     }
 
@@ -64,12 +73,13 @@ public class RobotIdle implements RGB.Pattern {
     }
 
     public void idle() {
-        color(Color.BLACK);
+        mode = LEDMode.Shiri;
     }
 
     enum LEDMode {
         Color,
         Rainbow,
+        Shiri,
         Flash,
         Climb
     }

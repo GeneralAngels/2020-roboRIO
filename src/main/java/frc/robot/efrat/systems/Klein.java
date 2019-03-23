@@ -26,7 +26,7 @@ public class Klein extends Subsystem {
     }
 
     public void set(double speed) {
-        log("Fucking here biuthcih");
+//        log("Fucking here biuthcih");
         motor1.set(speed);
         motor2.set(speed);
         motor3.set(speed);

@@ -50,6 +50,7 @@ public class RobotA extends Bobot {
     private boolean idandanMode = false;
     private String robotStatus;
     private boolean FMSAuto = false;
+    private boolean firstClimb = false;
     private RobotADrive driveA;
     // Toggles
     private Toggle operatorA, operatorB, operatorX, operatorY, operatorStart, operatorBack, operatorPadUp, operatorPadDown, driverLeftT, driverRightT, driverRight5, driverRight3, driverRight6, driverRight4, driverRight11;
@@ -200,8 +201,8 @@ public class RobotA extends Bobot {
                 drive.motorControlLeftP.integral = 0;
                 drive.motorControlRightP.integral = 0;
                 drive.check = true;
-                left = driverLeft.getY() * (driverLeft.getTrigger() ? 0.25 : 0.5);
-                right = driverRight.getY() * (driverLeft.getTrigger() ? 0.25 : 0.5);
+                left = driverLeft.getY() * (driverLeft.getTrigger() ? 0.25 : 0.75);
+                right = driverRight.getY() * (driverLeft.getTrigger() ? 0.25 : 0.75);
                 //drive.setTank(-left, -right);
                 drive.setTank2(-left, -right);
             }
@@ -215,6 +216,14 @@ public class RobotA extends Bobot {
                 } else if (operatorGamepad.getPOV() == 180) {
                     kleinSpeed = -1;
                 }
+                if (kleinSpeed != 0) {
+                    firstClimb = true;
+                }
+            } else {
+                if (!firstClimb)
+                    robotIdle.idle();
+                else
+                    robotIdle.color(Color.BLACK);
             }
             klein.set(kleinSpeed);
             if (operatorGamepad.getYButton())
