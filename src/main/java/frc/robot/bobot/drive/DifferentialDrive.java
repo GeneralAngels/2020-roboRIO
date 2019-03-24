@@ -52,6 +52,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public double rightMetersPrev = 0;
     public double[] encoderMeters = {0, 0};
     public double[] encoders = {0, 0};
+    public double[] encodersPrev = {0, 0};
     public double offsetGyro = 0;
     public double distance = 0;
     public double theta = 0;
@@ -76,7 +77,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         motorControlRight.setPIDF(0, 0.2, 0.2, 0.5);
         motorControlLeftP.setPIDF(2.5, 0.4, 0.2, 0);
         motorControlRightP.setPIDF(2, 0.4, 0.2, 0);
-        pid.setPIDF(1, 0, 0, 0);
+        pid.setPIDF(1, 0.1, 0, 0);
     }
 
     public static double noPIDCalculateRight(double speed, double turn) {
@@ -96,9 +97,16 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     }
 
     public void hatchAlign(double errorAngle) {
+        if (Math.abs(errorAngle) >= 0.6) {
+            pid.ki = 0.1;
+            pid.kp = 0.8;
+        } else {
+            pid.kp = 1.7;
+            pid.ki = 0.45;
+        }
         double p = pid.pidPosition(0, errorAngle);
         log("hatch_align_power", "" + p);
-//        direct(-p,p);
+        direct(p, -p);
     }
 
     public void setAutonomous(double v, double w) {
@@ -216,20 +224,21 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
             log("gyro", "Not Working");
         } else {
             log("gyro", "Working");
-            theta = gyro.getYaw() + 180;
+            theta = gyro.getYaw() - offsetGyro;
         }
-        leftMeters = encoders[0] * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
-        rightMeters = encoders[1] * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
+
+        leftMeters = (encoders[0] - encodersPrev[0]) * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
+        rightMeters = (encoders[1] - encodersPrev[1]) * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
         VOmegaReal = wheelsToRobot(motorControlLeft.derivative, motorControlRight.derivative);
-        distance = (leftMeters + rightMeters - rightMetersPrev - leftMetersPrev) / 2.0;
+        distance = (leftMeters + rightMeters) / 2.0;
         x += distance * Math.cos(toRadians(theta));
         y += distance * Math.sin(toRadians(theta));
         thetaRobotPrev = theta;
-        leftMetersPrev = leftMeters;
-        rightMetersPrev = rightMeters;
+        encodersPrev[0] = encoders[0];
+        encodersPrev[1] = encoders[1];
         odometry.setX(x);
-        odometry.setY(y);
-        odometry.setTheta(toRadians(theta));
+        odometry.setY(-y);
+        odometry.setTheta(theta);
         odometry.setRightSetpoint(Rsetpoint);
         odometry.setLeftSetpoint(Lsetpoint);
     }
@@ -255,6 +264,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         this.gyro = gyro;
         while (gyro.isCalibrating()) log("Calibrating Gyro");
         offsetGyro = gyro.getYaw();
+
     }
 
     public void direct(double leftSpeed, double rightSpeed) {
@@ -274,16 +284,14 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
             //            returnObject.put("omega_robot_setpoint", VOmega[1]);
             //            returnObject.put("v_robot_real", VOmegaReal[0]);
             //            returnObject.put("omega_robot_real", VOmegaReal[1]);
-            //            returnObject.put("left_encoder", encoders[0]);
-            //            returnObject.put("right_encoder", encoders[1]);
+            returnObject.put("left_encoder", encoders[0]);
+            returnObject.put("right_encoder", encoders[1]);
             returnObject.put("v_left_real", motorControlLeft.derivative);
             returnObject.put("v_right_real", motorControlRight.derivative);
             returnObject.put("v_left_setpoint", Vleft);
             returnObject.put("v_right_setpoint", Vright);
             returnObject.put("output_left", outputLeft);
             returnObject.put("output_right", outputRight);
-            //            returnObject.put("right_meters: ", rightMeters);
-            //            returnObject.put("left_meters: ", leftMeters);
             returnObject.put(ODOMETRY, odometry.toJSON());
         } catch (Exception ignored) {
         }

@@ -11,7 +11,7 @@ import org.json.JSONObject;
 
 public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
     private static RobotADrive latest;
-    protected AHRS gyro;
+    public AHRS gyro;
     private boolean pneumatics = true;
     private double latestX, latestY;
     private DoubleSolenoid gear;
@@ -23,19 +23,19 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
         }
         // ROBOT B
         // TODO change on robotA
-//        right.add(new WPI_TalonSRX(10));
-//        left.add(new WPI_TalonSRX(11));
-//        left.add(new WPI_TalonSRX(12));
-//        right.add(new WPI_TalonSRX(13));
-        // ROBOT A
         right.add(new WPI_TalonSRX(10));
-        right.add(new WPI_TalonSRX(11));
+        left.add(new WPI_TalonSRX(11));
         left.add(new WPI_TalonSRX(12));
-        left.add(new WPI_TalonSRX(13));
+        right.add(new WPI_TalonSRX(13));
+        // ROBOT A
+//        right.add(new WPI_TalonSRX(10));
+//        right.add(new WPI_TalonSRX(11));
+//        left.add(new WPI_TalonSRX(12));
+//        left.add(new WPI_TalonSRX(13));
         left.setEncoder(new Encoder(6, 7));
         right.setEncoder(new Encoder(9, 8));
-//        left.setDirection(Drivebox.DIRECTION_BACKWARD);
-        right.setDirection(Drivebox.DIRECTION_BACKWARD);
+        left.setDirection(Drivebox.DIRECTION_BACKWARD);
+//        right.setDirection(Drivebox.DIRECTION_BACKWARD);
         left.getEncoder().reset();
         right.getEncoder().reset();
         gyro = new Gyroscope();
@@ -54,7 +54,7 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
         if (pneumatics) {
             gear.set(DoubleSolenoid.Value.kForward);
             gearRatio = 14.0 / 60.0;
-//            log("Gear: UP");
+            log("Gear:", "14.0/60.0");
         }
     }
 
@@ -62,7 +62,7 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
         if (pneumatics) {
             gear.set(DoubleSolenoid.Value.kReverse);
             gearRatio = 20.0 / 44.0;
-//            log("Gear: DOWN");
+            log("Gear:", "20.0/44.0");
         }
     }
 

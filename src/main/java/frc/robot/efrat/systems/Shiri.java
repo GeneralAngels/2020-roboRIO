@@ -33,6 +33,7 @@ public class Shiri extends Subsystem {
         hatch = new DoubleSolenoid(0, 0, 1);
 //        hatch = new DoubleSolenoid(0,0, 1);
         slideMotor = new WPI_TalonSRX(14);
+        slideMotor.setInverted(true);
         //log(slideMotor.getSensorCollection().getPulseWidthPosition()+"");
 //        slideMotor.getSensorCollection().setQuadraturePosition(slideMotor.getSensorCollection().getPulseWidthPosition(),10);
  //       slideMotor.setInverted(true);

@@ -60,6 +60,7 @@ public class RobotA extends Bobot {
         initTriggers();
         super.init();
         instructions();
+
     }
 
     private void initCompressor() {
@@ -129,11 +130,7 @@ public class RobotA extends Bobot {
         operatorY = new Toggle(new Toggle.Change() {
             @Override
             public void change(boolean toggle) {
-                if (toggle) {
-                    drive.gearUp();
-                } else {
-                    drive.gearDown();
-                }
+
             }
         });
         operatorStart = new Toggle(new Toggle.Change() {
@@ -193,7 +190,7 @@ public class RobotA extends Bobot {
         log("errorAngle", angle);
         if (!isAutonomous) {
 //            shiri.print();
-            double shiriPower = ((-operatorGamepad.getY(GenericHID.Hand.kRight)) / 1.5);
+            double shiriPower = (operatorGamepad.getY(GenericHID.Hand.kRight) / 1.5);
             shiri.setMotor(((shiriPower * 0.5) + (previousShiriPower * 0.5)));
             if (driverRight11.getToggleState()) {
                 drive.preClimb();
@@ -204,7 +201,7 @@ public class RobotA extends Bobot {
                 drive.motorControlLeftP.integral = 0;
                 drive.motorControlRightP.integral = 0;
                 drive.check = true;
-                drive.setTank(-driverLeft.getY() / (driverLeft.getTrigger() ? 1.5 : 1.0), -driverRight.getY() / ((driverLeft.getTrigger() ? 1.5 : 1.0)));
+                drive.setTank(driverLeft.getY() / (driverLeft.getTrigger() ? 1.5 : 1.0), driverRight.getY() / ((driverLeft.getTrigger() ? 1.5 : 1.0)));
             }
 
             boolean kleinConfirm = operatorGamepad.getBButton();
@@ -216,20 +213,24 @@ public class RobotA extends Bobot {
                     kleinSpeed = -1;
                 }
             }
-            klein.set(kleinSpeed);
+//            klein.set(kleinSpeed);
+            if (operatorGamepad.getYButton())
+                drive.hatchAlign(Math.toRadians(drive.gyro.getYaw()));
+
             previousShiriPower = shiriPower;
         } else {
-            // Idandan angle pid check
-            double angle = 1.57 * operatorGamepad.getX(GenericHID.Hand.kLeft);
-            if (operatorGamepad.getAButton()) {
-                idandanMode = true;
-            }
-            if (idandanMode) {
-                this.angle = angle;
-            }
-            log("idandan_mode", idandanMode);
-            log("idandan_angle_override", angle);
-            drive.hatchAlign(angle);
+//            // Idandan angle pid check
+//            double angle = 1.57 * operatorGamepad.getX(GenericHID.Hand.kLeft);
+//            if (operatorGamepad.getAButton()) {
+//                idandanMode = true;
+//            }
+//            if (idandanMode) {
+//                this.angle = angle;
+//            }
+//            log("idandan_mode", idandanMode);
+//            log("idandan_angle_override", angle);
+//            drive.hatchAlign(angle);
+            drive.set(v, w);
         }
         super.teleop();
     }
