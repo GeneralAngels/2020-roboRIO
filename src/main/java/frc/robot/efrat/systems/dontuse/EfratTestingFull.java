@@ -122,7 +122,7 @@ public class EfratTestingFull extends Bobot {
 //        counter+=1;
 //        pneumaticDrive.set(0,0);
         log("v:" + driverGamepad.getY(GenericHID.Hand.kLeft)+",w:" + driverGamepad.getX(GenericHID.Hand.kLeft));
-        pneumaticDrive.set(driverGamepad.getY(GenericHID.Hand.kLeft),driverGamepad.getX(GenericHID.Hand.kLeft));
+        pneumaticDrive.set(driverGamepad.getY(GenericHID.Hand.kLeft), driverGamepad.getX(GenericHID.Hand.kLeft), false);
         progress++;
     }
 

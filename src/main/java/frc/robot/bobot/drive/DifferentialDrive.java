@@ -85,8 +85,8 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
 //        motorControlRightP.setPIDF(4, 0.8, 0, 0);
 //        pid.setPIDF(1, 0.1, 0, 0);
         //robot a
-        motorControlLeft.setPIDF(0.5, 0.3, 0, 0.5);
-        motorControlRight.setPIDF(0.5, 0.3, 0, 0.5);
+        motorControlLeft.setPIDF(0, 0, 0, 0.55);
+        motorControlRight.setPIDF(0, 0, 0, 0.55);
         motorControlLeftP.setPIDF(4, 0.47, 0, 0);
         motorControlRightP.setPIDF(4, 0.8, 0, 0);
         pid.setPIDF(1, 0.1, 0, 0);
@@ -121,8 +121,8 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         direct(p, -p);
     }
 
-    public void setAutonomous(double v, double w) {
-        set(v, w);
+    public void setAutonomous(double v, double w, boolean auto) {
+        set(v, w, auto);
     }
 
     public void setStickNoPID(double speed, double turn) {
@@ -137,28 +137,35 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
             Vl = 0;
         if (Math.abs(Vr) < 0.1)
             Vr = 0;
-        Vl = Vl * MAX_WHEEL_VELOCITY;
-        Vr = Vr * MAX_WHEEL_VELOCITY;
-        Vleft = Vl;
-        Vright = Vr;
-        VOmega = wheelsToRobot(Vleft, Vright);
-        encoders[0] = left.getEncoder().getRaw();
-        encoders[1] = right.getEncoder().getRaw();
-        double encoderLeft = encoders[0] * ENCODER_TO_RADIAN * gearRatio;
-        double encoderRight = encoders[1] * ENCODER_TO_RADIAN * gearRatio;
-        double motorOutputLeft = motorControlLeft.pidVelocity(encoderLeft, Vl);
-        double motorOutputRight = motorControlRight.pidVelocity(encoderRight, Vr);
-        if (Math.abs(motorOutputLeft) < 0.1)
-            motorOutputLeft = 0;
-        if (Math.abs(motorOutputRight) < 0.1)
-            motorOutputRight = 0;
-        motorOutputLeftPrev = motorOutputLeft;
-        motorOutputRightPrev = motorOutputRight;
-        direct(motorOutputLeft / 12, motorOutputRight / 12);
+//        Vl = Vl * MAX_WHEEL_VELOCITY;
+//        Vr = Vr * MAX_WHEEL_VELOCITY;
+//        Vleft = Vl;
+//        Vright = Vr;
+//        VOmega = wheelsToRobot(Vleft, Vright);
+//        encoders[0] = left.getEncoder().getRaw();
+//        encoders[1] = right.getEncoder().getRaw();
+//        double encoderLeft = encoders[0] * ENCODER_TO_RADIAN * gearRatio;
+//        double encoderRight = encoders[1] * ENCODER_TO_RADIAN * gearRatio;
+//        double motorOutputLeft = motorControlLeft.pidVelocity(encoderLeft, Vl);
+//        double motorOutputRight = motorControlRight.pidVelocity(encoderRight, Vr);
+//        if (Math.abs(motorOutputLeft) < 0.1)
+//            motorOutputLeft = 0;
+//        if (Math.abs(motorOutputRight) < 0.1)
+//            motorOutputRight = 0;
+//        battery = DriverStation.getInstance().getBatteryVoltage();
+//        battery = (0.5 * battery) + (0.5 * batteryPrev);
+//        if (battery > 12.0)
+//            battery = 12.0;
+//        batteryPrev = battery;
+//        motorOutputLeftPrev = motorOutputLeft;
+//        motorOutputRightPrev = motorOutputRight;
+        direct(-Vl, -Vr);
         updateOdometry();
     }
 
     public void setTank2(double Vl, double Vr) {
+        log("JoystickL", Vl);
+        log("JoystickR", Vr);
         if (Math.abs(Vl) < 0.15) {
 //            log("lll");
             Vl = 0;
@@ -169,16 +176,28 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         }
         double vSetPoint = (Vl + Vr) / 2.0;
         double omegaSetPoint = (Vr - Vl) / 2.0;
-        set(vSetPoint * MAX_V, omegaSetPoint * MAX_OMEGA);
+        set(vSetPoint * MAX_V, omegaSetPoint * MAX_OMEGA, false);
     }
 
-    public void set(double speed, double turn) {
+    public void set(double speed, double turn, boolean auto) {
+        if (auto) {
+            motorControlLeft.setPIDF(0.5, 0.3, 0, 0.5);
+            motorControlRight.setPIDF(0.5, 0.3, 0, 0.5);
+            log("yes");
+        } else {
+            motorControlLeft.setPIDF(0, 0, 0, 0.55);
+            motorControlRight.setPIDF(0, 0, 0, 0.55);
+            log("no");
+        }
+
+//        log(motorControlLeft.kf + "");
         double setpointV = speed;
         double setpointOmega = turn;
         double[] V = robotToWheels(setpointV, setpointOmega);
 //        log("Vleft setpoint", V[0]);
         log("set point v", setpointV);
         log("set point omega", setpointOmega);
+        // TODO change this 11:56 4/4/2019
         if (Math.abs(setpointV) < 0.2) setpointV = 0;
         if (Math.abs(setpointOmega) < 0.2) setpointOmega = 0;
         encoders[0] = left.getEncoder().getRaw();
@@ -203,6 +222,9 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         motorOutputRightPrev = motorOutputRight;
         setPointVPrev = setpointV;
         setPointOmegaPrev = setpointOmega;
+        log("Batt", battery);
+        log("DirectL", -(motorOutputLeft / battery));
+        log("DirectR", -(motorOutputRight / battery));
         direct(-(motorOutputLeft / battery), -(motorOutputRight / battery));
         updateOdometry();
     }

@@ -58,9 +58,9 @@ public class PneumaticTestingDrive extends DifferentialDrive<Victor> {
     }
 
     @Override
-    public void set(double speed, double turn) {
+    public void set(double speed, double turn, boolean auto) {
         latestX = turn;
         latestY = speed;
-        super.set(speed, turn);
+        super.set(speed, turn, auto);
     }
 }

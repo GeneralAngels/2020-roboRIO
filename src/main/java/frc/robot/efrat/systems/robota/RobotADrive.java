@@ -33,7 +33,7 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
         left.add(new WPI_TalonSRX(12));
         left.add(new WPI_TalonSRX(13));
         left.setEncoder(new Encoder(2, 3));//6 7
-        right.setEncoder(new Encoder(6, 7));// 9 8
+        right.setEncoder(new Encoder(7, 6));// 9 8
         left.setDirection(Drivebox.DIRECTION_BACKWARD);
 //        right.setDirection(Drivebox.DIRECTION_BACKWARD);
         left.getEncoder().reset();
@@ -78,10 +78,10 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
     }
 
     @Override
-    public void set(double speed, double turn) {
+    public void set(double speed, double turn, boolean auto) {
         latestX = turn;
         latestY = speed;
-        super.set(speed, turn);
+        super.set(speed, turn, auto);
 //        log("EL: "+left.getEncoder().getRaw()+" ER: "+right.getEncoder().getRaw());
     }
 }

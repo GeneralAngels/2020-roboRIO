@@ -33,6 +33,7 @@ public class RobotA extends Bobot {
     // Joysticks
     private Joystick driverLeft, driverRight;
     private XboxController operatorGamepad;
+    private XboxController driverGamepad;
     // Systems
     private RobotADrive drive;
     private Tomer tomer;
@@ -52,6 +53,8 @@ public class RobotA extends Bobot {
     private boolean FMSAuto = false;
     private boolean firstClimb = false;
     private RobotADrive driveA;
+    // PDP
+//    PowerDistributionPanel pdp;
     // Toggles
     private Toggle operatorA, operatorB, operatorX, operatorY, operatorStart, operatorBack, operatorPadUp, operatorPadDown, driverLeftT, driverRightT, driverRight5, driverRight3, driverRight6, driverRight4, driverRight11;
 
@@ -81,9 +84,10 @@ public class RobotA extends Bobot {
     }
 
     private void initControllers() {
-        driverLeft = new Joystick(0);
-        driverRight = new Joystick(1);
+//        driverLeft = new Joystick(0);
+//        driverRight = new Joystick(1);
         operatorGamepad = new XboxController(2);
+        driverGamepad = new XboxController(3);
     }
 
     private void instructions() {
@@ -93,6 +97,7 @@ public class RobotA extends Bobot {
         log("Driver Left Port 0");
         log("Driver Right Port 1");
         log("Operator Port 2");
+        log("Klein Pot 3");
         log("To Begin, Press Enable");
         log("=======================================================");
     }
@@ -107,6 +112,7 @@ public class RobotA extends Bobot {
     }
 
     private void initSystems() {
+//        pdp=new PowerDistributionPanel();
         drive = new RobotADrive();
 //        tomer = new Tomer();
         shiri = new Shiri();
@@ -177,6 +183,10 @@ public class RobotA extends Bobot {
             if (operatorX != null) operatorX.update(operatorGamepad.getXButton());
             if (operatorY != null) operatorY.update(operatorGamepad.getYButton());
         }
+        if (driverGamepad != null) {
+            if (driverRight11 != null) driverRight11.update(driverGamepad.getBButton());
+            if (driverLeftT != null) driverLeftT.update(driverGamepad.getXButton());
+        }
     }
 
     @Override
@@ -185,7 +195,8 @@ public class RobotA extends Bobot {
 //        loopSubsystems();
 //        stateMachine.update(operatorGamepad, null);
         log("errorAngle", angle);
-        isAutonomous = driverRight.getRawButton(2);
+        isAutonomous = false;
+//        isAutonomous = driverRight.getRawButton(2);
         if (!isAutonomous) {
             v = 0;
             w = 0;
@@ -201,10 +212,11 @@ public class RobotA extends Bobot {
                 drive.motorControlLeftP.integral = 0;
                 drive.motorControlRightP.integral = 0;
                 drive.check = true;
-                left = driverLeft.getY() * (driverLeft.getTrigger() ? 0.25 : 0.75);
-                right = driverRight.getY() * (driverLeft.getTrigger() ? 0.25 : 0.75);
-                //drive.setTank(-left, -right);
-                drive.setTank2(-left, -right);
+//                left = driverLeft.getY() * (driverLeft.getTrigger() ? 0.25 : 1);
+//                right = driverRight.getY() * (driverLeft.getTrigger() ? 0.25 : 1);
+//                drive.setTank(-left, -right);
+//                drive.setTank2(-left, -right);
+                drive.set(-driverGamepad.getY(GenericHID.Hand.kLeft), -driverGamepad.getX(GenericHID.Hand.kRight), isAutonomous);
             }
 
             boolean kleinConfirm = operatorGamepad.getBButton();
@@ -216,14 +228,8 @@ public class RobotA extends Bobot {
                 } else if (operatorGamepad.getPOV() == 180) {
                     kleinSpeed = -1;
                 }
-                if (kleinSpeed != 0) {
-                    firstClimb = true;
-                }
             } else {
-                if (!firstClimb)
-                    robotIdle.idle();
-                else
-                    robotIdle.color(Color.BLACK);
+                robotIdle.idle();
             }
             klein.set(kleinSpeed);
             if (operatorGamepad.getYButton())
@@ -233,9 +239,10 @@ public class RobotA extends Bobot {
         } else {
 //            drive.updateOdometry();
 //            robotIdle.flash(Color.MAGENTA);
-            drive.set(v, w);
+            drive.set(v, w, isAutonomous);
 //            drive.set(0.5,0);
         }
+//        robotIdle.idle(driverLeft.getY(),driverRight.getY());
         FMSAuto = false;
         super.teleop();
     }
@@ -256,6 +263,12 @@ public class RobotA extends Bobot {
         robotStatus();
         currentJSON.put(ROBOT_STATUS, robotStatus);
         currentJSON.put("autonomous", isAutonomous);
+//        try {
+//            currentJSON.put("voltage",pdp.getVoltage());
+//            currentJSON.put("total_current",pdp.getTotalCurrent());
+//        }catch (Exception e){
+//
+//        }
 //        currentJSON.put("driverLeft", -driverLeft.getY() * 25);
 //        currentJSON.put("driverRight", -driverRight.getY() * 25);
 //        currentJSON.put("encoder", shiri.encoder);

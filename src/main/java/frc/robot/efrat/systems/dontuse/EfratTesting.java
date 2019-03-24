@@ -181,7 +181,7 @@ public class EfratTesting extends Bobot {
                     log("Error: " + e.toString());
                 }
             }
-            pneumaticDrive.setAutonomous(v, w);
+            pneumaticDrive.setAutonomous(v, w, false);
         }
     }
 }

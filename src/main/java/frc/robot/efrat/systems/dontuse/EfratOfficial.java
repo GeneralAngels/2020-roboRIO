@@ -124,7 +124,7 @@ public class EfratOfficial extends Bobot {
         stateMachine.update(operatorGamepad, null);
         if (!isAutonomous) {
             double[] parameters = drive.wheelsToRobot(-driverLeft.getY(), -driverRight.getY());
-            drive.set(parameters[0], parameters[1]);
+            drive.set(parameters[0], parameters[1], false);
         }
     }
 
@@ -186,7 +186,7 @@ public class EfratOfficial extends Bobot {
                     log("Error: " + e.toString());
                 }
             }
-            drive.setAutonomous(v, w);
+            drive.setAutonomous(v, w, false);
         }
     }
 }
