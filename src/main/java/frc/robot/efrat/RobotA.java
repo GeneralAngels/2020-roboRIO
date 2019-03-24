@@ -127,12 +127,6 @@ public class RobotA extends Bobot {
                 }
             }
         });
-        operatorY = new Toggle(new Toggle.Change() {
-            @Override
-            public void change(boolean toggle) {
-
-            }
-        });
         operatorStart = new Toggle(new Toggle.Change() {
             @Override
             public void change(boolean toggle) {
@@ -219,17 +213,6 @@ public class RobotA extends Bobot {
 
             previousShiriPower = shiriPower;
         } else {
-//            // Idandan angle pid check
-//            double angle = 1.57 * operatorGamepad.getX(GenericHID.Hand.kLeft);
-//            if (operatorGamepad.getAButton()) {
-//                idandanMode = true;
-//            }
-//            if (idandanMode) {
-//                this.angle = angle;
-//            }
-//            log("idandan_mode", idandanMode);
-//            log("idandan_angle_override", angle);
-//            drive.hatchAlign(angle);
             drive.set(v, w);
         }
         super.teleop();
