@@ -14,7 +14,6 @@ import frc.robot.efrat.systems.Shiri;
 import frc.robot.efrat.systems.Tomer;
 import frc.robot.efrat.systems.rgb.RobotIdle;
 import frc.robot.efrat.systems.robota.RobotADrive;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -43,15 +42,20 @@ public class RobotA extends Bobot {
     private Compressor compressor;
     // StateMachine
     private StateMachine stateMachine;
-    private JSONObject robotStatus;
+    double left = 0;
     private boolean slow = false;
     private boolean idandanMode = false;
+    double right = 0;
+    private String robotStatus;
+    private boolean FMSAuto = false;
+    private RobotADrive driveA;
     // Toggles
     private Toggle operatorA, operatorB, operatorX, operatorY, operatorStart, operatorBack, operatorPadUp, operatorPadDown, driverLeftT, driverRightT, driverRight5, driverRight3, driverRight6, driverRight4, driverRight11;
 
     // Code
     @Override
     public void init() {
+//        driveA = new RobotADrive();
         initControllers();
         initRGB();
         initSystems();
@@ -113,6 +117,7 @@ public class RobotA extends Bobot {
 
     @Override
     public void autonomous() {
+        FMSAuto = true;
         teleop();
     }
 
@@ -195,7 +200,10 @@ public class RobotA extends Bobot {
                 drive.motorControlLeftP.integral = 0;
                 drive.motorControlRightP.integral = 0;
                 drive.check = true;
-                drive.setTank(driverLeft.getY() / (driverLeft.getTrigger() ? 1.5 : 1.0), driverRight.getY() / ((driverLeft.getTrigger() ? 1.5 : 1.0)));
+                left = driverLeft.getY() * (driverLeft.getTrigger() ? 0.5 : 1);
+                right = driverRight.getY() * (driverLeft.getTrigger() ? 0.5 : 1);
+                //drive.setTank(-left, -right);
+                drive.setTank2(-left, -right);
             }
 
             boolean kleinConfirm = operatorGamepad.getBButton();
@@ -215,21 +223,18 @@ public class RobotA extends Bobot {
         } else {
             drive.set(v, w);
         }
+        FMSAuto = false;
         super.teleop();
     }
 
     private void robotStatus() {
-        robotStatus = new JSONObject();
-        JSONArray driverStatus = new JSONArray();
-        JSONArray operatorStatus = new JSONArray();
-        if (isAutonomous) {
-//            operatorStatus.put("follow_ball");
-            operatorStatus.put("follow_reflective_tape");
+        if (FMSAuto) {
+            robotStatus = "fms";
+        } else if (isAutonomous) {
+            robotStatus = "auto";
         } else {
-            operatorStatus.put("joystick");
+            robotStatus = "teleop";
         }
-        robotStatus.put(DRIVER_STATUS, driverStatus);
-        robotStatus.put(OPERATOR_STATUS, operatorStatus);
     }
 
     @Override
@@ -264,6 +269,7 @@ public class RobotA extends Bobot {
 //                        log("AutoTCP - Good");
                     } else {
                         log("No \"v\" & \"w\" in json");
+
                     }
                     String GEAR = "gear";
                     if (driveObject.has(GEAR)) {

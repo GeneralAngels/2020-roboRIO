@@ -1,6 +1,7 @@
 package frc.robot.bobot.drive;
 
 import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SpeedController;
 import frc.robot.bobot.Subsystem;
 import frc.robot.bobot.control.PID;
@@ -22,7 +23,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public AHRS gyro;
     public double WHEEL_DISTANCE = 0.51;
     public double WHEEL_RADIUS = 0.1016;
-    public double MAX_V = 1;
+    public double MAX_V = 2;
 
     public double MAX_OMEGA = 3.14 * 2;
     public double[] realVOmega;
@@ -53,6 +54,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public double[] encoderMeters = {0, 0};
     public double[] encoders = {0, 0};
     public double[] encodersPrev = {0, 0};
+    public double[] vOmega = {0, 0};
     public double offsetGyro = 0;
     public double distance = 0;
     public double theta = 0;
@@ -66,6 +68,9 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     protected Odometry odometry = new Odometry();
     double motorOutputLeftPrev = 0;
     double motorOutputRightPrev = 0;
+    double battery = 0;
+    double batteryPrev = 0;
+    boolean checkGyro = true;
 
     public DifferentialDrive() {
         motorControlLeft = new PID();
@@ -146,12 +151,18 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         updateOdometry();
     }
 
+    public void setTank2(double Vl, double Vr) {
+        double vSetPoint = (Vl + Vr) / 2.0;
+        double omegaSetPoint = (Vr - Vl) / 2.0;
+        set(vSetPoint * MAX_V, omegaSetPoint * MAX_OMEGA);
+    }
+
     public void set(double speed, double turn) {
-        VOmega[0] = speed;
-        VOmega[1] = turn;
-        double[] V = robotToWheels(VOmega[0], VOmega[1]);
-        double setpointV = VOmega[0];
-        double setpointOmega = VOmega[1];
+        double setpointV = speed;
+        double setpointOmega = turn;
+        double[] V = robotToWheels(setpointV, setpointOmega);
+        log("set point v", setpointV);
+        log("set point omega", setpointOmega);
         if (Math.abs(setpointV) < 0.2) setpointV = 0;
         if (Math.abs(setpointOmega) < 0.2) setpointOmega = 0;
         encoders[0] = left.getEncoder().getRaw();
@@ -164,11 +175,18 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
             motorOutputLeft = 0;
         if (Math.abs(motorOutputRight) < 0.1)
             motorOutputRight = 0;
+        log("motor output left", motorOutputLeft);
+        log("motor output right", motorOutputRight);
+        battery = DriverStation.getInstance().getBatteryVoltage();
+        battery = (0.5 * battery) + (0.5 * batteryPrev);
+        if (battery > 12.0)
+            battery = 12.0;
+        batteryPrev = battery;
         motorOutputLeftPrev = motorOutputLeft;
         motorOutputRightPrev = motorOutputRight;
         setPointVPrev = setpointV;
         setPointOmegaPrev = setpointOmega;
-        direct(motorOutputLeft / 12.0, motorOutputRight / 12.0);
+        direct(-(motorOutputLeft / battery), -(motorOutputRight / battery));
         updateOdometry();
     }
 
@@ -214,7 +232,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
 
     public double[] wheelsToRobot(double Vleft, double Vright) {
         double linear = (Vright + Vleft) * WHEEL_RADIUS / 2.0;
-        double angular = (Vleft - Vright) * WHEEL_RADIUS / WHEEL_DISTANCE;
+        double angular = (Vright - Vleft) * WHEEL_RADIUS / WHEEL_DISTANCE;
         return new double[]{linear, angular};
     }
 
@@ -223,10 +241,14 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         if (gyro == null) {
             log("gyro", "Not Working");
         } else {
-            log("gyro", "Working");
-            theta = gyro.getYaw() - offsetGyro;
+            if (checkGyro) {
+                checkGyro = false;
+                gyro.reset();
+            } else {
+                log("gyro", "Working");
+                theta = gyro.getYaw();
+            }
         }
-
         leftMeters = (encoders[0] - encodersPrev[0]) * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
         rightMeters = (encoders[1] - encodersPrev[1]) * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
         VOmegaReal = wheelsToRobot(motorControlLeft.derivative, motorControlRight.derivative);

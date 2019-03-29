@@ -23,10 +23,10 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
         }
         // ROBOT B
         // TODO change on robotA
-        right.add(new WPI_TalonSRX(10));
-        left.add(new WPI_TalonSRX(11));
-        left.add(new WPI_TalonSRX(12));
-        right.add(new WPI_TalonSRX(13));
+        right.add(new WPI_TalonSRX(13));//10
+        left.add(new WPI_TalonSRX(12));//11
+        left.add(new WPI_TalonSRX(11));//12
+        right.add(new WPI_TalonSRX(10));//13
         // ROBOT A
 //        right.add(new WPI_TalonSRX(10));
 //        right.add(new WPI_TalonSRX(11));
@@ -64,6 +64,10 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
             gearRatio = 20.0 / 44.0;
             log("Gear:", "20.0/44.0");
         }
+    }
+
+    public boolean isPower() {
+        return gearRatio == (20.0 / 44.0);
     }
 
     @Override
