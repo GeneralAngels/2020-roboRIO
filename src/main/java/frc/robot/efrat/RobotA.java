@@ -17,6 +17,8 @@ import frc.robot.efrat.systems.robota.RobotADrive;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.awt.*;
+
 @SuppressWarnings("ALL")
 public class RobotA extends Bobot {
     public double v = 0, w = 0, distance = 0, angle = 0;
@@ -25,6 +27,8 @@ public class RobotA extends Bobot {
     double counter = 0;
     long count = 0;
     long last = millis();
+    double left = 0;
+    double right = 0;
     private boolean isAutonomous = false;
     // Joysticks
     private Joystick driverLeft, driverRight;
@@ -42,10 +46,8 @@ public class RobotA extends Bobot {
     private Compressor compressor;
     // StateMachine
     private StateMachine stateMachine;
-    double left = 0;
     private boolean slow = false;
     private boolean idandanMode = false;
-    double right = 0;
     private String robotStatus;
     private boolean FMSAuto = false;
     private RobotADrive driveA;
@@ -62,9 +64,9 @@ public class RobotA extends Bobot {
 //        initStateMachine();
         initCompressor();
         initTriggers();
+        shiri.open();
         super.init();
         instructions();
-
     }
 
     private void initCompressor() {
@@ -142,8 +144,7 @@ public class RobotA extends Bobot {
         operatorX = new Toggle(new Toggle.Change() {
             @Override
             public void change(boolean toggle) {
-                if (!toggle) shiri.open();
-                else shiri.close();
+                shiri.toggle();
             }
         });
         driverLeftT = new Toggle(new Toggle.Change() {
@@ -221,6 +222,7 @@ public class RobotA extends Bobot {
 
             previousShiriPower = shiriPower;
         } else {
+//            drive.updateOdometry();
             drive.set(v, w);
         }
         FMSAuto = false;
@@ -259,6 +261,8 @@ public class RobotA extends Bobot {
             try {
                 String DRIVE = "drive";
                 String HATCH = "hatch";
+                String SHIRI = "shiri";
+                String COLOR = "color";
                 if (object.has(DRIVE)) {
                     JSONObject driveObject = object.getJSONObject(DRIVE);
                     log(driveObject.toString());
@@ -283,14 +287,30 @@ public class RobotA extends Bobot {
                 if (object.has(HATCH)) {
                     JSONObject hatch = object.getJSONObject(HATCH);
                     if (!idandanMode) {
-                        if (hatch.has("distance")) {
-                            distance = hatch.getFloat("distance");
+                        if (hatch.has("distanceFromEncoders")) {
+                            distance = hatch.getFloat("distanceFromEncoders");
                         }
                         if (hatch.has("angle")) {
                             angle = hatch.getFloat("angle");
                         }
                     }
                 }
+                boolean shiriState = object.optBoolean(SHIRI, false);
+                operatorX.update(shiriState);
+
+                int color = object.optInt(COLOR, 0);
+                switch (color) {
+                    case 1:
+                        robotIdle.color(Color.GREEN);
+                    case 2:
+                        robotIdle.color(Color.RED);
+                    case 3:
+                        robotIdle.color(Color.BLUE);
+                    default:
+                        robotIdle.rainbow();
+                }
+
+
             } catch (Exception e) {
                 if (e instanceof JSONException) {
                     log("JSON syntax error");

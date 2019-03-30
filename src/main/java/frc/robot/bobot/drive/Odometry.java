@@ -7,7 +7,7 @@ public class Odometry extends Subsystem {
 
     public static final String X = "x", Y = "y", THETA = "theta", LINEAR = "linear_velocity", ANGULAR = "angular_velocity", LEFT_SETPOINT = "left_setpoint", RIGHT_SETPOINT = "right_setpoint";
 
-    private double x, y, theta, linear, angular, rightSetpoint, leftSetpoint;
+    private double x, y, theta, linear, angular, rightSetpoint, leftSetpoint, distance;
 
     public double getRightSetpoint() {
         return rightSetpoint;
@@ -33,6 +33,15 @@ public class Odometry extends Subsystem {
 
     public Odometry setX(double x) {
         this.x = x;
+        return this;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public Odometry setDistance(double distance) {
+        this.distance = distance;
         return this;
     }
 
@@ -82,6 +91,7 @@ public class Odometry extends Subsystem {
         odometry.put(Y, getY());
         odometry.put(LINEAR, getLinear());
         odometry.put(ANGULAR, getAngular());
+        odometry.put("distance", distance);
         return odometry;
     }
 }

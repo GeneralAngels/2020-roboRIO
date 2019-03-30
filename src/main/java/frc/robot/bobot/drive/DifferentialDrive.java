@@ -56,7 +56,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     public double[] encodersPrev = {0, 0};
     public double[] vOmega = {0, 0};
     public double offsetGyro = 0;
-    public double distance = 0;
+    public double distanceFromEncoders = 0;
     public double theta = 0;
     public double motorOutputLeft = 0;
     public double motorOutputRight = 0;
@@ -252,9 +252,9 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         leftMeters = (encoders[0] - encodersPrev[0]) * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
         rightMeters = (encoders[1] - encodersPrev[1]) * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
         VOmegaReal = wheelsToRobot(motorControlLeft.derivative, motorControlRight.derivative);
-        distance = (leftMeters + rightMeters) / 2.0;
-        x += distance * Math.cos(toRadians(theta));
-        y += distance * Math.sin(toRadians(theta));
+        distanceFromEncoders = (leftMeters + rightMeters) / 2.0;
+        x += distanceFromEncoders * Math.cos(toRadians(theta));
+        y += distanceFromEncoders * Math.sin(toRadians(theta));
         thetaRobotPrev = theta;
         encodersPrev[0] = encoders[0];
         encodersPrev[1] = encoders[1];
@@ -263,6 +263,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         odometry.setTheta(theta);
         odometry.setRightSetpoint(Rsetpoint);
         odometry.setLeftSetpoint(Lsetpoint);
+        odometry.setDistance(distanceFromEncoders);
     }
 
     public void preClimb() {
@@ -314,6 +315,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
             returnObject.put("v_right_setpoint", Vright);
             returnObject.put("output_left", outputLeft);
             returnObject.put("output_right", outputRight);
+            returnObject.put("distanceFromEncoders", distanceFromEncoders);
             returnObject.put(ODOMETRY, odometry.toJSON());
         } catch (Exception ignored) {
         }
