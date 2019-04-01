@@ -97,9 +97,11 @@ public class RobotA extends Bobot {
     }
 
     private void initRGB() {
-        rgb = new RGB(69, 8);
+        rgb = new RGB(38, 12);
         robotIdle = new RobotIdle();
         rgb.setPattern(robotIdle);
+//        robotIdle.rainbow();
+        robotIdle.climb();
     }
 
     private void initSystems() {
@@ -188,7 +190,7 @@ public class RobotA extends Bobot {
 //        loopSubsystems();
 //        stateMachine.update(operatorGamepad, null);
         log("errorAngle", angle);
-        if (!isAutonomous) {
+        if (!isAutonomous&&false) {
 //            shiri.print();
             double shiriPower = (operatorGamepad.getY(GenericHID.Hand.kRight) / 1.5);
             shiri.setMotor(((shiriPower * 0.5) + (previousShiriPower * 0.5)));

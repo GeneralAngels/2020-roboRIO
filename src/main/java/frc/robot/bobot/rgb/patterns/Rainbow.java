@@ -10,7 +10,7 @@ public class Rainbow implements RGB.Pattern {
     private int current = 0;
 
     @Override
-    public Color color(int length) {
+    public RGB.Fill fill(int length) {
         int functionX = current % ((int) (1.5 * (double) MAX));
         int ranger = (MAX / 2) + 1;
         int rising = (2 * (functionX % ranger)), falling = (MAX - rising);
@@ -30,7 +30,7 @@ public class Rainbow implements RGB.Pattern {
             g = falling;
             b = rising;
         }
-        return new Color(r, g, b);
+        return new RGB.Fill(new Color(r, g, b));
     }
 
     @Override
