@@ -201,8 +201,8 @@ public class RobotA extends Bobot {
                 drive.motorControlLeftP.integral = 0;
                 drive.motorControlRightP.integral = 0;
                 drive.check = true;
-                left = driverLeft.getY() * (driverLeft.getTrigger() ? 0.5 : 1);
-                right = driverRight.getY() * (driverLeft.getTrigger() ? 0.5 : 1);
+                left = driverLeft.getY() * (driverLeft.getTrigger() ? 0.25 : 0.5);
+                right = driverRight.getY() * (driverLeft.getTrigger() ? 0.25 : 0.5);
                 //drive.setTank(-left, -right);
                 drive.setTank2(-left, -right);
             }
@@ -224,6 +224,7 @@ public class RobotA extends Bobot {
         } else {
 //            drive.updateOdometry();
             drive.set(v, w);
+//            drive.set(0.5,0);
         }
         FMSAuto = false;
         super.teleop();
@@ -295,8 +296,8 @@ public class RobotA extends Bobot {
                         }
                     }
                 }
-                boolean shiriState = object.optBoolean(SHIRI, false);
-                operatorX.update(shiriState);
+//                boolean shiriState = object.optBoolean(SHIRI, false);
+//                operatorX.update(shiriState);
 
                 int color = object.optInt(COLOR, 0);
                 switch (color) {

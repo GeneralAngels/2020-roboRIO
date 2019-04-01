@@ -22,7 +22,7 @@ public class PID extends Subsystem {
         this.controlSignal = 0;
         this.tolerance = 0.01;
         this.alpha = 0.5;
-        this.integralMax = 1;
+        this.integralMax = 3;
         this.signalMin = 0;
         this.signalMax = 12;
         this.minErrorIntegral = 10;
@@ -99,10 +99,15 @@ public class PID extends Subsystem {
         calcDerivative();
         error = setPoint - derivative;
         if (Math.abs(setPoint) < setPointMin) {
-            controlSignal = 0;
+            // Zeroing controlSignal prevents braking when setpoint returns from high to 0
+            if (Math.abs(derivative) <= 0.01)
+                controlSignal = 0;
+                // Without this "else", loop might skip this condition and get stuck on a positive output.
+            else
+                controlSignal = (error * kp);
             integral = 0;
         } else {
-            integral += ((error + errorPrev) * dt) / 2 * ki;
+            integral += ((error + errorPrev) * dt) / 2.0 * ki;
             integral = constrain(integral, -integralMax, integralMax);
             controlSignal = (setPoint * kf) + (error * kp) + integral;
         }

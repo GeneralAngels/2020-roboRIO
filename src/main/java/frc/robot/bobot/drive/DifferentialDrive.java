@@ -78,8 +78,8 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         motorControlLeftP = new PID();
         motorControlRightP = new PID();
         pid = new PID();
-        motorControlLeft.setPIDF(0, 0.2, 0.2, 0.5);
-        motorControlRight.setPIDF(0, 0.2, 0.2, 0.5);
+        motorControlLeft.setPIDF(0.5, 0.3, 0, 0.5);
+        motorControlRight.setPIDF(0.5, 0.3, 0, 0.5);
         motorControlLeftP.setPIDF(2.5, 0.4, 0.2, 0);
         motorControlRightP.setPIDF(2, 0.4, 0.2, 0);
         pid.setPIDF(1, 0.1, 0, 0);
@@ -152,6 +152,10 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     }
 
     public void setTank2(double Vl, double Vr) {
+        if (Math.abs(Vl) < 0.15)
+            Vl = 0;
+        if (Math.abs(Vr) < 0.15)
+            Vr = 0;
         double vSetPoint = (Vl + Vr) / 2.0;
         double omegaSetPoint = (Vr - Vl) / 2.0;
         set(vSetPoint * MAX_V, omegaSetPoint * MAX_OMEGA);
@@ -161,6 +165,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         double setpointV = speed;
         double setpointOmega = turn;
         double[] V = robotToWheels(setpointV, setpointOmega);
+        log("Vleft setpoint", V[0]);
         log("set point v", setpointV);
         log("set point omega", setpointOmega);
         if (Math.abs(setpointV) < 0.2) setpointV = 0;
@@ -177,6 +182,7 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
             motorOutputRight = 0;
         log("motor output left", motorOutputLeft);
         log("motor output right", motorOutputRight);
+        log("integralL", motorControlLeft.getIntegral());
         battery = DriverStation.getInstance().getBatteryVoltage();
         battery = (0.5 * battery) + (0.5 * batteryPrev);
         if (battery > 12.0)
@@ -305,14 +311,14 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         try {
             //            returnObject.put("v_robot_setpoint", VOmega[0]);
             //            returnObject.put("omega_robot_setpoint", VOmega[1]);
-            //            returnObject.put("v_robot_real", VOmegaReal[0]);
-            //            returnObject.put("omega_robot_real", VOmegaReal[1]);
+            returnObject.put("v_robot_real", VOmegaReal[0]);
+            returnObject.put("omega_robot_real", VOmegaReal[1]);
             returnObject.put("left_encoder", encoders[0]);
             returnObject.put("right_encoder", encoders[1]);
             returnObject.put("v_left_real", motorControlLeft.derivative);
             returnObject.put("v_right_real", motorControlRight.derivative);
-            returnObject.put("v_left_setpoint", Vleft);
-            returnObject.put("v_right_setpoint", Vright);
+//            returnObject.put("v_left_setpoint", Vleft);
+//            returnObject.put("v_right_setpoint", Vright);
             returnObject.put("output_left", outputLeft);
             returnObject.put("output_right", outputRight);
             returnObject.put("distanceFromEncoders", distanceFromEncoders);
