@@ -222,7 +222,7 @@ public class RobotA extends Bobot {
             previousShiriPower = shiriPower;
         } else {
 //            drive.updateOdometry();
-            robotIdle.flash(Color.MAGENTA);
+//            robotIdle.flash(Color.MAGENTA);
             drive.set(v, w);
 //            drive.set(0.5,0);
         }
@@ -299,16 +299,11 @@ public class RobotA extends Bobot {
 //                boolean shiriState = object.optBoolean(SHIRI, false);
 //                operatorX.update(shiriState);
 
-                int color = object.optInt(COLOR, 0);
-                switch (color) {
-                    case 1:
-                        robotIdle.color(Color.GREEN);
-                    case 2:
-                        robotIdle.color(Color.RED);
-                    case 3:
-                        robotIdle.color(Color.BLUE);
-                    default:
-                        robotIdle.rainbow();
+                if (object.has(COLOR)) {
+                    int r = object.getJSONObject(COLOR).optInt("r", 0);
+                    int g = object.getJSONObject(COLOR).optInt("g", 0);
+                    int b = object.getJSONObject(COLOR).optInt("b", 0);
+                    robotIdle.color(new Color(r, g, b));
                 }
 
 

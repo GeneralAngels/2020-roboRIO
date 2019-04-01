@@ -38,8 +38,8 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
 //        right.setDirection(Drivebox.DIRECTION_BACKWARD);
         left.getEncoder().reset();
         right.getEncoder().reset();
-//        gyro = new Gyroscope();
-//        initGyro(gyro);
+        gyro = new Gyroscope();
+        initGyro(gyro);
     }
 
     public static RobotADrive getInstance() {
