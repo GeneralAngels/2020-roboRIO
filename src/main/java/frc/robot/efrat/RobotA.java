@@ -101,7 +101,7 @@ public class RobotA extends Bobot {
         robotIdle = new RobotIdle();
         rgb.setPattern(robotIdle);
 //        robotIdle.rainbow();
-        robotIdle.climb();
+//        robotIdle.climb();
     }
 
     private void initSystems() {
@@ -208,6 +208,7 @@ public class RobotA extends Bobot {
             boolean kleinConfirm = operatorGamepad.getBButton();
             double kleinSpeed = 0;
             if (kleinConfirm) {
+                robotIdle.climb();
                 if (operatorGamepad.getPOV() == 0) {
                     kleinSpeed = 1;
                 } else if (operatorGamepad.getPOV() == 180) {
@@ -221,6 +222,7 @@ public class RobotA extends Bobot {
             previousShiriPower = shiriPower;
         } else {
 //            drive.updateOdometry();
+            robotIdle.flash(Color.MAGENTA);
             drive.set(v, w);
 //            drive.set(0.5,0);
         }
