@@ -136,13 +136,6 @@ public class RobotA extends Bobot {
                 }
             }
         });
-        operatorStart = new Toggle(new Toggle.Change() {
-            @Override
-            public void change(boolean toggle) {
-//                if (toggle) drive.gearUp();
-                isAutonomous = toggle;
-            }
-        });
         operatorX = new Toggle(new Toggle.Change() {
             @Override
             public void change(boolean toggle) {
@@ -190,7 +183,10 @@ public class RobotA extends Bobot {
 //        loopSubsystems();
 //        stateMachine.update(operatorGamepad, null);
         log("errorAngle", angle);
-        if (!isAutonomous&&false) {
+        isAutonomous = driverRight.getRawButton(2);
+        if (!isAutonomous) {
+            v = 0;
+            w = 0;
 //            shiri.print();
             double shiriPower = (operatorGamepad.getY(GenericHID.Hand.kRight) / 1.5);
             shiri.setMotor(((shiriPower * 0.5) + (previousShiriPower * 0.5)));
