@@ -133,4 +133,8 @@ public class PID extends Subsystem {
     public double getIntegral() {
         return integral;
     }
+
+    public void setIntegralMax(double value) {
+        integralMax = value;
+    }
 }

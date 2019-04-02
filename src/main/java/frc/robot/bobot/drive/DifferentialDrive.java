@@ -80,8 +80,8 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         pid = new PID();
         motorControlLeft.setPIDF(0.5, 0.3, 0, 0.5);
         motorControlRight.setPIDF(0.5, 0.3, 0, 0.5);
-        motorControlLeftP.setPIDF(2.5, 0.4, 0.2, 0);
-        motorControlRightP.setPIDF(2, 0.4, 0.2, 0);
+        motorControlLeftP.setPIDF(4, 0.47, 0, 0);
+        motorControlRightP.setPIDF(4, 0.8, 0, 0);
         pid.setPIDF(1, 0.1, 0, 0);
     }
 
@@ -284,9 +284,16 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
             motorOutputLeft = 0;
         if (Math.abs(motorOutputRight) < 0.2)
             motorOutputRight = 0;
-        direct(motorOutputLeft, motorOutputRight);
+//        battery = DriverStation.getInstance().getBatteryVoltage();
+//        battery = (0.5 * battery) + (0.5 * batteryPrev);
+//        if (battery > 12.0)
+//            battery = 12.0;
+//        batteryPrev = battery;
+        direct(-(motorOutputLeft), -(motorOutputRight));
         leftMeters = left.getEncoder().getRaw() * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
         rightMeters = right.getEncoder().getRaw() * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
+        log("left meters: " + leftMeters);
+        log("right meters: " + rightMeters);
     }
 
     public void initGyro(AHRS gyro) {
@@ -311,17 +318,23 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
         try {
             //            returnObject.put("v_robot_setpoint", VOmega[0]);
             //            returnObject.put("omega_robot_setpoint", VOmega[1]);
-            returnObject.put("v_robot_real", VOmegaReal[0]);
-            returnObject.put("omega_robot_real", VOmegaReal[1]);
-            returnObject.put("left_encoder", encoders[0]);
-            returnObject.put("right_encoder", encoders[1]);
-            returnObject.put("v_left_real", motorControlLeft.derivative);
-            returnObject.put("v_right_real", motorControlRight.derivative);
+//            returnObject.put("v_robot_real", VOmegaReal[0]);
+//            returnObject.put("omega_robot_real", VOmegaReal[1]);
+//            returnObject.put("left_encoder", encoders[0]);
+//            returnObject.put("right_encoder", encoders[1]);
+//            returnObject.put("v_left_real", motorControlLeft.derivative);
+//            returnObject.put("v_right_real", motorControlRight.derivative);
 //            returnObject.put("v_left_setpoint", Vleft);
 //            returnObject.put("v_right_setpoint", Vright);
-            returnObject.put("output_left", outputLeft);
-            returnObject.put("output_right", outputRight);
-            returnObject.put("distanceFromEncoders", distanceFromEncoders);
+//            returnObject.put("output_left", outputLeft);
+//            returnObject.put("output_right", outputRight);
+            returnObject.put("begining P left", currentMetersLeft);
+            returnObject.put("begining P right", currentMetersRight);
+            returnObject.put("left meters", leftMeters);
+            returnObject.put("right meters", rightMeters);
+            returnObject.put("output_left_p", motorOutputLeft);
+            returnObject.put("output_right_p", motorOutputRight);
+//            returnObject.put("distanceFromEncoders", distanceFromEncoders);
             returnObject.put(ODOMETRY, odometry.toJSON());
         } catch (Exception ignored) {
         }
