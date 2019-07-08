@@ -32,24 +32,24 @@ public class Shiri extends Subsystem {
     public Shiri() {
         //0.44
         latest = this;
-        hatch = new DoubleSolenoid(0, 0, 1);
+        hatch = new DoubleSolenoid(0, 4, 7);
 //        hatch = new DoubleSolenoid(0,0, 1);
-        slideMotor = new WPI_TalonSRX(14);
-        slideMotor.setInverted(true);
+//        slideMotor = new WPI_TalonSRX(14);
+//        slideMotor.setInverted(true);
         //log(slideMotor.getSensorCollection().getPulseWidthPosition()+"");
 //        slideMotor.getSensorCollection().setQuadraturePosition(slideMotor.getSensorCollection().getPulseWidthPosition(),10);
         //       slideMotor.setInverted(true);
 //        slideMotor.getSensorCollection().setPulseWidthPosition(0,0);
-        slideMotor.getSensorCollection().setQuadraturePosition(0, 0);
+//        slideMotor.getSensorCollection().setQuadraturePosition(0, 0);
 //        slideMotor.getSensorCollection().setAnalogPosition(0,0);
-        grab1 = new DigitalInput(PinMan.getNavDIO(1));
-        grab2 = new DigitalInput(PinMan.getNavDIO(2));
-        backReset = new DigitalInput(PinMan.getNavDIO(3));
-        frontReset = new DigitalInput(PinMan.getNavDIO(4));
-        xPID = new PID();
-        PIDV = new PID();
-        PIDV.setPIDF(0, 0.2, 0, 0.5);
-        xPID.setPIDF(1.7, 0.3, 0.2, 0);
+//        grab1 = new DigitalInput(PinMan.getNavDIO(1));
+//        grab2 = new DigitalInput(PinMan.getNavDIO(2));
+//        backReset = new DigitalInput(PinMan.getNavDIO(3));
+//        frontReset = new DigitalInput(PinMan.getNavDIO(4));
+//        xPID = new PID();
+//        PIDV = new PID();
+//        PIDV.setPIDF(0, 0.2, 0, 0.5);
+//        xPID.setPIDF(1.7, 0.3, 0.2, 0);
     }
 
     public static void init() {

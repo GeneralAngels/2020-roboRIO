@@ -1,9 +1,6 @@
 package frc.robot.efrat;
 
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.*;
 import frc.robot.bobot.Bobot;
 import frc.robot.bobot.rgb.RGB;
 import frc.robot.bobot.utils.Toggle;
@@ -24,16 +21,16 @@ import java.awt.*;
 public class RobotC extends Bobot {
     private Joystick driver;
     private RobotCDrive drive;
-    private Shiri shiri;
     // Toggles
     private Toggle shiriToggle;
+    // Solenoid
+    private DoubleSolenoid hatch;
 
     @Override
     public void init() {
         initDriver();
         initSystems();
         initTriggers();
-        shiri.open();
     }
 
     private void instructions() {
@@ -49,8 +46,7 @@ public class RobotC extends Bobot {
 
     private void initSystems() {
         drive = new RobotCDrive();
-        shiri = new Shiri();
-        addToJSON(shiri);
+        hatch = new DoubleSolenoid(0, 4, 7);
         addToJSON(drive);
     }
 
@@ -64,9 +60,9 @@ public class RobotC extends Bobot {
             @Override
             public void change(boolean toggle) {
                 if (toggle) {
-                    shiri.close();
+                    hatch.set(DoubleSolenoid.Value.kForward);
                 } else {
-                    shiri.open();
+                    hatch.set(DoubleSolenoid.Value.kReverse);
                 }
             }
         });
@@ -79,7 +75,7 @@ public class RobotC extends Bobot {
     @Override
     public void teleop() {
         updateTriggers();
-        drive.setStickNoPID(driver.getY()/2, driver.getX()/2);
+        drive.setStickNoPID(driver.getY() / 3, driver.getX() / 2);
 //        super.teleop();
     }
 }
