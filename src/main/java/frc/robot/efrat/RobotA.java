@@ -61,7 +61,7 @@ public class RobotA extends Bobot {
     // Code
     @Override
     public void init() {
-//        driveA = new RobotADrive();
+//        driveA = new RobotCDrive();
         initControllers();
         initRGB();
         initSystems();

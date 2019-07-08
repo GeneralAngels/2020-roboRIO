@@ -93,19 +93,11 @@ public class DifferentialDrive<T extends SpeedController> extends Subsystem {
     }
 
     public static double noPIDCalculateRight(double speed, double turn) {
-        if (speed == 0) {
-            return turn;
-        } else {
             return (speed + turn);
-        }
     }
 
     public static double noPIDCalculateLeft(double speed, double turn) {
-        if (speed == 0) {
-            return turn;
-        } else {
-            return (turn - speed);
-        }
+            return (speed - turn);
     }
 
     public void hatchAlign(double errorAngle) {
