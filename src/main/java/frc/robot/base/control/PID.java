@@ -1,8 +1,8 @@
-package frc.robot.bobot.control;
+package frc.robot.base.control;
 
-import frc.robot.bobot.Subsystem;
+import frc.robot.base.Module;
 
-public class PID extends Subsystem {
+public class PID extends Module {
     public double kp, ki, kd, kf, measurement, measurementPrev, dt, derivative, derivativePrev, error, errorPrev, integral, setPointMin, controlSignal, tolerance, alpha, integralMax, signalMin, signalMax, minErrorIntegral, lastSetPoints;
 
     public PID() {

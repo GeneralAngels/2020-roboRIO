@@ -1,24 +1,12 @@
 package frc.robot.efrat;
 
 import edu.wpi.first.wpilibj.*;
-import frc.robot.bobot.Bobot;
-import frc.robot.bobot.rgb.RGB;
-import frc.robot.bobot.utils.Toggle;
-import frc.robot.efrat.statemachine.StateMachine;
-import frc.robot.efrat.systems.Klein;
-import frc.robot.efrat.systems.Shanti;
-import frc.robot.efrat.systems.Shiri;
-import frc.robot.efrat.systems.Tomer;
-import frc.robot.efrat.systems.rgb.RobotIdle;
-import frc.robot.efrat.systems.robota.RobotADrive;
+import frc.robot.base.Bot;
+import frc.robot.base.utils.Toggle;
 import frc.robot.efrat.systems.robotc.RobotCDrive;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.awt.*;
 
 @SuppressWarnings("ALL")
-public class RobotC extends Bobot {
+public class RobotC extends Bot {
     private Joystick driver;
     private RobotCDrive drive;
     // Toggles

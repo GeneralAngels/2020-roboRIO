@@ -1,9 +1,9 @@
-package frc.robot.bobot.drive;
+package frc.robot.base.drive;
 
-import frc.robot.bobot.Subsystem;
+import frc.robot.base.Module;
 import org.json.JSONObject;
 
-public class Odometry extends Subsystem {
+public class Odometry extends Module {
 
     public static final String X = "x", Y = "y", THETA = "theta", LINEAR = "linear_velocity", ANGULAR = "angular_velocity", LEFT_SETPOINT = "left_setpoint", RIGHT_SETPOINT = "right_setpoint";
 

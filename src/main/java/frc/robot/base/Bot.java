@@ -1,4 +1,4 @@
-package frc.robot.bobot;
+package frc.robot.base;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -7,9 +7,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class Bobot extends Subsystem {
+public class Bot extends Module {
     public static final String TIME = "time";
-    public static final String SUBSYSTEMS = "subsystems";
+    public static final String SUBSYSTEMS = "modules";
     public static final String ROBOT_STATUS = "robot_status";
     public static final String DRIVER_STATUS = "driver_status";
     public static final String OPERATOR_STATUS = "operator_status";
@@ -19,10 +19,10 @@ public class Bobot extends Subsystem {
     protected NetworkTableEntry json;
     protected Communication communication;
 
-    protected ArrayList<Subsystem> subsystems = new ArrayList<>();
+    protected ArrayList<Module> modules = new ArrayList<>();
 
-    protected void addToJSON(Subsystem subsystem) {
-        subsystems.add(subsystem);
+    protected void addToJSON(Module module) {
+        modules.add(module);
     }
 
     public void init() {
@@ -49,9 +49,9 @@ public class Bobot extends Subsystem {
         JSONObject returnObject = super.toJSON();
         returnObject.put(TIME, millis());
         try {
-            for (Subsystem subsystem : subsystems) {
+            for (Module module : modules) {
                 try {
-                    returnObject.put(subsystem.getName().toLowerCase(), subsystem.toJSON());
+                    returnObject.put(module.getName().toLowerCase(), module.toJSON());
                 } catch (Exception ignored) {
                 }
             }

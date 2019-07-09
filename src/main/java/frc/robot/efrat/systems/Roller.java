@@ -1,9 +1,9 @@
 package frc.robot.efrat.systems;
 
 import edu.wpi.first.wpilibj.VictorSP;
-import frc.robot.bobot.Subsystem;
+import frc.robot.base.Module;
 
-public class Roller extends Subsystem {
+public class Roller extends Module {
     private static Roller latest;
 
     private VictorSP motor;

@@ -3,8 +3,8 @@ package frc.robot.efrat.systems.dontuse;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Victor;
-import frc.robot.bobot.drive.DifferentialDrive;
-import frc.robot.bobot.drive.Gyroscope;
+import frc.robot.base.drive.DifferentialDrive;
+import frc.robot.base.drive.Gyroscope;
 import org.json.JSONObject;
 
 public class PneumaticTestingDrive extends DifferentialDrive<Victor> {

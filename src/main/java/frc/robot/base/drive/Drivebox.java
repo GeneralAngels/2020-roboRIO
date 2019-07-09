@@ -1,13 +1,13 @@
-package frc.robot.bobot.drive;
+package frc.robot.base.drive;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SpeedController;
-import frc.robot.bobot.Subsystem;
+import frc.robot.base.Module;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class Drivebox<T extends SpeedController> extends Subsystem {
+public class Drivebox<T extends SpeedController> extends Module {
 
     public static final String SPEED = "speed";
     public static final String ENCODER = "encoder";

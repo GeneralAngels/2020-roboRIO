@@ -1,8 +1,8 @@
-package frc.robot.bobot.utils;
+package frc.robot.base.utils;
 
-import frc.robot.bobot.Subsystem;
+import frc.robot.base.Module;
 
-public class Toggle extends Subsystem {
+public class Toggle extends Module {
     private boolean state = false;
     private boolean toggleState = false;
     private Change change;

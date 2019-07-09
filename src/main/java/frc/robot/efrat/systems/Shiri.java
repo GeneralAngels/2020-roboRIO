@@ -3,12 +3,11 @@ package frc.robot.efrat.systems;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import frc.robot.bobot.Subsystem;
-import frc.robot.bobot.control.PID;
-import frc.robot.bobot.utils.PinMan;
+import frc.robot.base.Module;
+import frc.robot.base.control.PID;
 import frc.robot.efrat.systems.rgb.RobotIdle;
 
-public class Shiri extends Subsystem {
+public class Shiri extends Module {
 
     private static final double DISTANCE = 0.66;
     private static final double LIMIT_V = 0.5;

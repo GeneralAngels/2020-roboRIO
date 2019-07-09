@@ -2,9 +2,9 @@ package frc.robot.efrat.systems;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import frc.robot.bobot.Subsystem;
+import frc.robot.base.Module;
 
-public class Tomer extends Subsystem {
+public class Tomer extends Module {
     private static Tomer latest;
     private DoubleSolenoid claw, pivot;
     private DigitalInput cargoIndicator;

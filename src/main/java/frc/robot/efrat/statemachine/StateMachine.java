@@ -1,8 +1,8 @@
 package frc.robot.efrat.statemachine;
 
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.bobot.Subsystem;
-import frc.robot.bobot.utils.Toggle;
+import frc.robot.base.Module;
+import frc.robot.base.utils.Toggle;
 import frc.robot.efrat.statemachine.states.*;
 import frc.robot.efrat.systems.*;
 import frc.robot.efrat.systems.rgb.RobotIdle;
@@ -10,7 +10,7 @@ import org.json.JSONObject;
 
 import java.awt.*;
 
-public class StateMachine extends Subsystem {
+public class StateMachine extends Module {
     private static final String CURRENT_STATE = "current_state";
     // TODO to add states, add NEW YOURSTATE() to the array
     private static final State[] stateMap = {

@@ -1,4 +1,4 @@
-package frc.robot.bobot.utils;
+package frc.robot.base.utils;
 
 public class Node<T> {
     private Node<T> next;

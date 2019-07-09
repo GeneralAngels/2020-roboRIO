@@ -1,9 +1,9 @@
 package frc.robot.efrat.systems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import frc.robot.bobot.Subsystem;
+import frc.robot.base.Module;
 
-public class Klein extends Subsystem {
+public class Klein extends Module {
     private static Klein latest;
     private WPI_TalonSRX motor1, motor2, motor3, motor4;
 

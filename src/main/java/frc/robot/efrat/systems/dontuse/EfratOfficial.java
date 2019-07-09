@@ -3,9 +3,9 @@ package frc.robot.efrat.systems.dontuse;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.bobot.Bobot;
-import frc.robot.bobot.rgb.RGB;
-import frc.robot.bobot.utils.Toggle;
+import frc.robot.base.Bot;
+import frc.robot.base.rgb.RGB;
+import frc.robot.base.utils.Toggle;
 import frc.robot.efrat.statemachine.StateMachine;
 import frc.robot.efrat.systems.Shiri;
 import frc.robot.efrat.systems.Tomer;
@@ -14,10 +14,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import static frc.robot.bobot.drive.DifferentialDrive.OMEGA;
-import static frc.robot.bobot.drive.DifferentialDrive.VELOCITY;
+import static frc.robot.base.drive.DifferentialDrive.OMEGA;
+import static frc.robot.base.drive.DifferentialDrive.VELOCITY;
 
-public class EfratOfficial extends Bobot {
+public class EfratOfficial extends Bot {
 
     private JSONObject robotStatus;
     private Joystick driverLeft, driverRight;

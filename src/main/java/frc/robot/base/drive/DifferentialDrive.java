@@ -1,13 +1,13 @@
-package frc.robot.bobot.drive;
+package frc.robot.base.drive;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SpeedController;
-import frc.robot.bobot.Subsystem;
-import frc.robot.bobot.control.PID;
+import frc.robot.base.Module;
+import frc.robot.base.control.PID;
 import org.json.JSONObject;
 
-public class DifferentialDrive<T extends SpeedController> extends Subsystem {
+public class DifferentialDrive<T extends SpeedController> extends Module {
     public static final String LEFT = "left";
     public static final String RIGHT = "right";
     public static final String VELOCITY = "v";

@@ -4,12 +4,11 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.robot.bobot.Subsystem;
-import frc.robot.bobot.control.PID;
-import frc.robot.bobot.utils.PinMan;
+import frc.robot.base.Module;
+import frc.robot.base.control.PID;
 import org.json.JSONObject;
 
-public class Shanti extends Subsystem {
+public class Shanti extends Module {
     public static final double DISTANCE = 0; //TODO: check value
     public static final double MIN_POT_VALUE = 4.58;  //TODO: check value
     public static final double MAX_POT_VALUE = 4.37;  //TODO: check value

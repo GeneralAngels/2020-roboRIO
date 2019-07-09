@@ -1,6 +1,6 @@
 package frc.robot.efrat.systems.rgb;
 
-import frc.robot.bobot.rgb.RGB;
+import frc.robot.base.rgb.RGB;
 
 import java.awt.*;
 

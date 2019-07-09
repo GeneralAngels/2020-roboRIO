@@ -1,6 +1,6 @@
-package frc.robot.bobot.rgb.patterns;
+package frc.robot.base.rgb.patterns;
 
-import frc.robot.bobot.rgb.RGB;
+import frc.robot.base.rgb.RGB;
 
 import java.awt.*;
 

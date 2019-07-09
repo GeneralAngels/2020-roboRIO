@@ -4,9 +4,9 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.bobot.Bobot;
-import frc.robot.bobot.rgb.RGB;
-import frc.robot.bobot.utils.Toggle;
+import frc.robot.base.Bot;
+import frc.robot.base.rgb.RGB;
+import frc.robot.base.utils.Toggle;
 import frc.robot.efrat.statemachine.StateMachine;
 import frc.robot.efrat.systems.Klein;
 import frc.robot.efrat.systems.Shanti;
@@ -20,7 +20,7 @@ import org.json.JSONObject;
 import java.awt.*;
 
 @SuppressWarnings("ALL")
-public class RobotA extends Bobot {
+public class RobotA extends Bot {
     public double v = 0, w = 0, distance = 0, angle = 0;
     public double power = 0;
     public double previousShiriPower = 0;

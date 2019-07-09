@@ -1,13 +1,13 @@
-package frc.robot.bobot.rgb;
+package frc.robot.base.rgb;
 
 import edu.wpi.first.wpilibj.SerialPort;
-import frc.robot.bobot.Subsystem;
+import frc.robot.base.Module;
 
 import java.awt.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class RGB extends Subsystem {
+public class RGB extends Module {
     // Already OCed To 75Hz. Dont overclock higher!
     // Base clock: 20Hz
     private static final int REFRESH_RATE = 10;

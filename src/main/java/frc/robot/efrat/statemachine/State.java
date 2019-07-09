@@ -1,8 +1,8 @@
 package frc.robot.efrat.statemachine;
 
-import frc.robot.bobot.Subsystem;
+import frc.robot.base.Module;
 
-public class State extends Subsystem {
+public class State extends Module {
     public void apply() {
 
     }

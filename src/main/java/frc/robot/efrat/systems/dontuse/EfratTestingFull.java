@@ -5,17 +5,16 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.bobot.Bobot;
-import frc.robot.bobot.rgb.RGB;
-import frc.robot.bobot.utils.PinMan;
-import frc.robot.bobot.utils.Toggle;
+import frc.robot.base.Bot;
+import frc.robot.base.rgb.RGB;
+import frc.robot.base.utils.Toggle;
 import frc.robot.efrat.statemachine.StateMachine;
 import frc.robot.efrat.systems.Shanti;
 import frc.robot.efrat.systems.Shiri;
 import frc.robot.efrat.systems.rgb.RobotIdle;
 import org.json.JSONObject;
 
-public class EfratTestingFull extends Bobot {
+public class EfratTestingFull extends Bot {
 
     protected final String DRIVE = "drive";
 
