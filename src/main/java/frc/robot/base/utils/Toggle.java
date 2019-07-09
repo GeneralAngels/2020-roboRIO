@@ -1,6 +1,7 @@
 package frc.robot.base.utils;
 
 import frc.robot.base.Module;
+import org.json.JSONObject;
 
 public class Toggle extends Module {
 
@@ -34,5 +35,13 @@ public class Toggle extends Module {
 
     public interface OnStateChanged {
         void onStateChanged(boolean state);
+    }
+
+    @Override
+    public JSONObject pullJSON() {
+        JSONObject moduleJSON = super.pullJSON();
+        moduleJSON.put("graph",getGraphState());
+        moduleJSON.put("toggle",getToggleState());
+        return moduleJSON;
     }
 }
