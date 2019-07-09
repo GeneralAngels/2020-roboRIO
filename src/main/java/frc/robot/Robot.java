@@ -2,7 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.base.Bot;
-import frc.robot.efrat.RobotC;
+import frc.robot.bosmat.RobotC;
 
 public class Robot extends TimedRobot {
     private Bot bobot;

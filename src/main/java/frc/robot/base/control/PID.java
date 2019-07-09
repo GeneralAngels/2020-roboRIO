@@ -74,19 +74,20 @@ public class PID extends Module {
 
         return controlSignal;
     }
-    public double pidGravity(double setPoint,double mes,double compensation) {
+
+    public double pidGravity(double setPoint, double mes, double compensation) {
         calcDerivative();
-        return pidGravity(setPoint,mes,derivative,compensation);
+        return pidGravity(setPoint, mes, derivative, compensation);
     }
-    public double pidGravity(double setpoint,double measurement,double derivative,double compensation){
+
+    public double pidGravity(double setpoint, double measurement, double derivative, double compensation) {
         setMeasurement(measurement);
         error = setpoint - measurement;
 //        log("error: "+error);
-        if(Math.abs(error) < minErrorIntegral){
+        if (Math.abs(error) < minErrorIntegral) {
             integral += ((error + errorPrev) * dt) / 2 * ki;
             integral = constrain(integral, -integralMax, integralMax);
-        }
-        else {
+        } else {
             integral = 0;
         }
         controlSignal = (error * kp) + integral - (derivative * kd) + compensation;
@@ -94,6 +95,7 @@ public class PID extends Module {
         controlSignal = constrain(controlSignal, -signalMax, signalMax);
         return controlSignal;
     }
+
     public double pidVelocity(double mes, double setPoint) {
         setMeasurement(mes);
         calcDerivative();
@@ -115,7 +117,6 @@ public class PID extends Module {
         controlSignal = constrain(controlSignal, -signalMax, signalMax);
         return controlSignal;
     }
-
 
 
     public void setPIDF(double kP, double kI, double kD, double kF) {

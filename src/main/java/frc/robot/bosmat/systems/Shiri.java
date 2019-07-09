@@ -1,11 +1,11 @@
-package frc.robot.efrat.systems;
+package frc.robot.bosmat.systems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import frc.robot.base.Module;
 import frc.robot.base.control.PID;
-import frc.robot.efrat.systems.rgb.RobotIdle;
+import frc.robot.bosmat.systems.rgb.RobotIdle;
 
 public class Shiri extends Module {
 
