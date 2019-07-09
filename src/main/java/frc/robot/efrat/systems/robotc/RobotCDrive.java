@@ -2,7 +2,7 @@ package frc.robot.efrat.systems.robotc;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import frc.robot.base.drive.DifferentialDrive;
-import frc.robot.base.drive.MotorGroup;
+import frc.robot.base.utils.MotorGroup;
 
 public class RobotCDrive extends DifferentialDrive<WPI_TalonSRX> {
     private static RobotCDrive latest;

@@ -4,7 +4,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.base.drive.DifferentialDrive;
-import frc.robot.base.drive.MotorGroup;
+import frc.robot.base.utils.MotorGroup;
 import frc.robot.base.drive.Gyroscope;
 import org.json.JSONObject;
 

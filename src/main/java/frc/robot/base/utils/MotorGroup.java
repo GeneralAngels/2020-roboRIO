@@ -1,4 +1,4 @@
-package frc.robot.base.drive;
+package frc.robot.base.utils;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SpeedController;

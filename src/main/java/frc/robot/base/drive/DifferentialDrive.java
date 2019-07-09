@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SpeedController;
 import frc.robot.base.Module;
 import frc.robot.base.control.PID;
+import frc.robot.base.utils.MotorGroup;
 import org.json.JSONObject;
 
 public class DifferentialDrive<T extends SpeedController> extends Module {
