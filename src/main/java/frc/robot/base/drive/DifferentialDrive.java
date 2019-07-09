@@ -6,15 +6,12 @@ import edu.wpi.first.wpilibj.SpeedController;
 import frc.robot.base.Module;
 import frc.robot.base.control.PID;
 import frc.robot.base.utils.MotorGroup;
+import frc.robot.base.utils.StickDrive;
 import org.json.JSONObject;
 
+// TODO redo the whole thing
+
 public class DifferentialDrive<T extends SpeedController> extends Module {
-    public static final String LEFT = "left";
-    public static final String RIGHT = "right";
-    public static final String VELOCITY = "v";
-    public static final String OMEGA = "w";
-    public static final String GYRO = "gyro";
-    public static final String ODOMETRY = "odometry";
     public double Lsetpoint = 0;
     public double Rsetpoint = 0;
     public PID motorControlLeft;
@@ -79,26 +76,12 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         motorControlLeftP = new PID();
         motorControlRightP = new PID();
         pid = new PID();
-        //robot b
-//        motorControlLeft.setPIDF(0.5, 0.3, 0, 0.5);
-//        motorControlRight.setPIDF(0.5, 0.3, 0, 0.5);
-//        motorControlLeftP.setPIDF(4, 0.47, 0, 0);
-//        motorControlRightP.setPIDF(4, 0.8, 0, 0);
-//        pid.setPIDF(1, 0.1, 0, 0);
-        //robot a
         motorControlLeft.setPIDF(0, 0, 0, 0.55);
         motorControlRight.setPIDF(0, 0, 0, 0.55);
         motorControlLeftP.setPIDF(4, 0.47, 0, 0);
         motorControlRightP.setPIDF(4, 0.8, 0, 0);
         pid.setPIDF(1, 0.1, 0, 0);
-    }
-
-    public static double noPIDCalculateRight(double speed, double turn) {
-            return (speed + turn);
-    }
-
-    public static double noPIDCalculateLeft(double speed, double turn) {
-            return (speed - turn);
+        register(odometry);
     }
 
     public void hatchAlign(double errorAngle) {
@@ -119,10 +102,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     }
 
     public void setStickNoPID(double speed, double turn) {
-        double l, r;
-        l = noPIDCalculateLeft(speed, turn);
-        r = noPIDCalculateRight(speed, turn);
-        direct(l, r);
+        direct(StickDrive.left(speed, turn), StickDrive.right(speed, turn));
     }
 
     public void setTank(double Vl, double Vr) {
@@ -130,28 +110,6 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
             Vl = 0;
         if (Math.abs(Vr) < 0.1)
             Vr = 0;
-//        Vl = Vl * MAX_WHEEL_VELOCITY;
-//        Vr = Vr * MAX_WHEEL_VELOCITY;
-//        Vleft = Vl;
-//        Vright = Vr;
-//        VOmega = wheelsToRobot(Vleft, Vright);
-//        encoders[0] = left.getEncoder().getRaw();
-//        encoders[1] = right.getEncoder().getRaw();
-//        double encoderLeft = encoders[0] * ENCODER_TO_RADIAN * gearRatio;
-//        double encoderRight = encoders[1] * ENCODER_TO_RADIAN * gearRatio;
-//        double motorOutputLeft = motorControlLeft.pidVelocity(encoderLeft, Vl);
-//        double motorOutputRight = motorControlRight.pidVelocity(encoderRight, Vr);
-//        if (Math.abs(motorOutputLeft) < 0.1)
-//            motorOutputLeft = 0;
-//        if (Math.abs(motorOutputRight) < 0.1)
-//            motorOutputRight = 0;
-//        battery = DriverStation.getInstance().getBatteryVoltage();
-//        battery = (0.5 * battery) + (0.5 * batteryPrev);
-//        if (battery > 12.0)
-//            battery = 12.0;
-//        batteryPrev = battery;
-//        motorOutputLeftPrev = motorOutputLeft;
-//        motorOutputRightPrev = motorOutputRight;
         direct(-Vl, -Vr);
         updateOdometry();
     }
@@ -160,12 +118,10 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         log("JoystickL", Vl);
         log("JoystickR", Vr);
         if (Math.abs(Vl) < 0.15) {
-//            log("lll");
             Vl = 0;
         }
         if (Math.abs(Vr) < 0.15) {
             Vr = 0;
-//            log("rrr");
         }
         double vSetPoint = (Vl + Vr) / 2.0;
         double omegaSetPoint = (Vr - Vl) / 2.0;
@@ -183,14 +139,11 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
             log("no");
         }
 
-//        log(motorControlLeft.kf + "");
         double setpointV = speed;
         double setpointOmega = turn;
         double[] V = robotToWheels(setpointV, setpointOmega);
-//        log("Vleft setpoint", V[0]);
         log("applyPower point v", setpointV);
         log("applyPower point omega", setpointOmega);
-        // TODO change this 11:56 4/4/2019
         if (Math.abs(setpointV) < 0.2) setpointV = 0;
         if (Math.abs(setpointOmega) < 0.2) setpointOmega = 0;
         encoders[0] = left.getEncoder().getRaw();
@@ -203,9 +156,6 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
             motorOutputLeft = 0;
         if (Math.abs(motorOutputRight) < 0.1)
             motorOutputRight = 0;
-//        log("motor output left", motorOutputLeft);
-//        log("motor output right", motorOutputRight);
-//        log("integralL", motorControlLeft.getIntegral());
         battery = DriverStation.getInstance().getBatteryVoltage();
         battery = (0.5 * battery) + (0.5 * batteryPrev);
         if (battery > 12.0)
@@ -284,7 +234,6 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         leftMeters = (encoders[0] - encodersPrev[0]) * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
         rightMeters = (encoders[1] - encodersPrev[1]) * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
         VOmegaReal = wheelsToRobot(motorControlLeft.derivative, motorControlRight.derivative);
-
         distanceFromEncoders = (leftMeters + rightMeters) / 2.0;
         x += distanceFromEncoders * Math.cos(toRadians(theta));
         y += distanceFromEncoders * Math.sin(toRadians(theta));
@@ -311,23 +260,15 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
             motorOutputLeft = 0;
         if (Math.abs(motorOutputRight) < 0.2)
             motorOutputRight = 0;
-//        battery = DriverStation.getInstance().getBatteryVoltage();
-//        battery = (0.5 * battery) + (0.5 * batteryPrev);
-//        if (battery > 12.0)
-//            battery = 12.0;
-//        batteryPrev = battery;
         direct(-(motorOutputLeft), -(motorOutputRight));
         leftMeters = left.getEncoder().getRaw() * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
         rightMeters = right.getEncoder().getRaw() * gearRatio * ENCODER_TO_RADIAN * WHEEL_RADIUS;
-//        log("left meters: " + leftMeters);
-//        log("right meters: " + rightMeters);
     }
 
     public void initGyro(AHRS gyro) {
         this.gyro = gyro;
         while (gyro.isCalibrating()) log("Calibrating Gyro");
         offsetGyro = gyro.getYaw();
-
     }
 
     public void direct(double leftSpeed, double rightSpeed) {
@@ -340,31 +281,13 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     }
 
     @Override
-    public JSONObject toJSON() {
-        JSONObject returnObject = super.toJSON();
-        try {
-            returnObject.put("v_robot_real", VOmegaReal[0]);
-            returnObject.put("omega_robot_real", VOmegaReal[1]);
-            returnObject.put("left_encoder", encoders[0]);
-            returnObject.put("right_encoder", encoders[1]);
-            log("v left real:", motorControlLeft.derivative);
-            log("v right real:", motorControlRight.derivative);
-//            returnObject.put("v_left_real", motorControlLeft.derivative);
-//            returnObject.put("v_right_real", motorControlRight.derivative);
-//            returnObject.put("v_left_setpoint", Vleft);
-//            returnObject.put("v_right_setpoint", Vright);
-//            returnObject.put("output_left", outputLeft);
-//            returnObject.put("output_right", outputRight);
-//            returnObject.put("begining P left", currentMetersLeft);
-//            returnObject.put("begining P right", currentMetersRight);
-//            returnObject.put("left meters", leftMeters);
-//            returnObject.put("right meters", rightMeters);
-//            returnObject.put("output_left_p", motorOutputLeft);
-//            returnObject.put("output_right_p", motorOutputRight);
-//            returnObject.put("distanceFromEncoders", distanceFromEncoders);
-            returnObject.put(ODOMETRY, odometry.toJSON());
-        } catch (Exception ignored) {
-        }
-        return returnObject;
+    public JSONObject pullJSON() {
+        log("v_robot_real", VOmegaReal[0]);
+        log("omega_robot_real", VOmegaReal[1]);
+        log("left_encoder", encoders[0]);
+        log("right_encoder", encoders[1]);
+        log("v left real:", motorControlLeft.derivative);
+        log("v right real:", motorControlRight.derivative);
+        return super.pullJSON();
     }
 }

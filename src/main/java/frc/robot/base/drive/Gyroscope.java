@@ -32,15 +32,6 @@ public class Gyroscope extends AHRS {
         offset = avg / 200;
     }
 
-    public void calibrate() {
-        time = millis();
-        super.reset();
-    }
-
-    public void resetAngle() {
-        countedAngle = 0;
-    }
-
     public double getCountedAngle() {
         double delta = 0.02;
         long currentTime = millis();

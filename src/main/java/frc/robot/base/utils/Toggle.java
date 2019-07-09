@@ -10,7 +10,7 @@ public class Toggle extends Module {
     private OnStateChanged onStateChanged;
 
     public Toggle(OnStateChanged onStateChanged) {
-        this.onStateChanged = onStateChanged;
+        setOnStateChanged(onStateChanged);
     }
 
     public void update(boolean buttonInput) {
@@ -25,23 +25,27 @@ public class Toggle extends Module {
         }
     }
 
+    public void setOnStateChanged(OnStateChanged onStateChanged) {
+        this.onStateChanged = onStateChanged;
+    }
+
     public boolean getGraphState() {
         return graphState;
     }
 
-    public boolean getToggleState() {
+    public boolean isToggled() {
         return toggleState;
-    }
-
-    public interface OnStateChanged {
-        void onStateChanged(boolean state);
     }
 
     @Override
     public JSONObject pullJSON() {
         JSONObject moduleJSON = super.pullJSON();
-        moduleJSON.put("graph",getGraphState());
-        moduleJSON.put("toggle",getToggleState());
+        moduleJSON.put("graph", getGraphState());
+        moduleJSON.put("toggle", isToggled());
         return moduleJSON;
+    }
+
+    public interface OnStateChanged {
+        void onStateChanged(boolean state);
     }
 }
