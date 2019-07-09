@@ -7,6 +7,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+/**
+ * Copyright (c) 2019 General Angels
+ * https://github.com/GeneralAngels/RIO20
+ */
+
 public class MotorGroup<Type extends SpeedController> extends Module {
 
     public static final int FORWARD = 1, BACKWARD = -1, BRAKE = 0;

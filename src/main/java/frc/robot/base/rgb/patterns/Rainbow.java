@@ -4,6 +4,11 @@ import frc.robot.base.rgb.RGB;
 
 import java.awt.*;
 
+/**
+ * Copyright (c) 2019 General Angels
+ * https://github.com/GeneralAngels/RIO20
+ */
+
 public class Rainbow implements RGB.Pattern {
 
     private static final int MAX = 255;

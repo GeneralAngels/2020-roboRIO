@@ -8,6 +8,11 @@ import frc.robot.base.Bot;
 import frc.robot.base.Module;
 import org.json.JSONObject;
 
+/**
+ * Copyright (c) 2019 General Angels
+ * https://github.com/GeneralAngels/RIO20
+ */
+
 public class Communicator extends Module {
 
     // NetworkTables things

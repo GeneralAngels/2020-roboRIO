@@ -7,6 +7,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Map;
 
+/**
+ * Copyright (c) 2019 General Angels
+ * https://github.com/GeneralAngels/RIO20
+ */
+
 public class Module {
     // Internal Log-Objects
     private ArrayList<Tuple<String, Object>> objects = new ArrayList<>();

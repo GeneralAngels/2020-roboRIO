@@ -4,6 +4,8 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
 
+// TODO go over with Idan or Alon to figure out what needs to go
+
 public class Gyroscope extends AHRS {
 
     public double offset;

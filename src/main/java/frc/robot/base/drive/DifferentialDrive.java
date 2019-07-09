@@ -10,6 +10,7 @@ import frc.robot.base.utils.StickDrive;
 import org.json.JSONObject;
 
 // TODO redo the whole thing
+// TODO once complete, add copyright comment, its too embarrassing rn
 
 public class DifferentialDrive<T extends SpeedController> extends Module {
     public double Lsetpoint = 0;

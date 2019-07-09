@@ -3,6 +3,11 @@ package frc.robot.base.drive;
 import frc.robot.base.Module;
 import org.json.JSONObject;
 
+/**
+ * Copyright (c) 2019 General Angels
+ * https://github.com/GeneralAngels/RIO20
+ */
+
 public class Odometry extends Module {
 
     private double x, y, theta, linear, angular, rightSetpoint, leftSetpoint, distance;

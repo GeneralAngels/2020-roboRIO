@@ -5,7 +5,11 @@ import frc.robot.base.Bot;
 import frc.robot.base.utils.Toggle;
 import frc.robot.bosmat.systems.robotc.RobotCDrive;
 
-@SuppressWarnings("ALL")
+/**
+ * Copyright (c) 2019 General Angels
+ * https://github.com/GeneralAngels/RIO20
+ */
+
 public class RobotC extends Bot {
     private Joystick driver;
     private RobotCDrive drive;
@@ -35,7 +39,7 @@ public class RobotC extends Bot {
     private void initSystems() {
         drive = new RobotCDrive();
         hatch = new DoubleSolenoid(0, 4, 7);
-        addToJSON(drive);
+        register(drive);
     }
 
     @Override
@@ -46,7 +50,7 @@ public class RobotC extends Bot {
     private void initTriggers() {
         shiriToggle = new Toggle(new Toggle.OnStateChanged() {
             @Override
-            public void change(boolean toggle) {
+            public void onStateChanged(boolean toggle) {
                 if (toggle) {
                     hatch.set(DoubleSolenoid.Value.kForward);
                 } else {

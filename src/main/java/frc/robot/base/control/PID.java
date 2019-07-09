@@ -2,6 +2,13 @@ package frc.robot.base.control;
 
 import frc.robot.base.Module;
 
+/**
+ * Copyright (c) 2019 General Angels
+ * https://github.com/GeneralAngels/RIO20
+ */
+
+// TODO cleanups and syntax fixes
+
 public class PID extends Module {
     public double kp, ki, kd, kf, measurement, measurementPrev, dt, derivative, derivativePrev, error, errorPrev, integral, setPointMin, controlSignal, tolerance, alpha, integralMax, signalMin, signalMax, minErrorIntegral, lastSetPoints;
 

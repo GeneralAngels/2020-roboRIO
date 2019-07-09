@@ -1,5 +1,10 @@
 package frc.robot.base.utils;
 
+/**
+ * Copyright (c) 2019 General Angels
+ * https://github.com/GeneralAngels/RIO20
+ */
+
 public class Tuple<T1, T2> {
     private T1 first;
     private T2 second;

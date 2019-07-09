@@ -3,6 +3,11 @@ package frc.robot.base.utils;
 import frc.robot.base.Module;
 import org.json.JSONObject;
 
+/**
+ * Copyright (c) 2019 General Angels
+ * https://github.com/GeneralAngels/RIO20
+ */
+
 public class Toggle extends Module {
 
     private boolean graphState = false;

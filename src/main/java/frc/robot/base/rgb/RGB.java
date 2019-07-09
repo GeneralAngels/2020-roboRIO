@@ -7,6 +7,11 @@ import java.awt.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * Copyright (c) 2019 General Angels
+ * https://github.com/GeneralAngels/RIO20
+ */
+
 public class RGB extends Module {
 
     private static final int REFRESH_RATE = 10;
