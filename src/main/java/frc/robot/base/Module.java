@@ -46,16 +46,16 @@ public class Module {
     }
 
     public void pushJSON(JSONObject object) {
-        for (Module module : modules) {
-            if (module != null) {
-                if (object.has(module.getName())) {
-                    try {
+        try {
+            for (Module module : modules) {
+                if (module != null) {
+                    if (object.has(module.getName())) {
                         module.pushJSON(object.getJSONObject(module.getName()));
-                    } catch (Exception e) {
-                        log("Exception thrown in pushJSON, " + e.getMessage());
                     }
                 }
             }
+        } catch (Exception e) {
+            log("Exception thrown in pushJSON, " + e.getMessage());
         }
     }
 

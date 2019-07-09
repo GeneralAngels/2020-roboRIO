@@ -3,21 +3,18 @@ package frc.robot.base;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.base.communications.Communicator;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
 public class Bot extends Module {
     public static final String TIME = "time";
-    public static final String SUBSYSTEMS = "modules";
-    public static final String ROBOT_STATUS = "robot_status";
-    public static final String DRIVER_STATUS = "driver_status";
-    public static final String OPERATOR_STATUS = "operator_status";
 
     protected NetworkTableInstance nti;
     protected NetworkTable database;
     protected NetworkTableEntry json;
-    protected Communication communication;
+    protected Communicator communicator;
 
     protected ArrayList<Module> modules = new ArrayList<>();
 
@@ -26,10 +23,7 @@ public class Bot extends Module {
     }
 
     public void init() {
-        nti = NetworkTableInstance.getDefault();
-        database = nti.getTable("database");
-        json = database.getEntry("json");
-        communication = new Communication(this);
+        communicator = new Communicator(this);
     }
 
     public void teleop() {
