@@ -44,7 +44,7 @@ public class RobotC extends Bot {
     }
 
     private void initTriggers() {
-        shiriToggle = new Toggle(new Toggle.Change() {
+        shiriToggle = new Toggle(new Toggle.OnStateChanged() {
             @Override
             public void change(boolean toggle) {
                 if (toggle) {

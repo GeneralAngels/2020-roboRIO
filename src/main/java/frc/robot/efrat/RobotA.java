@@ -134,7 +134,7 @@ public class RobotA extends Bot {
     }
 
     private void initTriggers() {
-        driverRightT = new Toggle(new Toggle.Change() {
+        driverRightT = new Toggle(new Toggle.OnStateChanged() {
             @Override
             public void change(boolean toggle) {
                 if (toggle) {
@@ -144,19 +144,19 @@ public class RobotA extends Bot {
                 }
             }
         });
-        operatorX = new Toggle(new Toggle.Change() {
+        operatorX = new Toggle(new Toggle.OnStateChanged() {
             @Override
             public void change(boolean toggle) {
                 shiri.toggle();
             }
         });
-        driverLeftT = new Toggle(new Toggle.Change() {
+        driverLeftT = new Toggle(new Toggle.OnStateChanged() {
             @Override
             public void change(boolean toggle) {
                 slow = !slow;
             }
         });
-        driverRight11 = new Toggle(new Toggle.Change() {
+        driverRight11 = new Toggle(new Toggle.OnStateChanged() {
             @Override
             public void change(boolean toggle) {
             }
@@ -206,7 +206,7 @@ public class RobotA extends Bot {
             if (driverRight11.getToggleState()) {
                 drive.preClimb();
                 if ((Math.abs(drive.motorControlLeftP.error) < 0.015) && (Math.abs(drive.motorControlRightP.error) < 0.015)) {
-                    driverRight11.update(!driverRight11.getState());
+                    driverRight11.update(!driverRight11.getGraphState());
                 }
             } else {
                 drive.motorControlLeftP.integral = 0;

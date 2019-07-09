@@ -3,39 +3,36 @@ package frc.robot.base.utils;
 import frc.robot.base.Module;
 
 public class Toggle extends Module {
-    private boolean state = false;
-    private boolean toggleState = false;
-    private Change change;
 
-    public Toggle(Change change) {
-        this.change = change;
+    private boolean graphState = false;
+    private boolean toggleState = false;
+    private OnStateChanged onStateChanged;
+
+    public Toggle(OnStateChanged onStateChanged) {
+        this.onStateChanged = onStateChanged;
     }
 
-    public void update(boolean newState) {
-        if (newState != state) {
-            state = newState;
-            if (state) {
+    public void update(boolean buttonInput) {
+        if (graphState != buttonInput) {
+            graphState = buttonInput;
+            if (graphState) {
                 toggleState = !toggleState;
-                if (change != null) change.change(toggleState);
+                if (onStateChanged != null) {
+                    onStateChanged.onStateChanged(toggleState);
+                }
             }
         }
     }
 
-    public void click() {
-        log("Does this even work?");
-        toggleState = !toggleState;
-        if (change != null) change.change(toggleState);
-    }
-
-    public boolean getState() {
-        return state;
+    public boolean getGraphState() {
+        return graphState;
     }
 
     public boolean getToggleState() {
         return toggleState;
     }
 
-    public interface Change {
-        void change(boolean toggle);
+    public interface OnStateChanged {
+        void onStateChanged(boolean state);
     }
 }
