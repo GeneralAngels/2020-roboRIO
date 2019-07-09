@@ -87,7 +87,7 @@ public class Shanti extends Module {
         if (getInstance() == null) new Shanti();
     }
 
-    // TODO: add toJSON() to send real x and real y
+    // TODO: addMotor toJSON() to send real x and real y
     public static Shanti getInstance() {
         return latest;
     }
@@ -97,7 +97,7 @@ public class Shanti extends Module {
     }
 
     public boolean isAtExchange() {
-        return true;//TODO remove this faked thing
+        return true;//TODO removeMotor this faked thing
     }
 
     public int sign(double x) {
@@ -121,7 +121,7 @@ public class Shanti extends Module {
         }
         return place;
     }
-    // Notice! if set isnt called before loop, the target location will not change.
+    // Notice! if applyPower isnt called before loop, the target location will not change.
     // TODO NOTICE! SHANTI DIRECTIONS FLIPPED
     public void loop(){
 //        log("Shanti: "+stickMotor.getSensorCollection().getQuadraturePosition());
@@ -216,7 +216,7 @@ public class Shanti extends Module {
         JSONObject stick = new JSONObject();
         stick.put(LOCATION, 0);
         stick.put(TARGET, 0);
-        // TODO add lift things such as target angle and current angle
+        // TODO addMotor lift things such as target angle and current angle
         object.put(LIFT, lift);
         object.put(STICK, stick);
         return object;

@@ -112,14 +112,14 @@ public class EfratTestingFull extends Bot {
 //        if (counter > 50) {
 //            stateMachine.update(driverGamepad, null);
 //        }
-//        shanti.set(0.5,0.5);
+//        shanti.applyPower(0.5,0.5);
 //        shanti.print();
-//        shiri.set(0);
+//        shiri.applyPower(0);
 //        shiri.set_direct(driverGamepad.getY(GenericHID.Hand.kLeft));
 //        shiri.print();
 //        loopSystems();
 //        counter+=1;
-//        pneumaticDrive.set(0,0);
+//        pneumaticDrive.applyPower(0,0);
         log("v:" + driverGamepad.getY(GenericHID.Hand.kLeft)+",w:" + driverGamepad.getX(GenericHID.Hand.kLeft));
         pneumaticDrive.set(driverGamepad.getY(GenericHID.Hand.kLeft), driverGamepad.getX(GenericHID.Hand.kLeft), false);
         progress++;

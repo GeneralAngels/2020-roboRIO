@@ -123,7 +123,7 @@ public class EfratTesting extends Bot {
         pneumaticDrive.direct(-driverGamepad.getY(GenericHID.Hand.kLeft),-driverGamepad.getY(GenericHID.Hand.kRight));
         if (!isAutonomous && !isTestBench) {
 //            log("go here");
-//            pneumaticDrive.set(speed, turn);
+//            pneumaticDrive.applyPower(speed, turn);
         } else if (isTestBench) {
 //            pneumaticDrive.setBench(testBenchSpeed, turn);
         }

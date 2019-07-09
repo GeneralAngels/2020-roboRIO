@@ -64,7 +64,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public double currentMetersRight = 0;
     public double currentMetersLeft = 0;
     public PID pid;
-    protected Drivebox<T> left = new Drivebox<>(), right = new Drivebox<>();
+    protected MotorGroup<T> left = new MotorGroup<>(), right = new MotorGroup<>();
     protected Odometry odometry = new Odometry();
     double motorOutputLeftPrev = 0;
     double motorOutputRightPrev = 0;
@@ -187,8 +187,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         double setpointOmega = turn;
         double[] V = robotToWheels(setpointV, setpointOmega);
 //        log("Vleft setpoint", V[0]);
-        log("set point v", setpointV);
-        log("set point omega", setpointOmega);
+        log("applyPower point v", setpointV);
+        log("applyPower point omega", setpointOmega);
         // TODO change this 11:56 4/4/2019
         if (Math.abs(setpointV) < 0.2) setpointV = 0;
         if (Math.abs(setpointOmega) < 0.2) setpointOmega = 0;
@@ -330,8 +330,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     }
 
     public void direct(double leftSpeed, double rightSpeed) {
-        left.set(leftSpeed);
-        right.set(rightSpeed);
+        left.applyPower(leftSpeed);
+        right.applyPower(rightSpeed);
     }
 
     public double toRadians(double degrees) {

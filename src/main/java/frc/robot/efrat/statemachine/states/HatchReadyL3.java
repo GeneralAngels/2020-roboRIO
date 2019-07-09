@@ -6,7 +6,7 @@ import frc.robot.efrat.statemachine.StateMachine;
 public class HatchReadyL3 extends State {
     @Override
     public void apply() {
-//        Shanti.getInstance().set(Shanti.LVL3_X,Shanti.LVL3_Y);
+//        Shanti.getInstance().applyPower(Shanti.LVL3_X,Shanti.LVL3_Y);
     }
 
     @Override

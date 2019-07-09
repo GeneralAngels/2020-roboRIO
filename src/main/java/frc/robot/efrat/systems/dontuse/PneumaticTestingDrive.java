@@ -19,13 +19,13 @@ public class PneumaticTestingDrive extends DifferentialDrive<Victor> {
         if (pneumatics) {
             gear1 = new DoubleSolenoid(6, 7);
         }
-        right.add(new Victor(0));
-        right.add(new Victor(1));
-        left.add(new Victor(2));
-        left.add(new Victor(3));
+        right.addMotor(new Victor(0));
+        right.addMotor(new Victor(1));
+        left.addMotor(new Victor(2));
+        left.addMotor(new Victor(3));
         left.setEncoder(new Encoder(7, 6));
         right.setEncoder(new Encoder(4, 5));
-//        right.setDirection(Drivebox.DIRECTION_BACKWARD);
+//        right.setDirection(MotorGroup.BACKWARD);
 //        left.getEncoder().reset();
 //        right.getEncoder().reset();
         gyro = new Gyroscope();

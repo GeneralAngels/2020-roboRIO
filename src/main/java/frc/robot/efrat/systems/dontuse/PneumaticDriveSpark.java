@@ -3,7 +3,7 @@ package frc.robot.efrat.systems.dontuse;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Spark;
 import frc.robot.base.drive.DifferentialDrive;
-import frc.robot.base.drive.Drivebox;
+import frc.robot.base.drive.MotorGroup;
 import frc.robot.base.drive.Gyroscope;
 import org.json.JSONObject;
 
@@ -20,14 +20,14 @@ public class PneumaticDriveSpark extends DifferentialDrive<Spark> {
         if (pneumatics) {
             gear = new DoubleSolenoid(6, 7);
         }
-        right.add(new Spark(10));
-        right.add(new Spark(11));
-        left.add(new Spark(12));
-        left.add(new Spark(13));
+        right.addMotor(new Spark(10));
+        right.addMotor(new Spark(11));
+        left.addMotor(new Spark(12));
+        left.addMotor(new Spark(13));
 //        left.setEncoder(new Encoder(7, 6));
 //        right.setEncoder(new Encoder(4, 5));
-        left.setDirection(Drivebox.DIRECTION_BACKWARD);
-        right.setDirection(Drivebox.DIRECTION_BACKWARD);
+        left.setDirection(MotorGroup.BACKWARD);
+        right.setDirection(MotorGroup.BACKWARD);
 //        left.getEncoder().reset();
 //        right.getEncoder().reset();
 //        gyro = new Gyroscope();

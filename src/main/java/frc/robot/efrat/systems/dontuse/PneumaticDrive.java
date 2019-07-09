@@ -4,7 +4,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.base.drive.DifferentialDrive;
-import frc.robot.base.drive.Drivebox;
+import frc.robot.base.drive.MotorGroup;
 import frc.robot.base.drive.Gyroscope;
 import org.json.JSONObject;
 
@@ -21,14 +21,14 @@ public class PneumaticDrive extends DifferentialDrive<WPI_TalonSRX> {
         if (pneumatics) {
             gear = new DoubleSolenoid(6, 7);
         }
-        right.add(new WPI_TalonSRX(3));
-        right.add(new WPI_TalonSRX(4));
-        left.add(new WPI_TalonSRX(1));
-        left.add(new WPI_TalonSRX(2));
+        right.addMotor(new WPI_TalonSRX(3));
+        right.addMotor(new WPI_TalonSRX(4));
+        left.addMotor(new WPI_TalonSRX(1));
+        left.addMotor(new WPI_TalonSRX(2));
         left.setEncoder(new Encoder(4,5));
         right.setEncoder(new Encoder(2,3));
-        left.setDirection(Drivebox.DIRECTION_BACKWARD);
-//        right.setDirection(Drivebox.DIRECTION_BACKWARD);
+        left.setDirection(MotorGroup.BACKWARD);
+//        right.setDirection(MotorGroup.BACKWARD);
         //left.getEncoder().reset();
         //right.getEncoder().reset();
 //        gyro = new Gyroscope();

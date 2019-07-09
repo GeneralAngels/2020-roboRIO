@@ -145,7 +145,7 @@ public class Shiri extends Module {
         return output;
     }
 
-    // Notice! if you call loop before set, the target location will be the farthest back.
+    // Notice! if you call loop before applyPower, the target location will be the farthest back.
     public void loop() {
 //        log("target x: "+targetX);
         currentX = -(((slideMotor.getSensorCollection().getQuadraturePosition() / 10.0) * ENC_TO_METERS - 0.3463674205078125) + 0.4348290705078125 + 0.10874972968749996);
@@ -159,7 +159,7 @@ public class Shiri extends Module {
         slideMotor.set(PIDV.pidVelocity(PIDV.derivative, speed));
     }
 
-    public void moveToFront() { //TODO: add if microSwitch
+    public void moveToFront() { //TODO: addMotor if microSwitch
         set(DISTANCE);
     }
 
@@ -175,7 +175,7 @@ public class Shiri extends Module {
         slideMotor.set(d);
     }
 
-    public void moveTOBack() { //TODO: add if microSwitch
+    public void moveTOBack() { //TODO: addMotor if microSwitch
         set(0);
     }
 

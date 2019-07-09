@@ -12,7 +12,7 @@ import java.awt.*;
 
 public class StateMachine extends Module {
     private static final String CURRENT_STATE = "current_state";
-    // TODO to add states, add NEW YOURSTATE() to the array
+    // TODO to addMotor states, addMotor NEW YOURSTATE() to the array
     private static final State[] stateMap = {
             new InitState(),
             new CargoReady(),

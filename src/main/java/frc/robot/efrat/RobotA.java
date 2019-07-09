@@ -240,7 +240,7 @@ public class RobotA extends Bot {
 //            drive.updateOdometry();
 //            robotIdle.flash(Color.MAGENTA);
             drive.set(v, w, isAutonomous);
-//            drive.set(0.5,0);
+//            drive.applyPower(0.5,0);
         }
 //        robotIdle.idle(driverLeft.getY(),driverRight.getY());
         FMSAuto = false;

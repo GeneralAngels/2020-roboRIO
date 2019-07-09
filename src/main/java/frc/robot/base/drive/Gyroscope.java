@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
 
 public class Gyroscope extends AHRS {
+
     public double offset;
     public double countedAngle = 0;
     public double tolerance = 0.5;
@@ -13,12 +14,8 @@ public class Gyroscope extends AHRS {
 
     public Gyroscope() {
         super(I2C.Port.kMXP);
-
     }
 
-    public float get_roll() {
-        return super.getRoll();
-    }
     protected long millis() {
         return (long) (Timer.getFPGATimestamp() * 1000);
     }
@@ -52,14 +49,9 @@ public class Gyroscope extends AHRS {
         time = currentTime;
 
         angular_velocity = getRate() - offset;
-//        log(Double.toString(angle));
         if (Math.abs(angular_velocity) > tolerance) {
-
             countedAngle += angular_velocity * delta;
         }
-//        log("Counted "+countedAngle);
-//        log("delta: " + Double.toString(delta)+",offset: " + Double.toString(offset) + ",getRate: " + Double.toString(getRate()) + ",vel: " +  Double.toString(angular_velocity ));
-//        log("get_angle: " + Double.toString(getAngle()) + ",get_counted_angle: " + countedAngle);
         return countedAngle;
     }
 }

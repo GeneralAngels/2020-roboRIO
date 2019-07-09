@@ -5,7 +5,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.base.drive.DifferentialDrive;
-import frc.robot.base.drive.Drivebox;
+import frc.robot.base.drive.MotorGroup;
 import frc.robot.base.drive.Gyroscope;
 import org.json.JSONObject;
 
@@ -23,19 +23,19 @@ public class RobotADrive extends DifferentialDrive<WPI_TalonSRX> {
         }
         // ROBOT B
         // TODO change on robotA
-//        right.add(new WPI_TalonSRX(13));//10
-//        left.add(new WPI_TalonSRX(12));//11
-//        left.add(new WPI_TalonSRX(11));//12
-//        right.add(new WPI_TalonSRX(10));//13
+//        right.addMotor(new WPI_TalonSRX(13));//10
+//        left.addMotor(new WPI_TalonSRX(12));//11
+//        left.addMotor(new WPI_TalonSRX(11));//12
+//        right.addMotor(new WPI_TalonSRX(10));//13
         // ROBOT A
-        right.add(new WPI_TalonSRX(10));
-        right.add(new WPI_TalonSRX(11));
-        left.add(new WPI_TalonSRX(12));
-        left.add(new WPI_TalonSRX(13));
+        right.addMotor(new WPI_TalonSRX(10));
+        right.addMotor(new WPI_TalonSRX(11));
+        left.addMotor(new WPI_TalonSRX(12));
+        left.addMotor(new WPI_TalonSRX(13));
         left.setEncoder(new Encoder(2, 3));//6 7
         right.setEncoder(new Encoder(7, 6));// 9 8
-        left.setDirection(Drivebox.DIRECTION_BACKWARD);
-//        right.setDirection(Drivebox.DIRECTION_BACKWARD);
+        left.setDirection(MotorGroup.BACKWARD);
+//        right.setDirection(MotorGroup.BACKWARD);
         left.getEncoder().reset();
         right.getEncoder().reset();
         gyro = new Gyroscope();
