@@ -62,9 +62,10 @@ public class RGB extends Module {
 
     public static class Packet {
 
-        public static final int DIVISOR = 1;
+        public static final int BRIGHTNESS_DIVISOR = 1;
 
         public static final int FILL = 0;
+        public static final int PUSH = 1;
 
         private byte[] packet = new byte[8];
 
@@ -82,9 +83,9 @@ public class RGB extends Module {
             packet[2] = (byte) command;
             packet[3] = (byte) p1;
             packet[4] = (byte) p2;
-            packet[5] = (byte) (r / DIVISOR);
-            packet[6] = (byte) (g / DIVISOR);
-            packet[7] = (byte) (b / DIVISOR);
+            packet[5] = (byte) (r / BRIGHTNESS_DIVISOR);
+            packet[6] = (byte) (g / BRIGHTNESS_DIVISOR);
+            packet[7] = (byte) (b / BRIGHTNESS_DIVISOR);
         }
 
         public byte[] get() {
