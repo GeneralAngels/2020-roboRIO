@@ -10,6 +10,11 @@ import frc.robot.bosmat.systems.robotc.RobotCDrive;
  * https://github.com/GeneralAngels/RIO20
  */
 
+/**
+ * What's this?
+ * Bot class for Bosmat (2230 2019 Robot)
+ */
+
 public class RobotC extends Bot {
     private Joystick driver;
     private RobotCDrive drive;
@@ -48,14 +53,11 @@ public class RobotC extends Bot {
     }
 
     private void initTriggers() {
-        shiriToggle = new Toggle(new Toggle.OnStateChanged() {
-            @Override
-            public void onStateChanged(boolean toggle) {
-                if (toggle) {
-                    hatch.set(DoubleSolenoid.Value.kForward);
-                } else {
-                    hatch.set(DoubleSolenoid.Value.kReverse);
-                }
+        shiriToggle = new Toggle(toggle -> {
+            if (toggle) {
+                hatch.set(DoubleSolenoid.Value.kForward);
+            } else {
+                hatch.set(DoubleSolenoid.Value.kReverse);
             }
         });
     }

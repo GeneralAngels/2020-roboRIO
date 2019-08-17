@@ -4,6 +4,11 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import frc.robot.base.drive.DifferentialDrive;
 import frc.robot.base.utils.MotorGroup;
 
+/**
+ * What's this?
+ * Drive class for Bosmat (2230 2019 Robot)
+ */
+
 public class RobotCDrive extends DifferentialDrive<WPI_TalonSRX> {
     private static RobotCDrive latest;
 

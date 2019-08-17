@@ -3,6 +3,11 @@ package frc.robot.bosmat.systems;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import frc.robot.base.Module;
 
+/**
+ * What's this?
+ * Climb class for Bosmat (2230 2019 Robot)
+ */
+
 public class Klein extends Module {
     private static Klein latest;
     private WPI_TalonSRX motor1, motor2, motor3, motor4;
@@ -26,7 +31,6 @@ public class Klein extends Module {
     }
 
     public void set(double speed) {
-//        log("Fucking here biuthcih");
         motor1.set(speed);
         motor2.set(speed);
         motor3.set(speed);

@@ -37,13 +37,6 @@ public class Communicator extends Module {
         this.pull = this.database.getEntry("pull");
     }
 
-    private void initListener() {
-        this.push.addListener(entryNotification -> {
-            if (this.bot != null)
-                this.bot.pushJSON(new JSONObject(entryNotification.value.getString()));
-        }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-    }
-
     public void update() {
         if (this.bot != null) {
             currentPush = this.push.getValue().getString();
