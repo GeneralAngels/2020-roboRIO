@@ -1,9 +1,6 @@
 package frc.robot.base.communications;
 
-import edu.wpi.first.networktables.EntryListenerFlags;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.*;
 import frc.robot.base.Bot;
 import frc.robot.base.Module;
 import org.json.JSONObject;
@@ -39,11 +36,13 @@ public class Communicator extends Module {
 
     public void update() {
         if (this.bot != null) {
-            currentPush = this.push.getValue().getString();
-            if (!currentPush.equals(lastPush)) {
-                this.bot.pushJSON(new JSONObject(currentPush));
+            if (this.push.getType() != NetworkTableType.kUnassigned) {
+                currentPush = this.push.getValue().getString();
+                if (!currentPush.equals(lastPush)) {
+                    this.bot.pushJSON(new JSONObject(currentPush));
+                }
+                currentPush = null;
             }
-            currentPush = null;
             currentPull = this.bot.pullJSON().toString();
             if (!currentPull.equals(lastPull)) {
                 this.pull.setString(currentPull);
