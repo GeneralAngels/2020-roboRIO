@@ -1,7 +1,9 @@
 package frc.robot.bosmat;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.*;
 import frc.robot.base.Bot;
+import frc.robot.base.drive.Gyroscope;
 import frc.robot.base.utils.Toggle;
 import frc.robot.bosmat.systems.robotc.RobotCDrive;
 
@@ -22,6 +24,10 @@ public class RobotC extends Bot {
     private Toggle shiriToggle;
     // Solenoid
     private DoubleSolenoid hatch;
+    // Shiri
+    private WPI_TalonSRX motor;
+
+    private Gyroscope gyro;
 
     @Override
     public void init() {
@@ -44,7 +50,10 @@ public class RobotC extends Bot {
     private void initSystems() {
         drive = new RobotCDrive();
         hatch = new DoubleSolenoid(0, 4, 7);
-        register(drive);
+        motor = new WPI_TalonSRX(14);
+        gyro = new Gyroscope();
+        drive.gyro = gyro;
+//        addToJSON(drive);
     }
 
     @Override
@@ -53,8 +62,8 @@ public class RobotC extends Bot {
     }
 
     private void initTriggers() {
-        shiriToggle = new Toggle(toggle -> {
-            if (toggle) {
+        shiriToggle = new Toggle(state -> {
+            if (state) {
                 hatch.set(DoubleSolenoid.Value.kForward);
             } else {
                 hatch.set(DoubleSolenoid.Value.kReverse);
@@ -63,13 +72,19 @@ public class RobotC extends Bot {
     }
 
     private void updateTriggers() {
+//        if (driver.getTrigger()) hatch.set(hatch.get() == DoubleSolenoid.Value.kForward ? DoubleSolenoid.Value.kReverse : DoubleSolenoid.Value.kForward);
         shiriToggle.update(driver.getTrigger());
     }
 
     @Override
     public void teleop() {
         updateTriggers();
-        drive.setStickNoPID(driver.getY() / 3, driver.getX() / 2);
-//        super.teleop();
+//        drive.angle_pid(90);
+        drive.setStickNoPID(driver.getY(), driver.getX());
+//        log("Nigger");
+//        log("left encoder "+drive.left.getEncoder().getRaw());
+//        log("right encoder "+drive.right.getEncoder().getRaw());
+//        log("Nigger: "+gyro.getYaw()+" Nibber: "+gyro.getRoll()+" Kneegrow: "+gyro.getPitch());
+//        motor.set(driver.getRawButton(4) ? 0.2 : driver.getRawButton(3) ? -0.2 : 0);
     }
 }
