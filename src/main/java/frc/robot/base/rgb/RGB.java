@@ -68,7 +68,7 @@ public class RGB extends Module {
 
         public static final int BRIGHTNESS_DIVISOR = 1;
 
-        public static final int FILL = 0;
+        public static final int CLEAR = 0;
         public static final int PUSH = 1;
 
         private ArrayList<Byte> packet = new ArrayList<>();

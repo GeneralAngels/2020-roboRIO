@@ -36,7 +36,7 @@ public class Rainbow implements RGB.Pattern {
             b = rising;
         }
         RGB.Packet packet = new RGB.Packet(RGB.Packet.PUSH, r, g, b);
-        packet.addParameter((byte) 0x00);
+//        packet.addParameter((byte) 0x00);
         return packet;
     }
 

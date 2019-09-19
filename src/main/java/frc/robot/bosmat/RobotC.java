@@ -4,6 +4,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.*;
 import frc.robot.base.Bot;
 import frc.robot.base.drive.Gyroscope;
+import frc.robot.base.rgb.RGB;
+import frc.robot.base.rgb.patterns.Rainbow;
 import frc.robot.base.utils.Toggle;
 import frc.robot.bosmat.systems.robotc.RobotCDrive;
 
@@ -28,6 +30,8 @@ public class RobotC extends Bot {
     private WPI_TalonSRX motor;
 
     private Gyroscope gyro;
+    // RGB
+    private RGB rgb;
 
     @Override
     public void init() {
@@ -50,6 +54,8 @@ public class RobotC extends Bot {
 
     private void initSystems() {
         drive = new RobotCDrive();
+        rgb = new RGB(38);
+        rgb.setPattern(new Rainbow());
         hatch = new DoubleSolenoid(0, 4, 7);
         motor = new WPI_TalonSRX(14);
         gyro = new Gyroscope();
