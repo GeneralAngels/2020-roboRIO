@@ -4,8 +4,7 @@ import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.base.Module;
 
 import java.awt.*;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 /**
  * Copyright (c) 2019 General Angels
@@ -20,7 +19,7 @@ public class RGB extends Module {
     private Pattern pattern;
     private Timer timer;
 
-    public RGB(int length, int divider) {
+    public RGB(int length) {
         if (length > 0)
             this.length = length;
         try {
@@ -72,29 +71,33 @@ public class RGB extends Module {
         public static final int FILL = 0;
         public static final int PUSH = 1;
 
-        private byte[] packet = new byte[8];
+        private ArrayList<Byte> packet = new ArrayList<>();
 
-        public Packet(boolean direction, int command, int p1, int p2, int r, int g, int b) {
-            init(direction, command, p1, p2, r, g, b);
+        public Packet(int command, int r, int g, int b) {
+            init(command, r, g, b);
         }
 
-        public Packet(boolean direction, int command, int p1, int p2, Color color) {
-            init(direction, command, p1, p2, color.getRed(), color.getGreen(), color.getBlue());
+        public Packet(int command, Color color) {
+            init(command, color.getRed(), color.getGreen(), color.getBlue());
         }
 
-        private void init(boolean direction, int command, int p1, int p2, int r, int g, int b) {
-            packet[0] = (byte) 0xFF;
-            packet[1] = (byte) (direction ? 1 : 0);
-            packet[2] = (byte) command;
-            packet[3] = (byte) p1;
-            packet[4] = (byte) p2;
-            packet[5] = (byte) (r / BRIGHTNESS_DIVISOR);
-            packet[6] = (byte) (g / BRIGHTNESS_DIVISOR);
-            packet[7] = (byte) (b / BRIGHTNESS_DIVISOR);
+        private void init(int command, int r, int g, int b) {
+            packet.add((byte) command);
+            packet.add((byte) (r / BRIGHTNESS_DIVISOR));
+            packet.add((byte) (g / BRIGHTNESS_DIVISOR));
+            packet.add((byte) (b / BRIGHTNESS_DIVISOR));
+        }
+
+        public void addParameter(Byte parameter) {
+            packet.add(parameter);
         }
 
         public byte[] get() {
-            return packet;
+            byte[] compiled = new byte[packet.size()];
+            for (int i = 0; i < compiled.length; i++) {
+                compiled[i] = packet.get(i);
+            }
+            return compiled;
         }
     }
 }
