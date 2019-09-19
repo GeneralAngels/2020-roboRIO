@@ -54,8 +54,8 @@ public class RobotC extends Bot {
 
     private void initSystems() {
         drive = new RobotCDrive();
-        rgb = new RGB(38);
-        rgb.setPattern(new Rainbow());
+//        rgb = new RGB(38);
+//        rgb.setPattern(new Rainbow());
         hatch = new DoubleSolenoid(0, 4, 7);
         motor = new WPI_TalonSRX(14);
         gyro = new Gyroscope();
