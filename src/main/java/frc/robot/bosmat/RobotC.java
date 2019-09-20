@@ -24,6 +24,7 @@ public class RobotC extends Bot {
     private RobotCDrive drive;
     // Toggles
     private Toggle shiriToggle;
+    private Toggle compressorToggle;
     // Solenoid
     private DoubleSolenoid hatch;
     // Shiri
@@ -32,6 +33,8 @@ public class RobotC extends Bot {
     private Gyroscope gyro;
     // RGB
     private RGB rgb;
+
+    private Compressor compressor;
 
     @Override
     public void init() {
@@ -54,6 +57,7 @@ public class RobotC extends Bot {
 
     private void initSystems() {
         drive = new RobotCDrive();
+        compressor = new Compressor(0);
 //        rgb = new RGB(38);
 //        rgb.setPattern(new Rainbow());
         hatch = new DoubleSolenoid(0, 4, 7);
@@ -77,11 +81,19 @@ public class RobotC extends Bot {
                 hatch.set(DoubleSolenoid.Value.kReverse);
             }
         });
+        compressorToggle = new Toggle(state -> {
+            if (state) {
+                compressor.start();
+            } else {
+                compressor.stop();
+            }
+        });
     }
 
     private void updateTriggers() {
 //        if (driver.getTrigger()) hatch.set(hatch.get() == DoubleSolenoid.Value.kForward ? DoubleSolenoid.Value.kReverse : DoubleSolenoid.Value.kForward);
         shiriToggle.update(driver.getTrigger());
+        compressorToggle.update(driver.getRawButton(6));
     }
 
     @Override

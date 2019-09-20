@@ -5,7 +5,6 @@ import frc.robot.base.utils.Tuple;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Copyright (c) 2019 General Angels
@@ -14,7 +13,7 @@ import java.util.Map;
 
 public class Module {
     // Internal Log-Objects
-    private ArrayList<Tuple<String, Object>> objects = new ArrayList<>();
+    private ArrayList<Tuple<String, Object>> values = new ArrayList<>();
     // Sub-modules
     private ArrayList<Module> modules = new ArrayList<>();
 
@@ -27,14 +26,14 @@ public class Module {
     }
 
     public String getName() {
-        return getClass().getSimpleName();
+        return getClass().getSimpleName().toLowerCase();
     }
 
     public JSONObject pullJSON() {
         JSONObject json = new JSONObject();
         JSONObject objectsJSON = new JSONObject();
         JSONObject modulesJSON = new JSONObject();
-        for (Tuple<String, Object> object : objects) {
+        for (Tuple<String, Object> object : values) {
             if (object != null) {
                 if (object.getSecond() != null)
                     objectsJSON.put(object.getFirst(), object.getSecond().toString());
@@ -45,7 +44,7 @@ public class Module {
                 modulesJSON.put(module.getName(), module.pullJSON());
             }
         }
-        json.put("objects", objectsJSON);
+        json.put("values", objectsJSON);
         json.put("modules", modulesJSON);
         return json;
     }
@@ -65,13 +64,13 @@ public class Module {
     }
 
     protected void log(String name, Object value) {
-        for (Tuple<String, Object> object : objects) {
+        for (Tuple<String, Object> object : values) {
             if (object.getFirst().equals(name)) {
                 object.setSecond(value);
                 return;
             }
         }
-        objects.add(new Tuple<>(name, value));
+        values.add(new Tuple<>(name, value));
     }
 
     protected void log(String string) {
