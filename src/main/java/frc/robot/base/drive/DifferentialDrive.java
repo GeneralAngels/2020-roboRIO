@@ -73,7 +73,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     protected Odometry odometry = new Odometry();
     double motorOutputLeftPrev = 0;
     double motorOutputRightPrev = 0;
-    double battery = 0;
+    public double battery = 12;
     double batteryPrev = 0;
     boolean checkGyro = true;
 
@@ -92,9 +92,11 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         //robot a
         motorControlLeft.setPIDF(0, 0, 0, 0.55);
         motorControlRight.setPIDF(0, 0, 0, 0.55);
-        motorControlLeftP.setPIDF(7, 0.47, 0, 0);
-        motorControlRightP.setPIDF(7, 0.47, 0, 0);
+        motorControlLeftP.setPIDF(3, 0.1, 0.2, 0);
+        motorControlRightP.setPIDF(3, 0.1, 0.2, 0);
         pid.setPIDF(1, 0.1, 0, 0);
+        register(odometry);
+        register(motorControlLeftP);
     }
 
     public static double noPIDCalculateRight(double speed, double turn) {
@@ -129,7 +131,16 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         direct(l, r);
     }
 
+    public void setStickNoPID2(double speed, double turn) {
+        double l, r;
+        l = noPIDCalculateLeft(speed, turn);
+        r = noPIDCalculateRight(speed, turn);
+        direct(l/1.5, r/1.5);
+    }
+
+
     public void setTank(double Vl, double Vr) {
+      //  log("SetTank " + Vl + " " + Vr);
         if (Math.abs(Vl) < 0.1)
             Vl = 0;
         if (Math.abs(Vr) < 0.1)
@@ -156,7 +167,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 //        batteryPrev = battery;
 //        motorOutputLeftPrev = motorOutputLeft;
 //        motorOutputRightPrev = motorOutputRight;
-        direct(-Vl / 12.0, -Vr / 12.0);
+        direct(-Vl / (battery), -Vr / (battery));
         updateOdometry();
     }
 
@@ -176,24 +187,26 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         set(vSetPoint * MAX_V, omegaSetPoint * MAX_OMEGA, false);
     }
 
-    boolean schmock = true;
-    double initialAngle = 0;
+    public boolean checkAnglePID = true;
+    public double initialAngle = 0.0;
 
     public void angle_pid(double target) {
 
-        target = toRadians(target);
-        if (schmock) {
+        //target = toRadians(target);
+        log("Nav "+gyro.getYaw());
+        if (checkAnglePID) {
+            // TODO do better then this reset
+            gyro.reset();
             initialAngle = toRadians(gyro.getYaw());
-            schmock = false;
+            log("initAngle: " + initialAngle);
+            checkAnglePID = false;
         }
+        setTank((-2 - motorControlLeftP.pidPosition(toRadians(gyro.getYaw()), initialAngle + target)), (2 + motorControlRightP.pidPosition(toRadians(gyro.getYaw()), initialAngle + target)));
+    }
 
-//        log("gyro: " + gyro.getYaw());
-        //log("left: "+motorControlLeftP.pidPosition( initialAngle, initialAngle + target));
-        //log("right: "+motorControlRightP.pidPosition( initialAngle, initialAngle + target));
-//        direct(motorControlLeftP.pidPosition(toRadians(gyro.getYaw()), initialAngle + target), -motorControlRightP.pidPosition(toRadians(gyro.getYaw()), initialAngle + target));
-
-        setTank(-motorControlLeftP.pidPosition(toRadians(gyro.getYaw()), initialAngle + target), motorControlRightP.pidPosition(toRadians(gyro.getYaw()), initialAngle + target));
-//        setTank(5, -5);
+    public void driveStraightPID() {
+        int initialSpeed = 4;
+        setTank(initialSpeed + motorControlLeftP.pidPosition(toRadians(gyro.getYaw()), 0), initialSpeed - motorControlRightP.pidPosition(toRadians(gyro.getYaw()), 0));
     }
 
     public void set(double speed, double turn, boolean auto) {
@@ -356,7 +369,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     }
 
     public void direct(double leftSpeed, double rightSpeed) {
-        log("L: " + leftSpeed + " R: " + rightSpeed);
+//        log("L: " + leftSpeed + " R: " + rightSpeed);
         left.applyPower(leftSpeed);
         right.applyPower(rightSpeed);
     }

@@ -34,7 +34,11 @@ public class RobotC extends Bot {
     // RGB
     private RGB rgb;
 
+    private PowerDistributionPanel pdp;
+
     private Compressor compressor;
+
+    private DriverStation ds = DriverStation.getInstance();
 
     @Override
     public void init() {
@@ -58,8 +62,10 @@ public class RobotC extends Bot {
     private void initSystems() {
         drive = new RobotCDrive();
         compressor = new Compressor(0);
+        compressor.stop();
 //        rgb = new RGB(38);
 //        rgb.setPattern(new Rainbow());
+//        pdp=new PowerDistributionPanel();
         hatch = new DoubleSolenoid(0, 4, 7);
         motor = new WPI_TalonSRX(14);
         gyro = new Gyroscope();
@@ -99,13 +105,24 @@ public class RobotC extends Bot {
     @Override
     public void teleop() {
         updateTriggers();
-//        drive.angle_pid(90);
-        drive.setStickNoPID(driver.getY(), driver.getX());
+//        drive.battery = pdp.getVoltage();
+        drive.battery = ds.getBatteryVoltage();
+        if (driver.getRawButton(2)) {
+            drive.angle_pid(1.57);
+        } else {
+            drive.checkAnglePID = true;
+            if (driver.getRawButton(10)) {
+                drive.driveStraightPID();
+            } else {
+                drive.setStickNoPID2(driver.getY(), driver.getX());
+            }
+        }
+
 //        log("Nigger");
 //        log("left encoder "+drive.left.getEncoder().getRaw());
 //        log("right encoder "+drive.right.getEncoder().getRaw());
 //        log("Nigger: "+gyro.getYaw()+" Nibber: "+gyro.getRoll()+" Kneegrow: "+gyro.getPitch());
-        motor.set(driver.getRawButton(4) ? 0.2 : driver.getRawButton(3) ? -0.2 : 0);
+//        motor.set(driver.getRawButton(4) ? 0.2 : driver.getRawButton(3) ? -0.2 : 0);
         super.teleop();
     }
 }

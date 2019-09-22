@@ -9,8 +9,6 @@ import org.json.JSONObject;
  */
 
 public class Bot extends Module {
-    private static final String TIME = "time";
-
     private Communicator communicator = null;
 
     public void init() {
@@ -23,12 +21,5 @@ public class Bot extends Module {
 
     public void autonomous() {
         if (communicator != null) communicator.update();
-    }
-
-    @Override
-    public JSONObject pullJSON() {
-        JSONObject moduleJSON = super.pullJSON();
-        moduleJSON.put(TIME, millis());
-        return moduleJSON;
     }
 }
