@@ -104,6 +104,7 @@ public class RobotC extends Bot {
 
     @Override
     public void teleop() {
+        log("time", millis());
         updateTriggers();
 //        drive.battery = pdp.getVoltage();
         drive.battery = ds.getBatteryVoltage();
