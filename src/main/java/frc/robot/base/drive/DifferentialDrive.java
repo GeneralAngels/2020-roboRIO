@@ -9,6 +9,9 @@ import frc.robot.base.utils.MotorGroup;
 import frc.robot.base.utils.StickDrive;
 import org.json.JSONObject;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 // TODO redo the whole thing
 // TODO once complete, add copyright comment, its too embarrassing rn
 
@@ -77,7 +80,11 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     double batteryPrev = 0;
     boolean checkGyro = true;
 
+    private double previousJoystickX, prevousJoystickY;
+
+
     public DifferentialDrive() {
+
         motorControlLeft = new PID();
         motorControlRight = new PID();
         motorControlLeftP = new PID();
@@ -371,7 +378,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     }
 
     public void direct(double leftSpeed, double rightSpeed) {
-        log("L: " + leftSpeed + " R: " + rightSpeed);
+//        log("L: " + leftSpeed + " R: " + rightSpeed);
         left.applyPower(leftSpeed);
         right.applyPower(rightSpeed);
     }

@@ -9,6 +9,9 @@ import frc.robot.base.rgb.patterns.Rainbow;
 import frc.robot.base.utils.Toggle;
 import frc.robot.bosmat.systems.robotc.RobotCDrive;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 /**
  * Copyright (c) 2019 General Angels
  * https://github.com/GeneralAngels/RIO20
@@ -40,12 +43,24 @@ public class RobotC extends Bot {
 
     private DriverStation ds = DriverStation.getInstance();
 
+    private java.util.Timer timer;
+
     @Override
     public void init() {
         super.init();
         initDriver();
         initSystems();
         initTriggers();
+
+        timer=new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if(ds.isEnabled()){
+                    highspeedTeleop();
+                }
+            }
+        }, 0, 20);
     }
 
     private void instructions() {
@@ -102,8 +117,7 @@ public class RobotC extends Bot {
         compressorToggle.update(driver.getRawButton(6));
     }
 
-    @Override
-    public void teleop() {
+    public void highspeedTeleop() {
         log("time", millis());
         updateTriggers();
 //        drive.battery = pdp.getVoltage();
@@ -124,6 +138,6 @@ public class RobotC extends Bot {
 //        log("right encoder "+drive.right.getEncoder().getRaw());
 //        log("Nigger: "+gyro.getYaw()+" Nibber: "+gyro.getRoll()+" Kneegrow: "+gyro.getPitch());
 //        motor.set(driver.getRawButton(4) ? 0.2 : driver.getRawButton(3) ? -0.2 : 0);
-        super.teleop();
+//        super.teleop();
     }
 }

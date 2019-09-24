@@ -122,6 +122,7 @@ public class PID extends Module {
             controlSignal = (setPoint * kf) + (error * kp) + integral;
         }
         errorPrev = error;
+        log("error "+ error);
         controlSignal = constrain(controlSignal, -signalMax, signalMax);
         return controlSignal;
     }
