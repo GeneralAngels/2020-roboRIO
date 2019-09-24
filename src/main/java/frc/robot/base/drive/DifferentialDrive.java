@@ -97,6 +97,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         pid.setPIDF(1, 0.1, 0, 0);
         register(odometry);
         register(motorControlLeftP);
+        setID("drive");
+        log("gear", false);
     }
 
     public static double noPIDCalculateRight(double speed, double turn) {
@@ -135,12 +137,12 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         double l, r;
         l = noPIDCalculateLeft(speed, turn);
         r = noPIDCalculateRight(speed, turn);
-        direct(l/1.5, r/1.5);
+        direct(l / 1.5, r / 1.5);
     }
 
 
     public void setTank(double Vl, double Vr) {
-      //  log("SetTank " + Vl + " " + Vr);
+        //  log("SetTank " + Vl + " " + Vr);
         if (Math.abs(Vl) < 0.1)
             Vl = 0;
         if (Math.abs(Vr) < 0.1)
@@ -193,7 +195,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public void angle_pid(double target) {
 
         //target = toRadians(target);
-        log("Nav "+gyro.getYaw());
+        log("Nav " + gyro.getYaw());
         if (checkAnglePID) {
             // TODO do better then this reset
             gyro.reset();
@@ -369,41 +371,12 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     }
 
     public void direct(double leftSpeed, double rightSpeed) {
-//        log("L: " + leftSpeed + " R: " + rightSpeed);
+        log("L: " + leftSpeed + " R: " + rightSpeed);
         left.applyPower(leftSpeed);
         right.applyPower(rightSpeed);
     }
 
     public double toRadians(double degrees) {
         return (degrees / 180) * Math.PI;
-    }
-
-    @Override
-    public JSONObject pullJSON() {
-        JSONObject returnObject = super.pullJSON();
-        try {
-            returnObject.put("v_robot_real", VOmegaReal[0]);
-            returnObject.put("omega_robot_real", VOmegaReal[1]);
-            returnObject.put("left_encoder", encoders[0]);
-            returnObject.put("right_encoder", encoders[1]);
-            log("v left real:", motorControlLeft.derivative);
-            log("v right real:", motorControlRight.derivative);
-//            returnObject.put("v_left_real", motorControlLeft.derivative);
-//            returnObject.put("v_right_real", motorControlRight.derivative);
-//            returnObject.put("v_left_setpoint", Vleft);
-//            returnObject.put("v_right_setpoint", Vright);
-//            returnObject.put("output_left", outputLeft);
-//            returnObject.put("output_right", outputRight);
-//            returnObject.put("begining P left", currentMetersLeft);
-//            returnObject.put("begining P right", currentMetersRight);
-//            returnObject.put("left meters", leftMeters);
-//            returnObject.put("right meters", rightMeters);
-//            returnObject.put("output_left_p", motorOutputLeft);
-//            returnObject.put("output_right_p", motorOutputRight);
-//            returnObject.put("distanceFromEncoders", distanceFromEncoders);
-            returnObject.put(ODOMETRY, odometry.pullJSON());
-        } catch (Exception ignored) {
-        }
-        return returnObject;
     }
 }

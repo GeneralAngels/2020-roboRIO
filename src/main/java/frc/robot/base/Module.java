@@ -16,6 +16,8 @@ public class Module {
     private ArrayList<Tuple<String, Object>> values = new ArrayList<>();
     // Sub-modules
     private ArrayList<Module> modules = new ArrayList<>();
+    // JSON ID
+    private String id = null;
 
     protected void register(Module module) {
         modules.add(module);
@@ -36,12 +38,12 @@ public class Module {
         for (Tuple<String, Object> object : values) {
             if (object != null) {
                 if (object.getSecond() != null)
-                    objectsJSON.put(object.getFirst(), object.getSecond().toString());
+                    objectsJSON.put(object.getFirst(), object.getSecond());
             }
         }
         for (Module module : modules) {
             if (module != null) {
-                modulesJSON.put(module.getName(), module.pullJSON());
+                modulesJSON.put(module.getID(), module.pullJSON());
             }
         }
         json.put("values", objectsJSON);
@@ -63,6 +65,14 @@ public class Module {
         }
     }
 
+    public void setID(String id) {
+        this.id = id;
+    }
+
+    public String getID() {
+        return this.id != null ? this.id : getName();
+    }
+
     protected void log(String name, Object value) {
         for (Tuple<String, Object> object : values) {
             if (object.getFirst().equals(name)) {
@@ -80,4 +90,5 @@ public class Module {
     protected long millis() {
         return (long) (Timer.getFPGATimestamp() * 1000);
     }
+
 }
