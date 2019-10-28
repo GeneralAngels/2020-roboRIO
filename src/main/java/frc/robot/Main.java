@@ -1,12 +1,13 @@
 package frc.robot;
 
+import com.ga2230.networking.Dialog;
+import com.ga2230.networking.OnReceive;
+import com.ga2230.networking.Server;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.base.Bot;
-import frc.robot.base.communication.Networking;
 import frc.robot.bosmat.RobotC;
-
-import java.util.function.Supplier;
+import org.json.JSONObject;
 
 public final class Main {
 
@@ -22,7 +23,6 @@ public final class Main {
         public void robotInit() {
             bobot = new RobotC();
             bobot.init();
-            Networking.setBot(bobot);
         }
 
         @Override
