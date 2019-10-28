@@ -1,6 +1,6 @@
 package frc.robot.base;
 
-import frc.robot.base.communications.Communicator;
+import frc.robot.base.communication.Communicator;
 import org.json.JSONObject;
 
 /**

@@ -36,7 +36,7 @@ public class MyRobot extends Bot {
     @Override
     public void teleop() {
         mToggle.update(mController.getXButton()); // Update toggle's input
-        super.teleop(); // Update communications
+        super.teleop(); // Update communication
     }
 
     private class MyClaw extends Module {
