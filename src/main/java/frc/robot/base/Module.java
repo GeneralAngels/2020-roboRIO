@@ -5,7 +5,6 @@ import frc.robot.base.utils.Tuple;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Copyright (c) 2019 General Angels
@@ -14,9 +13,11 @@ import java.util.Map;
 
 public class Module {
     // Internal Log-Objects
-    private ArrayList<Tuple<String, Object>> objects = new ArrayList<>();
+    private ArrayList<Tuple<String, Object>> values = new ArrayList<>();
     // Sub-modules
     private ArrayList<Module> modules = new ArrayList<>();
+    // JSON ID
+    private String id = null;
 
     protected void register(Module module) {
         modules.add(module);
@@ -27,25 +28,25 @@ public class Module {
     }
 
     public String getName() {
-        return getClass().getSimpleName();
+        return getClass().getSimpleName().toLowerCase();
     }
 
     public JSONObject pullJSON() {
         JSONObject json = new JSONObject();
         JSONObject objectsJSON = new JSONObject();
         JSONObject modulesJSON = new JSONObject();
-        for (Tuple<String, Object> object : objects) {
+        for (Tuple<String, Object> object : values) {
             if (object != null) {
                 if (object.getSecond() != null)
-                    objectsJSON.put(object.getFirst(), object.getSecond().toString());
+                    objectsJSON.put(object.getFirst(), object.getSecond());
             }
         }
         for (Module module : modules) {
             if (module != null) {
-                modulesJSON.put(module.getName(), module.pullJSON());
+                modulesJSON.put(module.getID(), module.pullJSON());
             }
         }
-        json.put("objects", objectsJSON);
+        json.put("values", objectsJSON);
         json.put("modules", modulesJSON);
         return json;
     }
@@ -64,14 +65,22 @@ public class Module {
         }
     }
 
+    public void setID(String id) {
+        this.id = id;
+    }
+
+    public String getID() {
+        return this.id != null ? this.id : getName();
+    }
+
     protected void log(String name, Object value) {
-        for (Tuple<String, Object> object : objects) {
+        for (Tuple<String, Object> object : values) {
             if (object.getFirst().equals(name)) {
                 object.setSecond(value);
                 return;
             }
         }
-        objects.add(new Tuple<>(name, value));
+        values.add(new Tuple<>(name, value));
     }
 
     protected void log(String string) {
@@ -81,4 +90,5 @@ public class Module {
     protected long millis() {
         return (long) (Timer.getFPGATimestamp() * 1000);
     }
+
 }

@@ -77,6 +77,7 @@ public class PID extends Module {
             controlSignal = (error * kp) + integral - (derivative * kd);
         }
         errorPrev = error;
+//        log("PID_POS_ERROR: "+error);
         controlSignal = constrain(controlSignal, -signalMax, signalMax);
 
         return controlSignal;
@@ -121,6 +122,7 @@ public class PID extends Module {
             controlSignal = (setPoint * kf) + (error * kp) + integral;
         }
         errorPrev = error;
+        log("error "+ error);
         controlSignal = constrain(controlSignal, -signalMax, signalMax);
         return controlSignal;
     }
