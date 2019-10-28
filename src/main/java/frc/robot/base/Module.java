@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2019 General Angels
+ * https://github.com/GeneralAngels/RIO20
+ */
+
 package frc.robot.base;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -5,11 +10,6 @@ import frc.robot.base.utils.Tuple;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-
-/**
- * Copyright (c) 2019 General Angels
- * https://github.com/GeneralAngels/RIO20
- */
 
 public class Module {
     // Internal Log-Objects

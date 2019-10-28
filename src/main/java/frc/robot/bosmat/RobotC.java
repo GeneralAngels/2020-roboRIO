@@ -52,15 +52,19 @@ public class RobotC extends Bot {
         initSystems();
         initTriggers();
 
-        timer=new Timer();
+        timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                if(ds.isEnabled()){
+                if (ds.isEnabled()) {
+                    log("counted", Math.toDegrees(drive.calculateAngle()));
+                    log("counted"+ Math.toDegrees(drive.calculateAngle()));
+                    log("encoderLeft", drive.left.getEncoder().get());
+
                     highspeedTeleop();
                 }
             }
-        }, 0, 20);
+        }, 0, 5);
     }
 
     private void instructions() {
@@ -117,27 +121,39 @@ public class RobotC extends Bot {
         compressorToggle.update(driver.getRawButton(6));
     }
 
+    @Override
+    public void teleop() {
+//        highspeedTeleop();
+//        super.teleop();
+    }
+
     public void highspeedTeleop() {
-        log("time", millis());
-        updateTriggers();
+//        log("time", millis());
+//        updateTriggers();
 //        drive.battery = pdp.getVoltage();
-        drive.battery = ds.getBatteryVoltage();
-        if (driver.getRawButton(2)) {
-            drive.angle_pid(1.57);
-        } else {
-            drive.checkAnglePID = true;
-            if (driver.getRawButton(10)) {
-                drive.driveStraightPID();
-            } else {
-                drive.setStickNoPID2(driver.getY(), driver.getX());
-            }
-        }
+//        drive.battery = ds.getBatteryVoltage();
+        drive.battery = 12;
+        log("nigger", driver.getRawButton(12) ? 1 : 0);
+//        if (driver.getRawButton(12)) {
+//            drive.angle_pid(1.57);
+//        } else {
+//            drive.direct(0, 0);
+//            drive.checkAnglePID = true;
+//        }
+//        else {
+//            drive.checkAnglePID = true;
+//            if (driver.getRawButton(10)) {
+//                drive.driveStraightPID();
+//            } else {
+        drive.setStickNoPID2(driver.getY(), driver.getX());
+//            }
+//        }
 
 //        log("Nigger");
 //        log("left encoder "+drive.left.getEncoder().getRaw());
 //        log("right encoder "+drive.right.getEncoder().getRaw());
 //        log("Nigger: "+gyro.getYaw()+" Nibber: "+gyro.getRoll()+" Kneegrow: "+gyro.getPitch());
 //        motor.set(driver.getRawButton(4) ? 0.2 : driver.getRawButton(3) ? -0.2 : 0);
-//        super.teleop();
+        super.teleop();
     }
 }

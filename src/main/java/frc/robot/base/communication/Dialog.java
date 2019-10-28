@@ -1,5 +1,7 @@
 package frc.robot.base.communication;
 
+import org.json.JSONObject;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -8,7 +10,7 @@ public class Dialog {
     private BufferedReader reader;
     private BufferedWriter writer;
 
-    public Dialog(Socket socket){
+    public Dialog(Socket socket) {
         // Setup I/O
         try {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -23,16 +25,19 @@ public class Dialog {
                 new Thread(() -> {
                     try {
                         // Begin listening
-                        while (running) {
+                        while (Networking.isListening()) {
                             try {
                                 if (reader.ready()) {
-                                    input(reader.readLine());
+                                    String received = reader.readLine();
+                                    if (Networking.getBot() != null) {
+                                        Networking.getBot().pushJSON(new JSONObject(received));
+                                        writer.write(Networking.getBot().pullJSON().toString());
+                                        writer.write("\n");
+                                        writer.flush();
+                                    }
                                 }
-                                Thread.sleep(10);
                             } catch (IOException e) {
                                 System.out.println("Failed to read input stream.");
-                            } catch (InterruptedException e) {
-                                System.out.println("Failed to sleep.");
                             }
                         }
                     } catch (Exception e) {
@@ -41,12 +46,12 @@ public class Dialog {
                     // Finish listening
                     System.out.println("Finished");
                     try {
-                        this.socket.close();
+                        socket.close();
                     } catch (Exception e) {
                         System.out.println("Failed to close socket.");
                     }
                 }).start();
             }
+        }
     }
-
 }

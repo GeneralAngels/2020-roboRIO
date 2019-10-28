@@ -1,29 +1,48 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) 2018 FIRST. All Rights Reserved.                             */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
-/*----------------------------------------------------------------------------*/
-
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.TimedRobot;
+import frc.robot.base.Bot;
+import frc.robot.base.communication.Networking;
+import frc.robot.bosmat.RobotC;
 
-/**
- * Do NOT addMotor any static variables to this class, or any initialization at all.
- * Unless you know what you are doing, do not modify this file except to
- * change the parameter class to the startRobot call.
- */
+import java.util.function.Supplier;
+
 public final class Main {
-  private Main() {
-  }
 
-  /**
-   * Main initialization function. Do not perform any initialization here.
-   *
-   * <p>If you change your main robot class, change the parameter type.
-   */
-  public static void main(String... args) {
-    RobotBase.startRobot(Robot::new);
-  }
+    public static void main(String... args) {
+        RobotBase.startRobot(Robot::new);
+    }
+
+    private static class Robot extends TimedRobot {
+
+        private Bot bobot;
+
+        @Override
+        public void robotInit() {
+            bobot = new RobotC();
+            bobot.init();
+            Networking.setBot(bobot);
+        }
+
+        @Override
+        public void autonomousInit() {
+        }
+
+        @Override
+        public void autonomousPeriodic() {
+            bobot.autonomous();
+        }
+
+        @Override
+        public void teleopPeriodic() {
+            bobot.teleop();
+        }
+
+        @Override
+        public void testPeriodic() {
+        }
+    }
 }
+
+

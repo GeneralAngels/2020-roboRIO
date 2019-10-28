@@ -106,6 +106,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         register(motorControlLeftP);
         setID("drive");
         log("gear", false);
+//        lastEncoderLeft = left.getEncoder().get();
+//        lastEncoderRight = right.getEncoder().get();
     }
 
     public static double noPIDCalculateRight(double speed, double turn) {
@@ -137,6 +139,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         double l, r;
         l = noPIDCalculateLeft(speed, turn);
         r = noPIDCalculateRight(speed, turn);
+        log("r: "+r, "l: "+l);
         direct(l, r);
     }
 
@@ -202,15 +205,16 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public void angle_pid(double target) {
 
         //target = toRadians(target);
-        log("Nav " + gyro.getYaw());
+        double angle = countedAngle;
         if (checkAnglePID) {
-            // TODO do better then this reset
-            gyro.reset();
-            initialAngle = toRadians(gyro.getYaw());
-            log("initAngle: " + initialAngle);
+//            // TODO do better then this reset
+//            gyro.reset();
+//            initialAngle = toRadians(gyro.getYaw());
+//            log("initAngle: " + initialAngle);
+            initialAngle = angle;
             checkAnglePID = false;
         }
-        setTank((-2 - motorControlLeftP.pidPosition(toRadians(gyro.getYaw()), initialAngle + target)), (2 + motorControlRightP.pidPosition(toRadians(gyro.getYaw()), initialAngle + target)));
+        setTank((-2 - motorControlLeftP.pidPosition(angle, initialAngle + target)), (2 + motorControlRightP.pidPosition(angle, initialAngle + target)));
     }
 
     public void driveStraightPID() {
@@ -312,6 +316,33 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         double linear = (Vright + Vleft) * WHEEL_RADIUS / 2.0;
         double angular = (Vright - Vleft) * WHEEL_RADIUS / WHEEL_DISTANCE;
         return new double[]{linear, angular};
+    }
+
+    public double[] calculateTargetPosition(double distance, double angle) {
+        double X = distance * Math.cos(angle);
+        double Y = distance * Math.sin(angle);
+        return new double[] {X, Y};
+    }
+
+    private double lastRightMeters = 0, lastLeftMeters = 0;
+    private double countedAngle = 0.0;
+
+    /**
+     * This function calculates the general angle of the robot, from encoder input.
+     */
+    public double calculateAngle() {
+        double deltaTime = 0.005;
+        double unknownMekadem = 4.0;
+        double leftMeters = left.getEncoder().get()*ENCODER_TO_RADIAN*unknownMekadem*WHEEL_RADIUS;
+        double rightMeters = right.getEncoder().get()*ENCODER_TO_RADIAN*unknownMekadem*WHEEL_RADIUS;
+        double leftVelocity = (leftMeters - lastLeftMeters) / deltaTime;
+        double rightVelocity = (rightMeters - lastRightMeters) / deltaTime;
+        double angularVelocity = (rightVelocity + leftVelocity) / 2 / WHEEL_DISTANCE;
+        //double angularVelocity = (rightVelocity - leftVelocity) * WHEEL_RADIUS / WHEEL_DISTANCE;
+        countedAngle += (angularVelocity*deltaTime);
+        lastLeftMeters = leftMeters;
+        lastRightMeters = rightMeters;
+        return countedAngle;
     }
 
 
