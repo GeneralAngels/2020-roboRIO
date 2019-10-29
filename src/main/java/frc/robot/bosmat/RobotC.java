@@ -52,19 +52,19 @@ public class RobotC extends Bot {
         initSystems();
         initTriggers();
 
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                if (ds.isEnabled()) {
-                    log("counted", Math.toDegrees(drive.calculateAngle()));
-                    log("counted"+ Math.toDegrees(drive.calculateAngle()));
-                    log("encoderLeft", drive.left.getEncoder().get());
-
-                    highspeedTeleop();
-                }
-            }
-        }, 0, 5);
+//        timer = new Timer();
+//        timer.scheduleAtFixedRate(new TimerTask() {
+//            @Override
+//            public void run() {
+//                if (ds.isEnabled()) {
+////                    log("counted", Math.toDegrees(drive.calculateAngle()));
+////                    log("counted"+ Math.toDegrees(drive.calculateAngle()));
+////                    log("encoderLeft", drive.left.getEncoder().get());
+//
+//                    highspeedTeleop();
+//                }
+//            }
+//        }, 0, 5);
     }
 
     private void instructions() {
@@ -133,7 +133,7 @@ public class RobotC extends Bot {
 //        drive.battery = pdp.getVoltage();
 //        drive.battery = ds.getBatteryVoltage();
         drive.battery = 12;
-        log("nigger", driver.getRawButton(12) ? 1 : 0);
+//        log("nigger", driver.getRawButton(12) ? 1 : 0);
 //        if (driver.getRawButton(12)) {
 //            drive.angle_pid(1.57);
 //        } else {
