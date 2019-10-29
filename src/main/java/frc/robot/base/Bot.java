@@ -9,6 +9,10 @@ import com.ga2230.networking.Server;
 import org.json.JSONObject;
 
 public class Bot extends Module {
+
+    private String lastPull = "";
+    private String currentPull = "";
+
     public void init() {
         Server.begin((s, dialog) -> {
             if (s.length() > 0)
@@ -17,10 +21,18 @@ public class Bot extends Module {
     }
 
     public void teleop() {
-        Server.send(pullJSON().toString());
+        communicate();
     }
 
     public void autonomous() {
-        Server.send(pullJSON().toString());
+        communicate();
+    }
+
+    private void communicate() {
+        currentPull = pullJSON().toString();
+        if (!currentPull.equals(lastPull)) {
+            Server.send(currentPull);
+            lastPull = currentPull;
+        }
     }
 }

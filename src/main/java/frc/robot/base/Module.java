@@ -38,16 +38,16 @@ public class Module {
         for (Tuple<String, Object> object : values) {
             if (object != null) {
                 if (object.getSecond() != null)
-                    objectsJSON.put(object.getFirst(), object.getSecond());
+                    if (!json.has(object.getFirst()))
+                        json.put(object.getFirst(), object.getSecond());
             }
         }
         for (Module module : modules) {
             if (module != null) {
-                modulesJSON.put(module.getID(), module.pullJSON());
+                if (!json.has(module.getID()))
+                    json.put(module.getID(), module.pullJSON());
             }
         }
-        json.put("values", objectsJSON);
-        json.put("modules", modulesJSON);
         return json;
     }
 
