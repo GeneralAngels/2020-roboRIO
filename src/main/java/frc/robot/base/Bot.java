@@ -10,7 +10,10 @@ import org.json.JSONObject;
 
 public class Bot extends Module {
     public void init() {
-        Server.begin((s, dialog) -> pushJSON(new JSONObject(s)));
+        Server.begin((s, dialog) -> {
+            if (s.length() > 0)
+                pushJSON(new JSONObject(s));
+        });
     }
 
     public void teleop() {

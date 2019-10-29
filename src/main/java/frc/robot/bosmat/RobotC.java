@@ -123,7 +123,7 @@ public class RobotC extends Bot {
 
     @Override
     public void teleop() {
-//        highspeedTeleop();
+        highspeedTeleop();
 //        super.teleop();
     }
 
