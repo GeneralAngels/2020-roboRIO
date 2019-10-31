@@ -33,8 +33,6 @@ public class Module {
 
     public JSONObject pullJSON() {
         JSONObject json = new JSONObject();
-        JSONObject objectsJSON = new JSONObject();
-        JSONObject modulesJSON = new JSONObject();
         for (Tuple<String, Object> object : values) {
             if (object != null) {
                 if (object.getSecond() != null)

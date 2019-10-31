@@ -154,7 +154,13 @@ public class RobotC extends Bot {
 //        log("right encoder "+drive.right.getEncoder().getRaw());
 //        log("Nigger: "+gyro.getYaw()+" Nibber: "+gyro.getRoll()+" Kneegrow: "+gyro.getPitch());
 //        motor.set(driver.getRawButton(4) ? 0.2 : driver.getRawButton(3) ? -0.2 : 0);
+        log("left", drive.left.getEncoder().get());
+        log("right", drive.right.getEncoder().get());
         log("time", millis());
+        log("gyroA", drive.gyro.getPitch());
+        log("gyroB", drive.gyro.getRoll());
+        log("gyroC", drive.gyro.getYaw());
+        log("gyroCC", drive.toDegrees(((Gyroscope) drive.gyro).getCountedAngle()));
         super.teleop();
     }
 }

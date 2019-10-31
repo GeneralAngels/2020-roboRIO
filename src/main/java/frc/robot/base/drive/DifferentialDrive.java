@@ -139,7 +139,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         double l, r;
         l = noPIDCalculateLeft(speed, turn);
         r = noPIDCalculateRight(speed, turn);
-        log("r: "+r, "l: "+l);
+        log("r: " + r, "l: " + l);
         direct(l, r);
     }
 
@@ -148,6 +148,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         l = noPIDCalculateLeft(speed, turn);
         r = noPIDCalculateRight(speed, turn);
         direct(l / 1.5, r / 1.5);
+        updateOdometry();
     }
 
 
@@ -318,12 +319,6 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         return new double[]{linear, angular};
     }
 
-    public double[] calculateTargetPosition(double distance, double angle) {
-        double X = distance * Math.cos(angle);
-        double Y = distance * Math.sin(angle);
-        return new double[] {X, Y};
-    }
-
     private double lastRightMeters = 0, lastLeftMeters = 0;
     private double countedAngle = 0.0;
 
@@ -333,13 +328,13 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public double calculateAngle() {
         double deltaTime = 0.005;
         double unknownMekadem = 4.0;
-        double leftMeters = left.getEncoder().get()*ENCODER_TO_RADIAN*unknownMekadem*WHEEL_RADIUS;
-        double rightMeters = right.getEncoder().get()*ENCODER_TO_RADIAN*unknownMekadem*WHEEL_RADIUS;
+        double leftMeters = left.getEncoder().get() * ENCODER_TO_RADIAN * unknownMekadem * WHEEL_RADIUS;
+        double rightMeters = right.getEncoder().get() * ENCODER_TO_RADIAN * unknownMekadem * WHEEL_RADIUS;
         double leftVelocity = (leftMeters - lastLeftMeters) / deltaTime;
         double rightVelocity = (rightMeters - lastRightMeters) / deltaTime;
         double angularVelocity = (rightVelocity + leftVelocity) / 2 / WHEEL_DISTANCE;
         //double angularVelocity = (rightVelocity - leftVelocity) * WHEEL_RADIUS / WHEEL_DISTANCE;
-        countedAngle += (angularVelocity*deltaTime);
+        countedAngle += (angularVelocity * deltaTime);
         lastLeftMeters = leftMeters;
         lastRightMeters = rightMeters;
         return countedAngle;
@@ -416,5 +411,9 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
     public double toRadians(double degrees) {
         return (degrees / 180) * Math.PI;
+    }
+
+    public double toDegrees(double radians) {
+        return radians * (180 / Math.PI);
     }
 }
