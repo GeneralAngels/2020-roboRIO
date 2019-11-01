@@ -12,6 +12,7 @@ public class Gyroscope extends AHRS {
     private static final int INITIAL_MEASUREMENT_TIMEOUT = 20;
     private static final double ALPHA = 0.8;
     private static final double DEADZONE = 0.2;
+    private static final double DELTA = 0.02;
 
     protected double bias = 0;
     protected double angle = 0;
@@ -58,10 +59,9 @@ public class Gyroscope extends AHRS {
     public double getAngle() {
         double raw = getRawGyroX();
         previousFiltered = filter(raw, ALPHA);
-//        previousFiltered = raw;
         previousFiltered -= bias;
         if (Math.abs(previousFiltered) > DEADZONE)
-            angle += previousFiltered;
+            angle += previousFiltered * DELTA;
         return angle;
     }
 
