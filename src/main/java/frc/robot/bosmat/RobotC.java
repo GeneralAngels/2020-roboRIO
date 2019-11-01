@@ -89,6 +89,8 @@ public class RobotC extends Bot {
         motor = new WPI_TalonSRX(14);
         gyro = new Gyroscope();
         drive.gyro = gyro;
+        drive.gyro.zeroYaw();
+        drive.gyro.reset();
 //        addToJSON(drive);
         register(drive);
     }
@@ -157,10 +159,15 @@ public class RobotC extends Bot {
         log("left", drive.left.getEncoder().get());
         log("right", drive.right.getEncoder().get());
         log("time", millis());
-        log("gyroA", drive.gyro.getPitch());
-        log("gyroB", drive.gyro.getRoll());
+        log("gyroA", drive.gyro.getRoll());
+        log("gyroB", drive.gyro.getPitch());
         log("gyroC", drive.gyro.getYaw());
-        log("gyroCC", drive.toDegrees(((Gyroscope) drive.gyro).getCountedAngle()));
+        log("gyroD", drive.gyro.getRawGyroX()); // TODO the one we need
+        log("gyroE", drive.gyro.getRawGyroY());
+        log("gyroF", drive.gyro.getRawGyroZ());
+        log("gyroAngle", drive.gyro.getAngle());
+        log("gyroBias", drive.gyro.getBias());
+        log("gyroFiltered", drive.gyro.getLastFiltered());
         super.teleop();
     }
 }

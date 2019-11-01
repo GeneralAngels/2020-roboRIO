@@ -8,14 +8,19 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class Gyroscope extends AHRS {
 
-    public double offset;
-    public double countedAngle = 0;
-    public double tolerance = 0.5;
-    public double angular_velocity = 0;
-    public long time = millis();
+    private static final int INITIAL_MEASUREMENTS = 200;
+    private static final int INITIAL_MEASUREMENT_TIMEOUT = 20;
+    private static final double ALPHA = 0.8;
+    private static final double DEADZONE = 0.2;
+
+    protected double bias = 0;
+    protected double angle = 0;
+    protected double previousX = 0, previousY = 0, previousZ = 0;
+    protected double previousFiltered = 0;
 
     public Gyroscope() {
         super(I2C.Port.kMXP);
+        recordShittyness();
     }
 
     protected long millis() {
@@ -26,25 +31,43 @@ public class Gyroscope extends AHRS {
         System.out.println(("Gyroscope: ") + string);
     }
 
-    public void calculateRate() {
-        float avg = 0;
-        for (int i = 0; 200 > i; i++) {
-            avg += getRate();
-        }
-        offset = avg / 200;
+    protected void recordShittyness() {
+        new Thread(() -> {
+            double summedShittyness = 0;
+            for (int m = 0; m < INITIAL_MEASUREMENTS; m++) {
+                try {
+                    summedShittyness += getRawGyroX();
+                    Thread.sleep(INITIAL_MEASUREMENT_TIMEOUT);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            bias = summedShittyness / INITIAL_MEASUREMENTS;
+        }).start();
     }
 
-    public double getCountedAngle() {
-        double delta = 0.02;
-        long currentTime = millis();
-        if (time - currentTime > 0)
-            delta = 1.0 / (time - currentTime);
-        time = currentTime;
+    public double getBias() {
+        return bias;
+    }
 
-        angular_velocity = getRate() - offset;
-        if (Math.abs(angular_velocity) > tolerance) {
-            countedAngle += angular_velocity * delta;
-        }
-        return countedAngle;
+    public double getLastFiltered() {
+        return previousFiltered;
+    }
+
+    @Override
+    public double getAngle() {
+        double raw = getRawGyroX();
+        previousFiltered = filter(raw, ALPHA);
+//        previousFiltered = raw;
+        previousFiltered -= bias;
+        if (Math.abs(previousFiltered) > DEADZONE)
+            angle += previousFiltered;
+        return angle;
+    }
+
+    protected double filter(double raw, double alpha) {
+        double filtered = raw * (1 - alpha) + previousX * alpha;
+        previousX = raw;
+        return filtered;
     }
 }

@@ -28,7 +28,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public PID motorControlRight;
     public PID motorControlLeftP;
     public PID motorControlRightP;
-    public AHRS gyro;
+    public Gyroscope gyro;
     public double WHEEL_DISTANCE = 0.51;
     public double WHEEL_RADIUS = 0.1016;
     public double MAX_V = 2;
@@ -151,6 +151,19 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         updateOdometry();
     }
 
+    public double[] func(double angleCenterToCamera, double angleCameraToGoal, double distanseCenterToCamera, double distanceCameraToGoal){
+        //c - camera
+        //g - goal
+        double Xc, Yc, Xg, Yg;
+        Xc = x + distanseCenterToCamera * Math.sin(angleCenterToCamera + theta);
+        Yc = y + distanseCenterToCamera * Math.cos(angleCenterToCamera + theta);
+
+        Xg = Xc + distanceCameraToGoal * Math.sin(angleCameraToGoal + theta);
+        Yg = Yc + distanceCameraToGoal * Math.cos(angleCameraToGoal + theta);
+
+        double[] res = {Xg, Yg};
+        return res;
+    }
 
     public void setTank(double Vl, double Vr) {
         //  log("SetTank " + Vl + " " + Vr);
@@ -396,7 +409,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 //        log("right meters: " + rightMeters);
     }
 
-    public void initGyro(AHRS gyro) {
+    public void initGyro(Gyroscope gyro) {
         this.gyro = gyro;
         while (gyro.isCalibrating()) log("Calibrating Gyro");
         offsetGyro = gyro.getYaw();
