@@ -11,7 +11,7 @@ public class Gyroscope extends AHRS {
     private static final int INITIAL_MEASUREMENTS = 200;
     private static final int INITIAL_MEASUREMENT_TIMEOUT = 20;
     private static final double ALPHA = 0.7;
-    private static final double DEADZONE = 0.1;
+    private static final double DEADZONE = 0.2;
     private static final double DELTA = 0.02;
 
     protected double bias = 0;
