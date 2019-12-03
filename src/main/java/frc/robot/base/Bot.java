@@ -15,8 +15,9 @@ public class Bot extends Module {
 
     public void init() {
         Server.begin((s, dialog) -> {
-            if (s.length() > 0)
+            if (s.length() > 0) {
                 pushJSON(new JSONObject(s));
+            }
         });
     }
 

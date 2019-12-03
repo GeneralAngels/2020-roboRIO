@@ -12,11 +12,11 @@ import frc.robot.base.Module;
 public class PID extends Module {
     public double kp, ki, kd, kf, measurement, measurementPrev, dt, derivative, derivativePrev, error, errorPrev, integral, setPointMin, controlSignal, tolerance, alpha, integralMax, signalMin, signalMax, minErrorIntegral, lastSetPoints;
 
-    public PID() {
-        this.kp = 1;
-        this.ki = 0;
-        this.kd = 0;
-        this.kf = 0;
+    public PID(double kp, double ki, double kd, double kf) {
+        this.kp = kp;
+        this.ki = ki;
+        this.kd = kd;
+        this.kf = kf;
         this.dt = 0.02;
         this.measurement = 0;
         this.measurementPrev = 0;
@@ -127,12 +127,11 @@ public class PID extends Module {
         return controlSignal;
     }
 
-
-    public void setPIDF(double kP, double kI, double kD, double kF) {
-        this.kp = kP;
-        this.ki = kI;
-        this.kd = kD;
-        this.kf = kF;
+    public void setPIDF(double kp, double ki, double kd, double kf){
+        this.kp = kp;
+        this.ki = ki;
+        this.kd = kd;
+        this.kf = kf;
     }
 
     public double getDerivative() {

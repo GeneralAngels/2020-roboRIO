@@ -5,12 +5,9 @@ import edu.wpi.first.wpilibj.*;
 import frc.robot.base.Bot;
 import frc.robot.base.drive.Gyroscope;
 import frc.robot.base.rgb.RGB;
-import frc.robot.base.rgb.patterns.Rainbow;
 import frc.robot.base.utils.Toggle;
 import frc.robot.bosmat.systems.robotc.RobotCDrive;
-
-import java.util.Timer;
-import java.util.TimerTask;
+import org.json.JSONObject;
 
 /**
  * Copyright (c) 2019 General Angels
@@ -130,6 +127,7 @@ public class RobotC extends Bot {
     }
 
     public void highspeedTeleop() {
+        drive.updateOdometry();
 //        log("time", millis());
 //        updateTriggers();
 //        drive.battery = pdp.getVoltage();
@@ -147,7 +145,8 @@ public class RobotC extends Bot {
 //            if (driver.getRawButton(10)) {
 //                drive.driveStraightPID();
 //            } else {
-        drive.setStickNoPID2(driver.getY(), driver.getX());
+        double divider = driver.getTrigger() ? 1 : 2;
+        drive.directControl(driver.getY() / divider, driver.getX() / divider);
 //            }
 //        }
 
@@ -156,18 +155,30 @@ public class RobotC extends Bot {
 //        log("right encoder "+drive.right.getEncoder().getRaw());
 //        log("Nigger: "+gyro.getYaw()+" Nibber: "+gyro.getRoll()+" Kneegrow: "+gyro.getPitch());
 //        motor.set(driver.getRawButton(4) ? 0.2 : driver.getRawButton(3) ? -0.2 : 0);
-        log("left", drive.left.getEncoder().get());
-        log("right", drive.right.getEncoder().get());
-        log("time", millis());
-        log("gyroA", drive.gyro.getRoll());
-        log("gyroB", drive.gyro.getPitch());
-        log("gyroC", drive.gyro.getYaw());
-        log("gyroD", drive.gyro.getRawGyroX()); // TODO the one we need
-        log("gyroE", drive.gyro.getRawGyroY());
-        log("gyroF", drive.gyro.getRawGyroZ());
-        log("gyroAngle", drive.gyro.getAngle());
-        log("gyroBias", drive.gyro.getBias());
-        log("gyroFiltered", drive.gyro.getLastFiltered());
+//        log("left", drive.left.getEncoder().get());
+//        log("right", drive.right.getEncoder().get());
+//        log("time", millis());
+//        log("gyroA", drive.gyro.getRoll());
+//        log("gyroB", drive.gyro.getPitch());
+//        log("gyroC", drive.gyro.getYaw());
+//        log("gyroD", drive.gyro.getRawGyroX()); // TODO the one we need
+//        log("gyroE", drive.gyro.getRawGyroY());
+//        log("gyroF", drive.gyro.getRawGyroZ());
+//        //log("gyroAngle", drive.gyro.getAngle());
+//        log("gyroBias", drive.gyro.getBias());
+//        log("gyroFiltered", drive.gyro.getLastFiltered());
         super.teleop();
+    }
+
+    @Override
+    public void pushJSON(JSONObject object) {
+        double distanceFromGoal = object.optDouble("distance", 0);
+        double angleFromGoal = object.optDouble("angle", 0);
+        double angular = object.optDouble("angular", 0);
+        double linear = object.optDouble("linear", 0);
+        double[] goalPosition = drive.calculateGoalPosition(distanceFromGoal, angleFromGoal);
+        log("goalPositionX", goalPosition[0]);
+        log("goalPositionY", goalPosition[1]);
+        super.pushJSON(object);
     }
 }
