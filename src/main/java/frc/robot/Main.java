@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.base.Bot;
 import frc.robot.bosmat.RobotC;
+import frc.robot.thucc.Thucc;
 import org.json.JSONObject;
 
 public final class Main {
@@ -21,7 +22,7 @@ public final class Main {
 
         @Override
         public void robotInit() {
-            bobot = new RobotC();
+            bobot = new Thucc();
             bobot.init();
         }
 

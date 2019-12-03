@@ -50,6 +50,9 @@ repositories {
 // Also defines JUnit 4.
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile "com.revrobotics.frc:SparkMax-driver:1.4.1"
+    compile "com.revrobotics.frc:SparkMax-java:1.4.1"
+    compile "com.revrobotics.frc:SparkMax-cpp:1.4.1"
     compile wpi.deps.wpilib()
     compile wpi.deps.vendor.java()
     nativeZip wpi.deps.vendor.jni(wpi.platforms.roborio)

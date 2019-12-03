@@ -34,7 +34,8 @@ public class DiffDrive<T extends SpeedController> extends Module {
     public double rightMeters;
     public double[] VOmegaReal = {0, 0};
     public double[] VOmegaSetpoints = {0, 0};
-    public double[] VSetpoints = {0, 0};;
+    public double[] VSetpoints = {0, 0};
+    ;
     public double[] encoders = {0, 0};
     public double[] encodersPrev = {0, 0};
     public double offsetGyro = 0;
@@ -64,6 +65,10 @@ public class DiffDrive<T extends SpeedController> extends Module {
 //        lastEncoderRight = right.getEncoder().get();
     }
 
+    public void setNoPID(double speed, double turn) {
+        direct(noPIDCalculateLeft(speed, turn), noPIDCalculateRight(speed, turn));
+    }
+
     public static double noPIDCalculateRight(double speed, double turn) {
         return (speed + turn);
     }
@@ -81,10 +86,10 @@ public class DiffDrive<T extends SpeedController> extends Module {
         l = noPIDCalculateLeft(speed, turn);
         r = noPIDCalculateRight(speed, turn);
         direct(l / 1.5, r / 1.5);
-       // updateOdometry();
+        // updateOdometry();
     }
 
-    public double[] calculateGoalPosition(double distanceCameraToGoal, double angleCameraToGoal){
+    public double[] calculateGoalPosition(double distanceCameraToGoal, double angleCameraToGoal) {
         //c - camera
         //g - goal
         double Xc, Yc, Xg, Yg;
@@ -213,7 +218,7 @@ public class DiffDrive<T extends SpeedController> extends Module {
         encoders[0] = left.getEncoder().get();
         encoders[1] = right.getEncoder().get();
         leftMeters = (encoders[0] - encodersPrev[0]) * ENCODER_TO_RADIAN * WHEEL_RADIUS * 2 * gearRatio;
-        rightMeters = (encoders[1] - encodersPrev[1])* ENCODER_TO_RADIAN * WHEEL_RADIUS * 2 * gearRatio;
+        rightMeters = (encoders[1] - encodersPrev[1]) * ENCODER_TO_RADIAN * WHEEL_RADIUS * 2 * gearRatio;
         VOmegaReal = wheelsToRobot(motorControlLeftVelocity.derivative, motorControlRightVelocity.derivative);
         distanceFromEncoders = (leftMeters + rightMeters) / 2.0;
         x += distanceFromEncoders * Math.sin(toRadians(theta)); //cos
