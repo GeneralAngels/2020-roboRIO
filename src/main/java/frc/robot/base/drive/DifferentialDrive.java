@@ -9,7 +9,7 @@ import frc.robot.base.utils.MotorGroup;
 // TODO redo the whole thing
 // TODO once complete, add copyright comment, its too embarrassing rn
 
-public class DiffDrive<T extends SpeedController> extends Module {
+public class DifferentialDrive<T extends SpeedController> extends Module {
     public double LSetpoint = 0;
     public double RSetpoint = 0;
     public PID motorControlLeftVelocity;
@@ -50,7 +50,7 @@ public class DiffDrive<T extends SpeedController> extends Module {
     boolean checkGyro = true;
 
 
-    public DiffDrive() {
+    public DifferentialDrive() {
 
         motorControlLeftVelocity = new PID(0, 0, 0, 0.55);
         motorControlRightVelocity = new PID(0, 0, 0, 0.55);
@@ -60,9 +60,6 @@ public class DiffDrive<T extends SpeedController> extends Module {
         register(odometry);
         register(motorControlLeftPosition);
         setID("drive");
-        log("gear", false);
-//        lastEncoderLeft = left.getEncoder().get();
-//        lastEncoderRight = right.getEncoder().get();
     }
 
     public void setNoPID(double speed, double turn) {
@@ -75,10 +72,6 @@ public class DiffDrive<T extends SpeedController> extends Module {
 
     public static double noPIDCalculateLeft(double speed, double turn) {
         return (speed - turn);
-    }
-
-    public void setAutonomous(double v, double w, boolean auto) {
-        set(v, w, auto);
     }
 
     public void directControl(double speed, double turn) {
@@ -148,11 +141,11 @@ public class DiffDrive<T extends SpeedController> extends Module {
         if (auto) {
             motorControlLeftVelocity.setPIDF(0.5, 0.3, 0, 0.5);
             motorControlRightVelocity.setPIDF(0.5, 0.3, 0, 0.5);
-            log("yes");
+            log("autonomous mode");
         } else {
             motorControlLeftVelocity.setPIDF(0, 0, 0, 0.55);
             motorControlRightVelocity.setPIDF(0, 0, 0, 0.55);
-            log("no");
+            log("TeleOp");
         }
         if (Math.abs(setpointV) < 0.2) setpointV = 0;
         if (Math.abs(setpointOmega) < 0.2) setpointOmega = 0;

@@ -2,6 +2,7 @@ package frc.robot.base.rgb;
 
 import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.base.Module;
+import frc.robot.base.rgb.patterns.TestPush;
 
 import java.awt.*;
 import java.util.*;
@@ -16,7 +17,7 @@ public class RGB extends Module {
     private static final int REFRESH_RATE = 10;
     private int length = 1;
     private SerialPort serial;
-    private Pattern pattern;
+    private Pattern pattern = new TestPush();
     private Timer timer;
 
     public RGB(int length) {
@@ -43,8 +44,7 @@ public class RGB extends Module {
 
     private void loop() {
         if (pattern != null) {
-            send(pattern.packet(length));
-            pattern.next(length);
+            send(pattern.next(length));
         }
     }
 
@@ -59,45 +59,46 @@ public class RGB extends Module {
     }
 
     public interface Pattern {
-        Packet packet(int length);
-
-        void next(int length);
+        Packet next(int length);
     }
 
     public static class Packet {
 
-        public static final int BRIGHTNESS_DIVISOR = 1;
+        private byte[] packet = new byte[5];
 
-        public static final int CLEAR = 0;
-        public static final int PUSH = 1;
+        private Packet() {
 
-        private ArrayList<Byte> packet = new ArrayList<>();
-
-        public Packet(int command, int r, int g, int b) {
-            init(command, r, g, b);
         }
 
-        public Packet(int command, Color color) {
-            init(command, color.getRed(), color.getGreen(), color.getBlue());
+        public static Packet colorOverwrite(int amount, Color color) {
+            Packet packet = new Packet();
+            packet.packet[0] = 2;
+            packet.packet[1] = (byte) amount;
+            packet.packet[2] = (byte) color.getRed();
+            packet.packet[3] = (byte) color.getGreen();
+            packet.packet[4] = (byte) color.getBlue();
+            return packet;
         }
 
-        private void init(int command, int r, int g, int b) {
-            packet.add((byte) command);
-            packet.add((byte) (r / BRIGHTNESS_DIVISOR));
-            packet.add((byte) (g / BRIGHTNESS_DIVISOR));
-            packet.add((byte) (b / BRIGHTNESS_DIVISOR));
+        public static Packet colorPush(int amount, Color color) {
+            Packet packet = new Packet();
+            packet.packet[0] = 1;
+            packet.packet[1] = (byte) amount;
+            packet.packet[2] = (byte) color.getRed();
+            packet.packet[3] = (byte) color.getGreen();
+            packet.packet[4] = (byte) color.getBlue();
+            return packet;
         }
 
-        public void addParameter(Byte parameter) {
-            packet.add(parameter);
+        public static Packet doSync() {
+            Packet packet = new Packet();
+            for (int i = 0; i < packet.packet.length; i++)
+                packet.packet[i] = 0;
+            return packet;
         }
 
         public byte[] get() {
-            byte[] compiled = new byte[packet.size()];
-            for (int i = 0; i < compiled.length; i++) {
-                compiled[i] = packet.get(i);
-            }
-            return compiled;
+            return packet;
         }
     }
 }

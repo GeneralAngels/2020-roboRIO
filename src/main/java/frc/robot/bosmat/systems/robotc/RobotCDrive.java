@@ -2,7 +2,7 @@ package frc.robot.bosmat.systems.robotc;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.Encoder;
-import frc.robot.base.drive.DiffDrive;
+import frc.robot.base.drive.DifferentialDrive;
 import frc.robot.base.utils.MotorGroup;
 import org.json.JSONObject;
 
@@ -11,7 +11,7 @@ import org.json.JSONObject;
  * Drive class for Bosmat (2230 2019 Robot)
  */
 
-public class RobotCDrive extends DiffDrive<WPI_TalonSRX> {
+public class RobotCDrive extends DifferentialDrive<WPI_TalonSRX> {
     private static RobotCDrive latest;
 
     public RobotCDrive() {

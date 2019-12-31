@@ -16,7 +16,15 @@ public class Thucc extends Bot {
 
     @Override
     public void teleop() {
-        drive.setNoPID(driver.getY(), driver.getX());
+//        drive.left.applyPower(driver.getY()*10);
+//        if(Math.abs(driver.getY())<0.1){
+//            drive.right.applyPower(0);
+//        }
+//        else {
+            drive.left.applyPower(driver.getY());
+            //drive.right.applyPower(driver.getY());
+//        }
+//        drive.setNoPID(driver.getY(), driver.getX());
 //        super.teleop();
     }
 }
