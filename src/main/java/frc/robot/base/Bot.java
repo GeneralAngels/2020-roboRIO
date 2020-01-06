@@ -10,8 +10,8 @@ import org.json.JSONObject;
 
 public class Bot extends Module {
 
-    public Bot(String id) {
-        super(id);
+    public Bot() {
+        super("robot");
     }
 
     public void init() {
