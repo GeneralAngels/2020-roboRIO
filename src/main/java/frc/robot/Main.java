@@ -1,14 +1,9 @@
 package frc.robot;
 
-import com.ga2230.networking.Dialog;
-import com.ga2230.networking.OnReceive;
-import com.ga2230.networking.Server;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.base.Bot;
-import frc.robot.bosmat.RobotC;
-import frc.robot.thucc.Thucc;
-import org.json.JSONObject;
+import frc.robot.kobi.Kobi;
 
 public final class Main {
 
@@ -22,7 +17,7 @@ public final class Main {
 
         @Override
         public void robotInit() {
-            bobot = new Thucc();
+            bobot = new Kobi();
             bobot.init();
         }
 

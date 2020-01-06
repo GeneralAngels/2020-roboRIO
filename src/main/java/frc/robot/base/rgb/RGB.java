@@ -90,6 +90,16 @@ public class RGB extends Module {
             return packet;
         }
 
+        public static Packet clear() {
+            Packet packet = new Packet();
+            packet.packet[0] = 0;
+            packet.packet[1] = 0;
+            packet.packet[2] = 0;
+            packet.packet[3] = 0;
+            packet.packet[4] = 0;
+            return packet;
+        }
+
         public static Packet doSync() {
             Packet packet = new Packet();
             for (int i = 0; i < packet.packet.length; i++)
