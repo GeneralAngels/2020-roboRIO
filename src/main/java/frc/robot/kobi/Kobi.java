@@ -27,6 +27,8 @@ public class Kobi extends Bot {
 
     @Override
     public void teleop() {
+        log("Left: "+drive.left.getEncoder().get());
+        log("Right: "+drive.right.getEncoder().get());
 //        drive.left.applyPower(driver.getY()*10);
 //        if(Math.abs(driver.getY())<0.1){
 //            drive.right.applyPower(0);

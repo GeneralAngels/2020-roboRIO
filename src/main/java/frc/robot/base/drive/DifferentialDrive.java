@@ -43,7 +43,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public double theta = 0;
     public double[] motorOutputs = {0, 0};
     public double[] motorOutputsPrev = {0, 0};
-    public MotorGroup<T> left = new MotorGroup<>(), right = new MotorGroup<>();
+    public MotorGroup<T> left = new MotorGroup<>("left"), right = new MotorGroup<>("right");
     protected Odometry odometry = new Odometry();
     public double battery = 12;
     double batteryPrev = 0;
@@ -52,14 +52,14 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
     public DifferentialDrive() {
 
+        super("drive");
         motorControlLeftVelocity = new PID(0, 0, 0, 0.55);
         motorControlRightVelocity = new PID(0, 0, 0, 0.55);
         motorControlLeftPosition = new PID(3, 0.1, 0.2, 0);
         motorControlRightPosition = new PID(3, 0.1, 0.2, 0);
 
-        register(odometry);
-        register(motorControlLeftPosition);
-        setID("drive");
+        addSlave(odometry);
+        addSlave(motorControlLeftPosition);
     }
 
     public void setNoPID(double speed, double turn) {
@@ -198,13 +198,13 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public void updateOdometry() {
         theta = 0;
         if (gyro == null) {
-            log("gyro", "Not Working");
+            set("gyro", "Not Working");
         } else {
             if (checkGyro) {
                 checkGyro = false;
                 gyro.reset();
             } else {
-                log("gyro", "Working");
+                set("gyro", "Working");
                 theta = gyro.getAngle();
             }
         }

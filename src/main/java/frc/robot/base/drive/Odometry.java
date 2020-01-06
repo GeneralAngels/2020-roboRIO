@@ -12,13 +12,17 @@ public class Odometry extends Module {
 
     private double x, y, theta, linear, angular, rightSetpoint, leftSetpoint, distance;
 
+    public Odometry() {
+        super("odometry");
+    }
+
     public double getRightSetpoint() {
         return rightSetpoint;
     }
 
     public void setRightSetpoint(double rightSetpoint) {
         this.rightSetpoint = rightSetpoint;
-        log("setpoint-right", rightSetpoint);
+        set("setpoint-right", String.valueOf(rightSetpoint));
     }
 
     public double getLeftSetpoint() {
@@ -27,7 +31,7 @@ public class Odometry extends Module {
 
     public void setLeftSetpoint(double leftSetpoint) {
         this.leftSetpoint = leftSetpoint;
-        log("setpoint-left", leftSetpoint);
+        set("setpoint-left", String.valueOf(leftSetpoint));
     }
 
     public double getDistance() {
@@ -36,7 +40,7 @@ public class Odometry extends Module {
 
     public void setDistance(double distance) {
         this.distance = distance;
-        log("distance", distance);
+        set("distance", String.valueOf(distance));
     }
 
     public double getLinear() {
@@ -45,7 +49,7 @@ public class Odometry extends Module {
 
     public void setLinear(double linear) {
         this.linear = linear;
-        log("linear", linear);
+        set("linear", String.valueOf(linear));
     }
 
     public double getAngular() {
@@ -54,7 +58,7 @@ public class Odometry extends Module {
 
     public void setAngular(double angular) {
         this.angular = angular;
-        log("angular", angular);
+        set("angular", String.valueOf(angular));
     }
 
     public double getX() {
@@ -63,7 +67,7 @@ public class Odometry extends Module {
 
     public void setX(double x) {
         this.x = x;
-        log("x", x);
+        set("x", String.valueOf(x));
     }
 
     public double getY() {
@@ -72,7 +76,7 @@ public class Odometry extends Module {
 
     public void setY(double y) {
         this.y = y;
-        log("y", y);
+        set("y", String.valueOf(y));
     }
 
     public double getTheta() {
@@ -81,6 +85,6 @@ public class Odometry extends Module {
 
     public void setTheta(double theta) {
         this.theta = theta;
-        log("theta", theta);
+        set("theta", String.valueOf(theta));
     }
 }

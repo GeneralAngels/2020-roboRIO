@@ -16,10 +16,6 @@ public class Module extends Node {
         addCommand("getjson", s -> pullJSON().toString());
     }
 
-    public String getName() {
-        return getClass().getSimpleName().toLowerCase();
-    }
-
     public JSONObject pullJSON() {
         JSONObject json = new JSONObject();
         variables.forEach(json::put);
@@ -27,7 +23,7 @@ public class Module extends Node {
     }
 
     protected void log(String string) {
-        System.out.println(getName() + ": " + string);
+        System.out.println(id.toUpperCase() + ": " + string);
     }
 
     protected long millis() {

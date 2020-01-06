@@ -13,6 +13,7 @@ public class PID extends Module {
     public double kp, ki, kd, kf, measurement, measurementPrev, dt, derivative, derivativePrev, error, errorPrev, integral, setPointMin, controlSignal, tolerance, alpha, integralMax, signalMin, signalMax, minErrorIntegral, lastSetPoints;
 
     public PID(double kp, double ki, double kd, double kf) {
+        super("pid");
         this.kp = kp;
         this.ki = ki;
         this.kd = kd;
