@@ -21,19 +21,22 @@ public class MotorGroup<Type extends SpeedController> extends Module {
     private int direction = FORWARD;
     private double speed = 0;
 
-    public MotorGroup() {
-
+    public MotorGroup(String id) {
+        super(id);
     }
 
-    public MotorGroup(Type... drives) {
+    public MotorGroup(String id, Type... drives) {
+        super(id);
         addMotors(drives);
     }
 
-    public MotorGroup(Encoder encoder) {
+    public MotorGroup(String id, Encoder encoder) {
+        super(id);
         setEncoder(encoder);
     }
 
-    public MotorGroup(Encoder encoder, Type... drives) {
+    public MotorGroup(String id, Encoder encoder, Type... drives) {
+        super(id);
         setEncoder(encoder);
         addMotors(drives);
     }
@@ -73,8 +76,8 @@ public class MotorGroup<Type extends SpeedController> extends Module {
 
     @Override
     public JSONObject pullJSON() {
-        log("power", speed);
-        log("encoder", encoder != null ? encoder.get() : 0);
+        variables.put("power", String.valueOf(speed));
+        variables.put("encoder", String.valueOf(encoder != null ? encoder.get() : 0));
         return super.pullJSON();
     }
 }

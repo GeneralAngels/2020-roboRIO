@@ -17,10 +17,12 @@ public class Kobi extends Bot {
     private RGB rgb;
 
     public Kobi() {
+        super("robot");
         driver = new Joystick(0);
         drive = new KobiDrive();
         rgb = new RGB(30);
         rgb.setPattern(new TestPush());
+        addSlave(drive);
     }
 
     @Override

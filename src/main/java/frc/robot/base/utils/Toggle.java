@@ -14,7 +14,8 @@ public class Toggle extends Module {
     private boolean toggleState = false;
     private OnStateChanged onStateChanged;
 
-    public Toggle(OnStateChanged onStateChanged) {
+    public Toggle(String id, OnStateChanged onStateChanged) {
+        super(id);
         setOnStateChanged(onStateChanged);
     }
 

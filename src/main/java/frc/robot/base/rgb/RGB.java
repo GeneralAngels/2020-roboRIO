@@ -21,6 +21,7 @@ public class RGB extends Module {
     private Timer timer;
 
     public RGB(int length) {
+        super("rgb");
         if (length > 0)
             this.length = length;
         try {
