@@ -8,6 +8,8 @@ import frc.robot.kobi.systems.KobiDrive;
 import frc.robot.kobi.systems.KobiFeeder;
 import frc.robot.kobi.systems.KobiShooter;
 
+import java.util.Random;
+
 public class Kobi extends Bot {
 
     private Joystick driver;
@@ -30,6 +32,8 @@ public class Kobi extends Bot {
         log("Right: " + drive.right.getEncoder().get());
         set("left", String.valueOf(drive.left.getEncoder().get()));
         set("right", String.valueOf(drive.right.getEncoder().get()));
+        set("random", String.valueOf(new Random().nextInt(100)));
+        set("time", String.valueOf(millis()));
 //        drive.left.applyPower(driver.getY()*10);
 //        if(Math.abs(driver.getY())<0.1){
 //            drive.right.applyPower(0);

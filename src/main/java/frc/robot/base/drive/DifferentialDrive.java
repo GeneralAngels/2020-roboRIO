@@ -44,10 +44,10 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public double[] motorOutputs = {0, 0};
     public double[] motorOutputsPrev = {0, 0};
     public MotorGroup<T> left = new MotorGroup<>("left"), right = new MotorGroup<>("right");
-    protected Odometry odometry = new Odometry();
+    public Odometry odometry = new Odometry();
     public double battery = 12;
-    double batteryPrev = 0;
-    boolean checkGyro = true;
+    public double batteryPrev = 0;
+    public boolean checkGyro = true;
 
 
     public DifferentialDrive() {

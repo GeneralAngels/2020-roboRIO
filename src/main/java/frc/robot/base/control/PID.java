@@ -35,6 +35,16 @@ public class PID extends Module {
         this.signalMax = 12;
         this.minErrorIntegral = 10;
         this.lastSetPoints = 0;
+        addCommand("setpidf", new Command() {
+            @Override
+            public String execute(String s) throws Exception {
+                String[] split = s.split(" ");
+                if(split.length == 4){
+                    setPIDF(Double.parseDouble(split[0]),Double.parseDouble(split[1]),Double.parseDouble(split[2]),Double.parseDouble(split[3]));
+                }
+                return "OK";
+            }
+        });
     }
 
     public void setMeasurement(double value) {
@@ -123,12 +133,12 @@ public class PID extends Module {
             controlSignal = (setPoint * kf) + (error * kp) + integral;
         }
         errorPrev = error;
-        log("error "+ error);
+        log("error " + error);
         controlSignal = constrain(controlSignal, -signalMax, signalMax);
         return controlSignal;
     }
 
-    public void setPIDF(double kp, double ki, double kd, double kf){
+    public void setPIDF(double kp, double ki, double kd, double kf) {
         this.kp = kp;
         this.ki = ki;
         this.kd = kd;

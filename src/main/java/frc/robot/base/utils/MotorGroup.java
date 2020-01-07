@@ -70,15 +70,9 @@ public class MotorGroup<Type extends SpeedController> extends Module {
     }
 
     public void applyPower(double value) {
-        this.speed = value;
+        set("speed", String.valueOf(value));
+        set("encoder", String.valueOf(encoder != null ? encoder.get() : 0));
         for (Type drive : drives) drive.set(value * direction);
-    }
-
-    @Override
-    public JSONObject pullJSON() {
-        variables.put("power", String.valueOf(speed));
-        variables.put("encoder", String.valueOf(encoder != null ? encoder.get() : 0));
-        return super.pullJSON();
     }
 }
 
