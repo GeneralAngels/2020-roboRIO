@@ -13,12 +13,12 @@ public class Module extends Node {
 
     public Module(String id) {
         super(id);
-        addCommand("getjson", s -> pullJSON().toString());
+        addCommand("json", s -> pullJSON().toString());
     }
 
     public JSONObject pullJSON() {
         JSONObject json = new JSONObject();
-        variables.forEach(json::put);
+        super.variables.forEach(json::put);
         return json;
     }
 
