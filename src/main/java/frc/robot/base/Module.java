@@ -7,18 +7,26 @@ package frc.robot.base;
 
 import com.ga2230.networking.Node;
 import edu.wpi.first.wpilibj.Timer;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Module extends Node {
 
     public Module(String id) {
         super(id);
-        command("json", s -> pullJSON().toString());
+        command("json", s -> pullJSON(false).toString());
+        command("telemetry", s -> pullJSON(true).toString());
+        command("exists", s -> "true");
     }
 
-    public JSONObject pullJSON() {
+    public JSONObject pullJSON(boolean recursive) {
         JSONObject json = new JSONObject();
         super.variables.forEach(json::put);
+        if (recursive) {
+            for (Node slave : super.getSlaves()) {
+                json.put(slave.getID(), ((Module) slave).pullJSON(recursive));
+            }
+        }
         return json;
     }
 
