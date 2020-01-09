@@ -24,6 +24,7 @@ public class Kobi extends Bot {
         rgb = new RGB(30);
         rgb.setPattern(new TestPush());
         addSlave(drive);
+        addSlave(rgb);
     }
 
     @Override

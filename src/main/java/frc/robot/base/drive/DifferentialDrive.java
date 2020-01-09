@@ -56,7 +56,10 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         motorControlLeftPosition = new PID("pid_left_position", 3, 0.1, 0.2, 0);
         motorControlRightPosition = new PID("pid_right_position", 3, 0.1, 0.2, 0);
         addSlave(odometry);
+        addSlave(motorControlLeftVelocity);
+        addSlave(motorControlRightVelocity);
         addSlave(motorControlLeftPosition);
+        addSlave(motorControlRightPosition);
     }
 
     public void setNoPID(double speed, double turn) {
