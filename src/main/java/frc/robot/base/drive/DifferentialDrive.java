@@ -35,7 +35,6 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public double[] VOmegaReal = {0, 0};
     public double[] VOmegaSetpoints = {0, 0};
     public double[] VSetpoints = {0, 0};
-    ;
     public double[] encoders = {0, 0};
     public double[] encodersPrev = {0, 0};
     public double offsetGyro = 0;
@@ -52,10 +51,10 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
     public DifferentialDrive() {
         super("drive");
-        motorControlLeftVelocity = new PID("pid_left_velocity",0, 0, 0, 0.55);
-        motorControlRightVelocity = new PID("pid_right_velocity",0, 0, 0, 0.55);
-        motorControlLeftPosition = new PID("pid_left_position",3, 0.1, 0.2, 0);
-        motorControlRightPosition = new PID("pid_right_position",3, 0.1, 0.2, 0);
+        motorControlLeftVelocity = new PID("pid_left_velocity", 0, 0, 0, 0.55);
+        motorControlRightVelocity = new PID("pid_right_velocity", 0, 0, 0, 0.55);
+        motorControlLeftPosition = new PID("pid_left_position", 3, 0.1, 0.2, 0);
+        motorControlRightPosition = new PID("pid_right_position", 3, 0.1, 0.2, 0);
         addSlave(odometry);
         addSlave(motorControlLeftPosition);
     }
@@ -178,7 +177,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     }
 
     public double[] getRobotVelocities() {
-        return wheelsToRobot(motorControlLeftVelocity.getDerivative(), motorControlRightVelocity.getDerivative());
+        return wheelsToRobot(motorControlLeftVelocity.calculateDerivative(), motorControlRightVelocity.calculateDerivative());
     }
 
     private double[] robotToWheels(double linear, double angular) {
@@ -210,7 +209,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         encoders[1] = right.getEncoder().get();
         leftMeters = (encoders[0] - encodersPrev[0]) * ENCODER_TO_RADIAN * WHEEL_RADIUS * 2 * gearRatio;
         rightMeters = (encoders[1] - encodersPrev[1]) * ENCODER_TO_RADIAN * WHEEL_RADIUS * 2 * gearRatio;
-        VOmegaReal = wheelsToRobot(motorControlLeftVelocity.derivative, motorControlRightVelocity.derivative);
+        VOmegaReal = wheelsToRobot(motorControlLeftVelocity.calculateDerivative(), motorControlRightVelocity.calculateDerivative());
         distanceFromEncoders = (leftMeters + rightMeters) / 2.0;
         x += distanceFromEncoders * Math.sin(toRadians(theta)); //cos
         y += distanceFromEncoders * Math.cos(toRadians(theta)); //sin

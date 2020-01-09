@@ -19,7 +19,6 @@ public class MotorGroup<Type extends SpeedController> extends Module {
     private Encoder encoder;
     private ArrayList<Type> drives = new ArrayList<>();
     private int direction = FORWARD;
-    private double speed = 0;
 
     public MotorGroup(String id) {
         super(id);
