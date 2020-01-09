@@ -127,12 +127,12 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
             initialAngle = angle;
             checkAnglePID = false;
         }
-        setTank((-2 - motorControlLeftPosition.pidPosition(angle, initialAngle + target)), (2 + motorControlRightPosition.pidPosition(angle, initialAngle + target)));
+        setTank((-2 - motorControlLeftPosition.PIDPosition(angle, initialAngle + target)), (2 + motorControlRightPosition.PIDPosition(angle, initialAngle + target)));
     }
 
     public void driveStraightPID() {
         int initialSpeed = 4;
-        setTank(initialSpeed + motorControlLeftPosition.pidPosition(toRadians(gyro.getYaw()), 0), initialSpeed - motorControlRightPosition.pidPosition(toRadians(gyro.getYaw()), 0));
+        setTank(initialSpeed + motorControlLeftPosition.PIDPosition(toRadians(gyro.getYaw()), 0), initialSpeed - motorControlRightPosition.PIDPosition(toRadians(gyro.getYaw()), 0));
     }
 
     public void set(double setpointV, double setpointOmega, boolean auto) {
@@ -168,8 +168,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         VSetpoints[1] = wheelSetPoints[1];
         double leftPositinRadians = left.getEncoder().get() * ENCODER_TO_RADIAN * gearRatio;
         double rightPositinRadians = right.getEncoder().get() * ENCODER_TO_RADIAN * gearRatio;
-        double motorOutputLeft = motorControlLeftVelocity.pidVelocity(leftPositinRadians, wheelSetPoints[0]); //TODO: check for mistakes
-        double motorOutputRight = motorControlRightVelocity.pidVelocity(rightPositinRadians, wheelSetPoints[1]);
+        double motorOutputLeft = motorControlLeftVelocity.PIDVelocity(leftPositinRadians, wheelSetPoints[0]); //TODO: check for mistakes
+        double motorOutputRight = motorControlRightVelocity.PIDVelocity(rightPositinRadians, wheelSetPoints[1]);
         if (Math.abs(motorOutputLeft) < 0.1)
             motorOutputLeft = 0;
         if (Math.abs(motorOutputRight) < 0.1)
