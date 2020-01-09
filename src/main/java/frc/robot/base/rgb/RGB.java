@@ -37,7 +37,7 @@ public class RGB extends Module {
                 loop();
             }
         }, 0, 1000 / REFRESH_RATE);
-        addCommand("pattern", new Command() {
+        command("pattern", new Command() {
             @Override
             public String execute(String s) throws Exception {
 

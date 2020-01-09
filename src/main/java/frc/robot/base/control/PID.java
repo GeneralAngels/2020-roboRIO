@@ -37,7 +37,7 @@ public class PID extends Module {
     public PID(String id, double kp, double ki, double kd, double kf) {
         super(id);
         setPIDF(kp, ki, kd, kf);
-        addCommand("setpidf", new Command() {
+        command("setpidf", new Command() {
             @Override
             public String execute(String s) throws Exception {
                 String[] split = s.split(" ");

@@ -3,7 +3,7 @@ package frc.robot.base.control.path;
 public class PathFollower extends frc.robot.base.Module {
     public PathFollower() {
         super("follower");
-        addCommand("createpath", new Command() {
+        command("createpath", new Command() {
             @Override
             public String execute(String s) throws Exception {
                 String[] split = s.split(" ");

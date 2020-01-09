@@ -13,7 +13,7 @@ public class Module extends Node {
 
     public Module(String id) {
         super(id);
-        addCommand("json", s -> pullJSON().toString());
+        command("json", s -> pullJSON().toString());
     }
 
     public JSONObject pullJSON() {
