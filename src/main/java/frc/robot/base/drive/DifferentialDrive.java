@@ -108,7 +108,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         VSetpoints[1] = Vr * MAX_WHEEL_VELOCITY;
         VOmegaSetpoints = wheelsToRobot(VSetpoints[0], VSetpoints[1]);
         motorOutputs = calculateOutputs(VOmegaSetpoints[0], VOmegaSetpoints[1]);
-        battery = DriverStation.getInstance().getBatteryVoltage();
+        battery = 12;
         battery = (0.5 * battery) + (0.5 * batteryPrev);
         if (battery > 12.0)
             battery = 12.0;
@@ -152,7 +152,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         if (Math.abs(setpointV) < 0.2) setpointV = 0;
         if (Math.abs(setpointOmega) < 0.2) setpointOmega = 0;
         double[] motorOutputs = calculateOutputs(setpointV, setpointOmega);
-        battery = DriverStation.getInstance().getBatteryVoltage();
+        battery = 12;
         battery = (0.5 * battery) + (0.5 * batteryPrev);
         if (battery > 12.0)
             battery = 12.0;
