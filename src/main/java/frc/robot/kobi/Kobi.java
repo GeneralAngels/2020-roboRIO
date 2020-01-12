@@ -1,9 +1,11 @@
 package frc.robot.kobi;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import frc.robot.base.Bot;
 import frc.robot.base.rgb.RGB;
 import frc.robot.base.rgb.patterns.TestPush;
+import frc.robot.base.utils.Batteries;
 import frc.robot.kobi.systems.KobiDrive;
 import frc.robot.kobi.systems.KobiFeeder;
 import frc.robot.kobi.systems.KobiShooter;
@@ -12,17 +14,29 @@ import java.util.Random;
 
 public class Kobi extends Bot {
 
+    // Joystick
     private Joystick driver;
+    // Modules
     private KobiDrive drive;
     private KobiFeeder feeder;
     private KobiShooter shooter;
+    private Batteries batteries;
     private RGB rgb;
+    // PDP
+    private PowerDistributionPanel pdp;
 
     public Kobi() {
+        // Joystick
         driver = new Joystick(0);
+        // PDP
+//        pdp = new PowerDistributionPanel(2);
+        // Modules
+        batteries = new Batteries();
         drive = new KobiDrive();
         rgb = new RGB(30);
         rgb.setPattern(new TestPush());
+        // Ah yes, enslaved modules
+        enslave(batteries);
         enslave(drive);
         enslave(rgb);
     }
@@ -45,5 +59,6 @@ public class Kobi extends Bot {
 //        }
 //        drive.setNoPID(driver.getY(), driver.getX());
 //        super.teleop();
+//        batteries.updateRobot(pdp);
     }
 }
