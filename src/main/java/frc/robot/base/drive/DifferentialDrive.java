@@ -2,8 +2,10 @@ package frc.robot.base.drive;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import frc.robot.base.Module;
 import frc.robot.base.control.PID;
+import frc.robot.base.control.path.PathFollower;
 import frc.robot.base.utils.MotorGroup;
 
 // TODO redo the whole thing
@@ -40,14 +42,18 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public double offsetGyro = 0;
     public double distanceFromEncoders = 0;
     public double theta = 0;
-    public double[] motorOutputs = {0, 0};
-    public double[] motorOutputsPrev = {0, 0};
     public MotorGroup<T> left = new MotorGroup<>("left"), right = new MotorGroup<>("right");
     public Odometry odometry = new Odometry();
+    public PathFollower follower;
+    public Trajectory trajectory;
     public double battery = 12;
     public double batteryPrev = 0;
     public boolean checkGyro = true;
 
+    private boolean isAuto = false;
+
+    public double[] motorOutputs = new double[2];
+    public double[] motorOutputsPrev = new double[2];
 
     public DifferentialDrive() {
         super("drive");
@@ -55,6 +61,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         motorControlRightVelocity = new PID("pid_right_velocity", 0, 0, 0, 0.55);
         motorControlLeftPosition = new PID("pid_left_position", 3, 0.1, 0.2, 0);
         motorControlRightPosition = new PID("pid_right_position", 3, 0.1, 0.2, 0);
+        follower = new PathFollower(this);
+        enslave(follower);
         enslave(left);
         enslave(right);
         enslave(odometry);
@@ -62,6 +70,22 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         enslave(motorControlRightVelocity);
         enslave(motorControlLeftPosition);
         enslave(motorControlRightPosition);
+    }
+
+    public void setTrajectory(Trajectory trajectory) {
+        this.trajectory = trajectory;
+    }
+
+    public void setMode(boolean trajectory) {
+
+    }
+
+    public void loop() {
+        if (isAuto) {
+
+        } else {
+            direct(-(motorOutputs[0] / battery), -(motorOutputs[1] / battery));
+        }
     }
 
     public void setNoPID(double speed, double turn) {
@@ -99,6 +123,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         return res;
     }
 
+    @Deprecated
     public void setTank(double Vl, double Vr) {
         if (Math.abs(Vl) < 0.1)
             Vl = 0;
@@ -140,28 +165,13 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     }
 
     public void set(double setpointV, double setpointOmega, boolean auto) {
-        if (auto) {
-            motorControlLeftVelocity.setPIDF(0.5, 0.3, 0, 0.5);
-            motorControlRightVelocity.setPIDF(0.5, 0.3, 0, 0.5);
-            log("autonomous mode");
-        } else {
-            motorControlLeftVelocity.setPIDF(0, 0, 0, 0.55);
-            motorControlRightVelocity.setPIDF(0, 0, 0, 0.55);
-            log("TeleOp");
-        }
         if (Math.abs(setpointV) < 0.2) setpointV = 0;
         if (Math.abs(setpointOmega) < 0.2) setpointOmega = 0;
         double[] motorOutputs = calculateOutputs(setpointV, setpointOmega);
-        battery = 12;
-        battery = (0.5 * battery) + (0.5 * batteryPrev);
-        if (battery > 12.0)
-            battery = 12.0;
-        batteryPrev = battery;
         motorOutputsPrev[0] = motorOutputs[0];
-        motorOutputsPrev[1] = motorOutputsPrev[1];
+        motorOutputsPrev[1] = motorOutputs[1];
         setPointVPrev = setpointV;
         setPointOmegaPrev = setpointOmega;
-        direct(-(motorOutputs[0] / battery), -(motorOutputs[1] / battery));
         updateOdometry();
     }
 

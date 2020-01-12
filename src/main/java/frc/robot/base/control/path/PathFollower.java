@@ -1,26 +1,52 @@
 package frc.robot.base.control.path;
 
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj.util.Units;
+import frc.robot.base.drive.DifferentialDrive;
 import frc.robot.base.utils.MotorGroup;
 
 import java.util.ArrayList;
 
 public class PathFollower extends frc.robot.base.Module {
-    public PathFollower() {
+    public PathFollower(DifferentialDrive drive) {
         super("follower");
         command("createpath", new Command() {
             @Override
             public String execute(String s) throws Exception {
                 String[] split = s.split(" ");
                 if (split.length == 5) {
-                    createPath(Double.parseDouble(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]), Double.parseDouble(split[3]), Double.parseDouble(split[3]));
+                    drive.setTrajectory(createPath(Double.parseDouble(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]), Double.parseDouble(split[3]), Double.parseDouble(split[3])));
                 }
                 return "OK";
             }
         });
     }
 
-    public void createPath(double a, double b, double c, double d, double k){
+    public Trajectory createPath(double a, double b, double c, double d, double k) {
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(0, 0);
+        // 2018 cross scale auto waypoints.
+        Pose2d sideStart = new Pose2d(Units.feetToMeters(1.54), Units.feetToMeters(23.23),
+                Rotation2d.fromDegrees(-180));
+        Pose2d crossScale = new Pose2d(Units.feetToMeters(23.7), Units.feetToMeters(6.8),
+                Rotation2d.fromDegrees(-160));
 
+        ArrayList<Translation2d> interiorWaypoints = new ArrayList<>();
+        interiorWaypoints.add(new Translation2d(Units.feetToMeters(14.54), Units.feetToMeters(23.23)));
+        interiorWaypoints.add(new Translation2d(Units.feetToMeters(21.04), Units.feetToMeters(18.23)));
+
+        TrajectoryConfig config = new TrajectoryConfig(Units.feetToMeters(12), Units.feetToMeters(12));
+        config.setReversed(true);
+
+        return TrajectoryGenerator.generateTrajectory(
+                sideStart,
+                interiorWaypoints,
+                crossScale,
+                config);
     }
 
 //    static class TrajectoryGenerator {

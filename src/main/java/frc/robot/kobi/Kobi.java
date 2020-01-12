@@ -60,5 +60,6 @@ public class Kobi extends Bot {
 //        drive.setNoPID(driver.getY(), driver.getX());
 //        super.teleop();
 //        batteries.updateRobot(pdp);
+        drive.loop();
     }
 }
