@@ -24,7 +24,7 @@ public class MotorGroup<Type extends SpeedController> extends Module {
         super(id);
     }
 
-    public MotorGroup(String id, Type... drives) {
+    public MotorGroup(String id, Type[] drives) {
         super(id);
         addMotors(drives);
     }
@@ -34,7 +34,7 @@ public class MotorGroup<Type extends SpeedController> extends Module {
         setEncoder(encoder);
     }
 
-    public MotorGroup(String id, Encoder encoder, Type... drives) {
+    public MotorGroup(String id, Encoder encoder, Type[] drives) {
         super(id);
         setEncoder(encoder);
         addMotors(drives);
@@ -56,7 +56,7 @@ public class MotorGroup<Type extends SpeedController> extends Module {
         this.direction = direction;
     }
 
-    public void addMotors(Type... drives) {
+    public void addMotors(Type[] drives) {
         for (Type drive : drives) addMotor(drive);
     }
 
