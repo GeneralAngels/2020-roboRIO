@@ -110,8 +110,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     }
 
     public void setNoPID(double speed, double turn) {
-        motorOutputs[0] = (speed - turn) / 2;
-        motorOutputs[1] = (speed + turn) / 2;
+        motorOutputs[0] = (turn + speed) / 2;
+        motorOutputs[1] = (turn - speed) / 2;
     }
 
     public static double noPIDCalculateRight(double speed, double turn) {
