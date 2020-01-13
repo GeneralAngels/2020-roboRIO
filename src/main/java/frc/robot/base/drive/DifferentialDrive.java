@@ -1,7 +1,12 @@
 package frc.robot.base.drive;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.controller.RamseteController;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import frc.robot.base.Module;
 import frc.robot.base.control.PID;
@@ -26,8 +31,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public double gearRatio = 14.0 / 60.0;
     public double ENCODER_COUNT_PER_REVOLUTION = 512;
     public double ENCODER_TO_RADIAN = (Math.PI * 2) / (4 * ENCODER_COUNT_PER_REVOLUTION);
-    public double setPointVPrev = 0;
-    public double setPointOmegaPrev = 0;
+    public double setpointVPrevious = 0;
+    public double setpointOmegaPrevious = 0;
     public double thetaRobotPrev = 0;
     public double x = 0;
     public double y = 0;
@@ -52,8 +57,12 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
     private boolean isAuto = false;
 
-    public double[] motorOutputs = new double[2];
-    public double[] motorOutputsPrev = new double[2];
+    private double[] motorOutputs = new double[2];
+    private double[] motorOutputsPrev = new double[2];
+
+    private Trajectory.State basePose = null;
+
+    private long trajectoryStart = 0;
 
     public DifferentialDrive() {
         super("drive");
@@ -73,23 +82,36 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     }
 
     public void setTrajectory(Trajectory trajectory) {
+        this.basePose = new Trajectory.State();
         this.trajectory = trajectory;
+        this.trajectoryStart = millis();
     }
 
     public void setMode(boolean trajectory) {
-
+        if (trajectory)
+            this.trajectoryStart = millis();
+        this.isAuto = trajectory;
     }
 
     public void loop() {
         if (isAuto) {
-
+            Trajectory.State goal = trajectory.sample((double) (millis() - this.trajectoryStart) / 1000.0);
+            RamseteController controller = new RamseteController();
+            Pose2d currentPose = new Pose2d(odometry.getX(), odometry.getY(), Rotation2d.fromDegrees(odometry.getTheta())); //x, y, rotation
+            DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(0.7112); //parameter is the wheel to wheel distance
+            ChassisSpeeds adjustedSpeeds = controller.calculate(currentPose, goal);
+            DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(adjustedSpeeds);
+            double left = wheelSpeeds.leftMetersPerSecond / MAX_WHEEL_VELOCITY;
+            double right = wheelSpeeds.rightMetersPerSecond / MAX_WHEEL_VELOCITY;
+            direct(left, right);
         } else {
-            direct(-(motorOutputs[0] / battery), -(motorOutputs[1] / battery));
+            direct(motorOutputs[0], motorOutputs[1]);
         }
     }
 
     public void setNoPID(double speed, double turn) {
-        direct(noPIDCalculateLeft(speed, turn), noPIDCalculateRight(speed, turn));
+        motorOutputs[0] = (speed - turn) / 2;
+        motorOutputs[1] = (speed + turn) / 2;
     }
 
     public static double noPIDCalculateRight(double speed, double turn) {
@@ -164,17 +186,18 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         setTank(initialSpeed + motorControlLeftPosition.PIDPosition(toRadians(gyro.getYaw()), 0), initialSpeed - motorControlRightPosition.PIDPosition(toRadians(gyro.getYaw()), 0));
     }
 
-    public void set(double setpointV, double setpointOmega, boolean auto) {
-        if (Math.abs(setpointV) < 0.2) setpointV = 0;
-        if (Math.abs(setpointOmega) < 0.2) setpointOmega = 0;
-        double[] motorOutputs = calculateOutputs(setpointV, setpointOmega);
+    public void set(double setpointV, double setpointOmega) {
+        if (Math.abs(setpointV) < 0.2)
+            setpointV = 0;
+        if (Math.abs(setpointOmega) < 0.2)
+            setpointOmega = 0;
         motorOutputsPrev[0] = motorOutputs[0];
         motorOutputsPrev[1] = motorOutputs[1];
-        setPointVPrev = setpointV;
-        setPointOmegaPrev = setpointOmega;
+        motorOutputs = calculateOutputs(setpointV, setpointOmega);
+        setpointVPrevious = setpointV;
+        setpointOmegaPrevious = setpointOmega;
         updateOdometry();
     }
-
 
     public double[] calculateOutputs(double speed, double turn) {
         double[] wheelSetPoints = robotToWheels(speed, turn);
@@ -238,7 +261,6 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         odometry.setLeftSetpoint(LSetpoint);
         odometry.setDistance(distanceFromEncoders);
     }
-
 
     public void initGyro(Gyroscope gyro) {
         this.gyro = gyro;

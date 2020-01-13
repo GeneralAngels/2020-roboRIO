@@ -28,20 +28,18 @@ public class PathFollower extends frc.robot.base.Module {
     }
 
     public Trajectory createPath(double a, double b, double c, double d, double k) {
-        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(0, 0);
+        //we don't need the abcdk. the library does this itself
+
         // 2018 cross scale auto waypoints.
-        Pose2d sideStart = new Pose2d(Units.feetToMeters(1.54), Units.feetToMeters(23.23),
-                Rotation2d.fromDegrees(-180));
-        Pose2d crossScale = new Pose2d(Units.feetToMeters(23.7), Units.feetToMeters(6.8),
-                Rotation2d.fromDegrees(-160));
+        Pose2d sideStart = new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0));
+        Pose2d crossScale = new Pose2d(2, 2, Rotation2d.fromDegrees(45));
 
         ArrayList<Translation2d> interiorWaypoints = new ArrayList<>();
-        interiorWaypoints.add(new Translation2d(Units.feetToMeters(14.54), Units.feetToMeters(23.23)));
-        interiorWaypoints.add(new Translation2d(Units.feetToMeters(21.04), Units.feetToMeters(18.23)));
+        interiorWaypoints.add(new Translation2d(0.5, 1.0));
+        interiorWaypoints.add(new Translation2d(1.0, 0.5));
 
-        TrajectoryConfig config = new TrajectoryConfig(Units.feetToMeters(12), Units.feetToMeters(12));
-        config.setReversed(true);
-
+        TrajectoryConfig config = new TrajectoryConfig(4, 60);
+        //config.setReversed(true);
         return TrajectoryGenerator.generateTrajectory(
                 sideStart,
                 interiorWaypoints,
