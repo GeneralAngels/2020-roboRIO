@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.SparkMax;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import frc.robot.base.drive.DifferentialDrive;
 
 public class KobiDrive extends DifferentialDrive<CANSparkMax> {
@@ -12,6 +13,8 @@ public class KobiDrive extends DifferentialDrive<CANSparkMax> {
         left.addMotor(new CANSparkMax(50, CANSparkMaxLowLevel.MotorType.kBrushless));
         right.addMotor(new CANSparkMax(51, CANSparkMaxLowLevel.MotorType.kBrushless));
         left.setEncoder(new Encoder(0, 1));
-        right.setEncoder(new Encoder(2, 3));
+        right.setEncoder(new Encoder(3, 2));
     }
+
+
 }

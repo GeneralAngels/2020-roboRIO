@@ -20,31 +20,30 @@ public class PathFollower extends frc.robot.base.Module {
             public String execute(String s) throws Exception {
                 String[] split = s.split(" ");
                 if (split.length == 5) {
-                    drive.setTrajectory(createPath(Double.parseDouble(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]), Double.parseDouble(split[3]), Double.parseDouble(split[3])));
+                    drive.setTrajectory(createPath());
                 }
                 return "OK";
             }
         });
     }
 
-    public Trajectory createPath(double a, double b, double c, double d, double k) {
+    public Trajectory createPath() {
         //we don't need the abcdk. the library does this itself
 
-        // 2018 cross scale auto waypoints.
-        Pose2d sideStart = new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0));
-        Pose2d crossScale = new Pose2d(2, 2, Rotation2d.fromDegrees(45));
+        Pose2d startPoint = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
+        Pose2d endPoint = new Pose2d(1, 0, Rotation2d.fromDegrees(0));
 
         ArrayList<Translation2d> interiorWaypoints = new ArrayList<>();
-        interiorWaypoints.add(new Translation2d(0.5, 1.0));
-        interiorWaypoints.add(new Translation2d(1.0, 0.5));
+//        interiorWaypoints.add(new Translation2d(0.5, 1.0));
+//        interiorWaypoints.add(new Translation2d(1.0, 0.5));
 
-        TrajectoryConfig config = new TrajectoryConfig(4, 60);
+        TrajectoryConfig config = new TrajectoryConfig(4, 2);
         //config.setReversed(true);
-        return TrajectoryGenerator.generateTrajectory(
-                sideStart,
-                interiorWaypoints,
-                crossScale,
-                config);
+        Trajectory res = TrajectoryGenerator.generateTrajectory(startPoint, interiorWaypoints, endPoint, config);
+        log("trajectory:" + res.toString());
+        res.getStates();
+        return res;
+
     }
 
 //    static class TrajectoryGenerator {

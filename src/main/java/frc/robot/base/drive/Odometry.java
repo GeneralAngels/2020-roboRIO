@@ -45,15 +45,15 @@ public class Odometry extends Module {
         set("theta", String.valueOf(theta));
     }
 
-    public double getX(){
-        return Double.parseDouble(get("x"));
-    }
-
-    public double getY(){
-        return Double.parseDouble(get("y"));
-    }
-
-    public double getTheta(){
-        return Double.parseDouble(get("theta"));
-    }
+//    public double getX(){
+//        return Double.parseDouble(get("x"));
+//    }
+//
+//    public double getY(){
+//        return Double.parseDouble(get("y"));
+//    }
+//
+//    public double getTheta(){
+//        return Double.parseDouble(get("theta"));
+//    }
 }

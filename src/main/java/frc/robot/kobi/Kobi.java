@@ -22,12 +22,14 @@ public class Kobi extends Bot {
     private KobiShooter shooter;
     private Batteries batteries;
     private RGB rgb;
+    private double time = 0;
     // PDP
     private PowerDistributionPanel pdp;
 
     public Kobi() {
         // Joystick
         driver = new Joystick(0);
+        log(driver + " jyro thingy");
         // PDP
 //        pdp = new PowerDistributionPanel(2);
         // Modules
@@ -39,12 +41,14 @@ public class Kobi extends Bot {
         enslave(batteries);
         enslave(drive);
         enslave(rgb);
+        drive.setTrajectory(drive.trajectory);
+        drive.updateOdometry();
     }
 
     @Override
     public void teleop() {
-        log("Left: " + drive.left.getEncoder().get());
-        log("Right: " + drive.right.getEncoder().get());
+//
+
         set("left", String.valueOf(drive.left.getEncoder().get()));
         set("right", String.valueOf(drive.right.getEncoder().get()));
         set("random", String.valueOf(new Random().nextInt(100)));
@@ -60,7 +64,14 @@ public class Kobi extends Bot {
 //        drive.setNoPID(driver.getY(), driver.getX());
 //        super.teleop();
 //        batteries.updateRobot(pdp);
-        drive.setNoPID(-driver.getY(), driver.getX());
-        drive.loop();
+        double divider = driver.getRawButton(2) ? 1 : 2;
+        //log("divider");
+        log("vel: " + driver.getX());
+        log("turn: " + driver.getX());
+        drive.setNoPID(-driver.getY() / divider, driver.getX() / divider);
+        drive.loop(time);
+        //log("s'up");
+//        log("left: " + drive.left.getEncoder().getRaw());
+//        log("right: " + drive.right.getEncoder().getRaw());
     }
 }
