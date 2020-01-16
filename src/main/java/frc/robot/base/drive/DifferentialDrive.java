@@ -26,11 +26,11 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public PID motorControlLeftPosition;
     public PID motorControlRightPosition;
     public Gyroscope gyro;
-    public double WHEEL_DISTANCE = 0.51;
+    public double WHEEL_DISTANCE = 0.6;
     public double WHEEL_RADIUS = 0.0762;
     public double MAX_V = 2;
     public double MAX_OMEGA = 3.14 * 2;
-    public double gearRatio = 14.0 / 60.0;
+    public double gearRatio = 1.0;
     public double ENCODER_COUNT_PER_REVOLUTION = 512;
     public double ENCODER_TO_RADIAN = (Math.PI * 2) / (4 * ENCODER_COUNT_PER_REVOLUTION);
     public double setpointVPrevious = 0;
@@ -82,7 +82,9 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         enslave(motorControlLeftPosition);
         enslave(motorControlRightPosition);
         this.trajectory = follower.createPath();
-        setMode(false);
+        gyro = new Gyroscope();
+        initGyro(gyro);
+        setMode(true);
     }
 
     public void setTrajectory(Trajectory trajectory) {
@@ -104,7 +106,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
             Trajectory.State goal = this.trajectory.sample(time);
             //goal.timeSeconds = time / 1000.0;
             //goal = this.trajectory.sample(goal.timeSeconds);
-            //log("goal: " + goal);
+            log("goal: " + goal.velocityMetersPerSecond);
             RamseteController controller = new RamseteController();
             Pose2d currentPose = new Pose2d(this.x, this.y, Rotation2d.fromDegrees(this.theta)); //x, y, rotation
 
@@ -114,15 +116,21 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
             DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(adjustedSpeeds);
 
-            double leftVelocity = wheelSpeeds.leftMetersPerSecond;
-            double rightVelocity = wheelSpeeds.rightMetersPerSecond;
+            double leftVelocity = wheelSpeeds.leftMetersPerSecond*10;
+            double rightVelocity = wheelSpeeds.rightMetersPerSecond*10;
 
             //log("left Encoder: "+left.getEncoder().getRaw());
-            setTank(leftVelocity, rightVelocity);
+            double vel, omega;
+            double[] speeds = wheelsToRobot(leftVelocity, rightVelocity);
+            log("left: " + leftVelocity + "right:"  + rightVelocity);
+            vel = speeds[0];
+            omega = speeds[1];
+            log("vel: " + vel + ",   omega: " + omega);
+            set(vel, omega);
         } else {
             direct(motorOutputs[0], motorOutputs[1]);
-
         }
+        updateOdometry();
     }
 
 
@@ -163,14 +171,14 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         return res;
     }
 
-    //@Deprecated
+//    @Deprecated
     public void setTank(double Vl, double Vr) {
         if (Math.abs(Vl) < 0.1)
             Vl = 0;
         if (Math.abs(Vr) < 0.1)
             Vr = 0;
-        VSetpoints[0] = Vl * MAX_WHEEL_VELOCITY;
-        VSetpoints[1] = Vr * MAX_WHEEL_VELOCITY;
+        VSetpoints[0] = Vl; // * MAX_WHEEL_VELOCITY;
+        VSetpoints[1] = Vr; // * MAX_WHEEL_VELOCITY;
         VOmegaSetpoints = wheelsToRobot(VSetpoints[0], VSetpoints[1]);
         motorOutputs = calculateOutputs(VOmegaSetpoints[0], VOmegaSetpoints[1]);
         battery = 12;
@@ -184,25 +192,6 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         updateOdometry();
     }
 
-    public void adarTank(double leftV, double rightV){
-        if (Math.abs(leftV) < 0.1)
-            leftV = 0;
-        if (Math.abs(rightV) < 0.1)
-            rightV = 0;
-        VSetpoints[0] = leftV * MAX_WHEEL_VELOCITY;
-        VSetpoints[1] = rightV * MAX_WHEEL_VELOCITY;
-        VOmegaSetpoints = wheelsToRobot(VSetpoints[0], VSetpoints[1]);
-        motorOutputs = calculateOutputs(VOmegaSetpoints[0], VOmegaSetpoints[1]);
-        battery = 12;
-        battery = (0.5 * battery) + (0.5 * batteryPrev);
-        if (battery > 12.0)
-            battery = 12.0;
-        batteryPrev = battery;
-        motorOutputsPrev[0] = motorOutputs[0];
-        motorOutputsPrev[1] = motorOutputs[1];
-        direct(motorOutputs[0] / (battery), -motorOutputs[1] / (battery));
-        updateOdometry();
-    }
     public boolean checkAnglePID = true;
     public double initialAngle = 0.0;
 
@@ -232,6 +221,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         motorOutputs = calculateOutputs(setpointV, setpointOmega);
         setpointVPrevious = setpointV;
         setpointOmegaPrevious = setpointOmega;
+        direct(motorOutputs[0], -motorOutputs[1]);
         updateOdometry();
     }
 
@@ -281,8 +271,10 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         }
         encoders[0] = left.getEncoder().get();
         encoders[1] = right.getEncoder().get();
-        leftMeters = (encoders[0] - encodersPrev[0]) * ENCODER_TO_RADIAN * WHEEL_RADIUS * 2 * gearRatio;
-        rightMeters = (encoders[1] - encodersPrev[1]) * ENCODER_TO_RADIAN * WHEEL_RADIUS * 2 * gearRatio;
+        log("encoder right: " + right.getEncoder().getRaw());
+        log("encoder left: " + left.getEncoder().getRaw());
+        leftMeters = ((encoders[0] - encodersPrev[0]) /512 ) * 2 * Math.PI * WHEEL_RADIUS;
+        rightMeters = ((encoders[1] - encodersPrev[1]) / 512) * 2 * Math.PI * WHEEL_RADIUS;
         VOmegaReal = wheelsToRobot(motorControlLeftVelocity.calculateDerivative(), motorControlRightVelocity.calculateDerivative());
         distanceFromEncoders = (leftMeters + rightMeters) / 2.0;
         x += distanceFromEncoders * Math.sin(toRadians(theta)); //cos
@@ -300,7 +292,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
     public void initGyro(Gyroscope gyro) {
         this.gyro = gyro;
-        while (gyro.isCalibrating()) log("Calibrating Gyro");
+        while (gyro.isCalibrating()) //log("Calibrating Gyro");
         offsetGyro = gyro.getYaw();
 
     }

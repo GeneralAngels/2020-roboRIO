@@ -63,15 +63,22 @@ public class Kobi extends Bot {
 //        }
 //        drive.setNoPID(driver.getY(), driver.getX());
 //        super.teleop();
-//        batteries.updateRobot(pdp);
+//        batteries.updateRobot(pdp)
         double divider = driver.getRawButton(2) ? 1 : 2;
         //log("divider");
-        log("vel: " + driver.getX());
-        log("turn: " + driver.getX());
         drive.setNoPID(-driver.getY() / divider, driver.getX() / divider);
-        drive.loop(time);
-        //log("s'up");
-//        log("left: " + drive.left.getEncoder().getRaw());
-//        log("right: " + drive.right.getEncoder().getRaw());
+        if (time < 10000000){
+            drive.loop(time);
+            time += 0.0002;
+//            log("x: " + drive.x);
+//            log("y:" + drive.y);
+//            log("theta: " + drive.theta);
+        }
+//        if (time > 5){
+//            log("left: " + drive.left.getEncoder().getRaw());
+//            log("right: " + drive.right.getEncoder().getRaw());
+//    }
+        //log("ang:" + drive.theta);
+
     }
 }

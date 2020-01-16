@@ -37,7 +37,7 @@ public class Gyroscope extends AHRS {
             double summedShittyness = 0;
             for (int m = 0; m < INITIAL_MEASUREMENTS; m++) {
                 try {
-                    summedShittyness += getRawGyroX();
+                    summedShittyness += getRawGyroZ();
                     Thread.sleep(INITIAL_MEASUREMENT_TIMEOUT);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -57,7 +57,7 @@ public class Gyroscope extends AHRS {
 
     @Override
     public double getAngle() {
-        double raw = getRawGyroX();
+        double raw = getRawGyroZ();
         previousFiltered = filter(raw, ALPHA);
         previousFiltered -= bias;
         if (Math.abs(previousFiltered) > DEADZONE)
