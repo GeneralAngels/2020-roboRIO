@@ -48,9 +48,7 @@ dependencies {
 
     implementation "org.json:json:20190722"
 
-    implementation "com.revrobotics.frc:SparkMax-driver:1.4.1"
-    implementation "com.revrobotics.frc:SparkMax-java:1.4.1"
-    implementation "com.revrobotics.frc:SparkMax-cpp:1.4.1"
+    implementation "org.la4j:la4j:0.6.0"
 
     implementation wpi.deps.wpilib()
     nativeZip wpi.deps.wpilibJni(wpi.platforms.roborio)
