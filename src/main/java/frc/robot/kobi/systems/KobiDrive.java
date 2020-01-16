@@ -10,8 +10,12 @@ import frc.robot.base.drive.DifferentialDrive;
 
 public class KobiDrive extends DifferentialDrive<CANSparkMax> {
     public KobiDrive() {
-        left.addMotor(new CANSparkMax(50, CANSparkMaxLowLevel.MotorType.kBrushless));
-        right.addMotor(new CANSparkMax(51, CANSparkMaxLowLevel.MotorType.kBrushless));
+        CANSparkMax leftMotor = new CANSparkMax(50, CANSparkMaxLowLevel.MotorType.kBrushless);
+        CANSparkMax rightMotor = new CANSparkMax(51, CANSparkMaxLowLevel.MotorType.kBrushless);
+//        leftMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+//        rightMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+        left.addMotor(leftMotor);
+        right.addMotor(rightMotor);
         left.setEncoder(new Encoder(0, 1));
         right.setEncoder(new Encoder(3, 2));
     }

@@ -38,7 +38,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public double thetaRobotPrev = 0;
     public double x = 0;
     public double y = 0;
-    public double MAX_WHEEL_VELOCITY = 4/WHEEL_RADIUS;
+    public double MAX_WHEEL_VELOCITY = 20; //    4/WHEEL_RADIUS
     public double leftMeters;
     public double rightMeters;
     public double[] VOmegaReal = {0, 0};
@@ -106,7 +106,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
             Trajectory.State goal = this.trajectory.sample(time);
             //goal.timeSeconds = time / 1000.0;
             //goal = this.trajectory.sample(goal.timeSeconds);
-            log("goal: " + goal.velocityMetersPerSecond);
+            log("goal: " + goal);
             RamseteController controller = new RamseteController();
             Pose2d currentPose = new Pose2d(this.x, this.y, Rotation2d.fromDegrees(this.theta)); //x, y, rotation
 
@@ -116,8 +116,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
             DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(adjustedSpeeds);
 
-            double leftVelocity = wheelSpeeds.leftMetersPerSecond*10;
-            double rightVelocity = wheelSpeeds.rightMetersPerSecond*10;
+            double leftVelocity = wheelSpeeds.leftMetersPerSecond;
+            double rightVelocity = wheelSpeeds.rightMetersPerSecond;
 
             //log("left Encoder: "+left.getEncoder().getRaw());
             double vel, omega;
@@ -126,7 +126,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
             vel = speeds[0];
             omega = speeds[1];
             log("vel: " + vel + ",   omega: " + omega);
-            set(vel, omega);
+            set(goal.velocityMetersPerSecond, omega);
         } else {
             direct(motorOutputs[0], motorOutputs[1]);
         }

@@ -69,7 +69,7 @@ public class Kobi extends Bot {
         drive.setNoPID(-driver.getY() / divider, driver.getX() / divider);
         if (time < 10000000){
             drive.loop(time);
-            time += 0.0002;
+            time += 0.02;
 //            log("x: " + drive.x);
 //            log("y:" + drive.y);
 //            log("theta: " + drive.theta);
