@@ -26,7 +26,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public PID motorControlLeftPosition;
     public PID motorControlRightPosition;
     public Gyroscope gyro;
-    public double WHEEL_DISTANCE = 0.6;
+    public double WHEEL_DISTANCE = 0.7112;
     public double WHEEL_RADIUS = 0.0762;
     public double MAX_V = 2;
     public double MAX_OMEGA = 3.14 * 2;
@@ -41,6 +41,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public double MAX_WHEEL_VELOCITY = 20; //    4/WHEEL_RADIUS
     public double leftMeters;
     public double rightMeters;
+    public double leftMetersPrev;
+    public double rightMetersPrev;
     public double[] VOmegaReal = {0, 0};
     public double[] VOmegaSetpoints = {0, 0};
     public double[] VSetpoints = {0, 0};
@@ -49,6 +51,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public double offsetGyro = 0;
     public double distanceFromEncoders = 0;
     public double theta = 0;
+    public double xPrev = 0;
     public MotorGroup<T> left = new MotorGroup<>("left"), right = new MotorGroup<>("right");
     public Odometry odometry = new Odometry();
     public PathFollower follower;
@@ -56,7 +59,6 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public double battery = 12;
     public double batteryPrev = 0;
     public boolean checkGyro = true;
-
     private boolean isAuto = false;
 
     private double[] motorOutputs = new double[2];
@@ -68,8 +70,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
     public DifferentialDrive() {
         super("drive");
-        motorControlLeftVelocity = new PID("pid_left_velocity", 0, 0, 0, 0.2);
-        motorControlRightVelocity = new PID("pid_right_velocity", 0, 0, 0, 0.2);
+        motorControlLeftVelocity = new PID("pid_left_velocity", 0.35, 0, 1, 0);
+        motorControlRightVelocity = new PID("pid_right_velocity", 0.35, 0, 1, 0);
         motorControlLeftPosition = new PID("pid_left_position", 3, 0.1, 0.2, 0);
         motorControlRightPosition = new PID("pid_right_position", 3, 0.1, 0.2, 0);
         follower = new PathFollower(this);
@@ -84,7 +86,10 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         this.trajectory = follower.createPath();
         gyro = new Gyroscope();
         initGyro(gyro);
-        setMode(true);
+        setMode(false);
+    }
+    public void printEncoders(){
+        log("leftEncoder: "+left.getEncoder().getRaw()+"rightEncoder: "+right.getEncoder().getRaw());
     }
 
     public void setTrajectory(Trajectory trajectory) {
@@ -122,10 +127,11 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
             //log("left Encoder: "+left.getEncoder().getRaw());
             double vel, omega;
             double[] speeds = wheelsToRobot(leftVelocity, rightVelocity);
-            log("left: " + leftVelocity + "right:"  + rightVelocity);
+            //log("left: " + leftVelocity + "right:"  + rightVelocity);
             vel = speeds[0];
             omega = speeds[1];
-            log("vel: " + vel + ",   omega: " + omega);
+            //log("vel: " + vel + ",   omega: " + omega);
+            log("setpointVelocity: "+goal.velocityMetersPerSecond);
             set(goal.velocityMetersPerSecond, omega);
         } else {
             direct(motorOutputs[0], motorOutputs[1]);
@@ -212,16 +218,16 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     }
 
     public void set(double setpointV, double setpointOmega) {
-        if (Math.abs(setpointV) < 0.2)
+        if (Math.abs(setpointV) < 0.1)
             setpointV = 0;
-        if (Math.abs(setpointOmega) < 0.2)
+        if (Math.abs(setpointOmega) < 0.1)
             setpointOmega = 0;
-        motorOutputsPrev[0] = motorOutputs[0];
-        motorOutputsPrev[1] = motorOutputs[1];
+        //motorOutputsPrev[0] = motorOutputs[0];
+        //motorOutputsPrev[1] = motorOutputs[1];
         motorOutputs = calculateOutputs(setpointV, setpointOmega);
-        setpointVPrevious = setpointV;
-        setpointOmegaPrevious = setpointOmega;
-        direct(motorOutputs[0], -motorOutputs[1]);
+        //setpointVPrevious = setpointV;
+        //setpointOmegaPrevious = setpointOmega;
+        direct(motorOutputs[0]/12.0, -motorOutputs[1]/12.0);
         updateOdometry();
     }
 
@@ -229,20 +235,17 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         double[] wheelSetPoints = robotToWheels(speed, turn);
         VSetpoints[0] = wheelSetPoints[0];
         VSetpoints[1] = wheelSetPoints[1];
-        double leftPositinRadians = left.getEncoder().getRaw() * ENCODER_TO_RADIAN;
-        double rightPositinRadians = right.getEncoder().getRaw() * ENCODER_TO_RADIAN;
-        double motorOutputLeft = motorControlLeftVelocity.PIDVelocity(leftPositinRadians, wheelSetPoints[0]); //TODO: check for mistakes
-        double motorOutputRight = motorControlRightVelocity.PIDVelocity(rightPositinRadians, wheelSetPoints[1]);
-        if (Math.abs(motorOutputLeft) < 0.1)
-            motorOutputLeft = 0;
-        if (Math.abs(motorOutputRight) < 0.1)
-            motorOutputRight = 0;
+        double leftPositinMeters = left.getEncoder().getRaw() * ENCODER_TO_RADIAN*WHEEL_RADIUS; //radians to meters added
+        double rightPositinMeters = right.getEncoder().getRaw() * ENCODER_TO_RADIAN*WHEEL_RADIUS;
+        double motorOutputLeft = motorControlLeftVelocity.PIDVelocity(leftPositinMeters, wheelSetPoints[0]);
+        double motorOutputRight = motorControlRightVelocity.PIDVelocity(rightPositinMeters, wheelSetPoints[1]);
+//        if (Math.abs(motorOutputLeft) < 0.1)
+//            motorOutputLeft = 0;
+//        if (Math.abs(motorOutputRight) < 0.1)
+//            motorOutputRight = 0;
         return new double[]{motorOutputLeft, motorOutputRight};
     }
 
-    public double[] getRobotVelocities() {
-        return wheelsToRobot(motorControlLeftVelocity.calculateDerivative(), motorControlRightVelocity.calculateDerivative());
-    }
 
     private double[] robotToWheels(double linear, double angular) {
         double Vleft = (linear / WHEEL_RADIUS) - (angular * WHEEL_DISTANCE) / (2 * WHEEL_RADIUS);
@@ -269,16 +272,19 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
                 theta = gyro.getAngle();
             }
         }
-        encoders[0] = left.getEncoder().get();
-        encoders[1] = right.getEncoder().get();
-        log("encoder right: " + right.getEncoder().getRaw());
-        log("encoder left: " + left.getEncoder().getRaw());
-        leftMeters = ((encoders[0] - encodersPrev[0]) /512 ) * 2 * Math.PI * WHEEL_RADIUS;
-        rightMeters = ((encoders[1] - encodersPrev[1]) / 512) * 2 * Math.PI * WHEEL_RADIUS;
-        VOmegaReal = wheelsToRobot(motorControlLeftVelocity.calculateDerivative(), motorControlRightVelocity.calculateDerivative());
+        encoders[0] = left.getEncoder().getRaw();
+        encoders[1] = right.getEncoder().getRaw();
+        //log("encoder right: " + right.getEncoder().getRaw());
+        //log("encoder left: " + left.getEncoder().getRaw());
+        leftMeters = ((encoders[0] - encodersPrev[0]) / 2048) * 2 * Math.PI * WHEEL_RADIUS; // 2048 instead of 512
+        rightMeters = ((encoders[1] - encodersPrev[1]) / 2048) * 2 * Math.PI * WHEEL_RADIUS;// 2048 instead of 512
         distanceFromEncoders = (leftMeters + rightMeters) / 2.0;
-        x += distanceFromEncoders * Math.sin(toRadians(theta)); //cos
-        y += distanceFromEncoders * Math.cos(toRadians(theta)); //sin
+        x += distanceFromEncoders * Math.cos(toRadians(theta)); //sin
+        y += distanceFromEncoders * Math.sin(toRadians(theta)); //cos
+        //log("x: "+x+" y: "+y+" theta: "+theta);
+        xPrev = x;
+        leftMetersPrev = leftMeters;
+        rightMetersPrev = rightMeters;
         thetaRobotPrev = theta;
         encodersPrev[0] = encoders[0];
         encodersPrev[1] = encoders[1];

@@ -16,8 +16,8 @@ public class KobiDrive extends DifferentialDrive<CANSparkMax> {
 //        rightMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         left.addMotor(leftMotor);
         right.addMotor(rightMotor);
-        left.setEncoder(new Encoder(0, 1));
-        right.setEncoder(new Encoder(3, 2));
+        left.setEncoder(new Encoder(3, 2));
+        right.setEncoder(new Encoder(0, 1));
     }
 
 

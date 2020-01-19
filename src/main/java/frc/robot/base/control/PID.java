@@ -37,6 +37,7 @@ public class PID extends Module {
     public PID(String id, double kp, double ki, double kd, double kf) {
         super(id);
         setPIDF(kp, ki, kd, kf);
+        integral = 0;
         command("setpidf", new Command() {
             @Override
             public String execute(String s) throws Exception {
@@ -54,10 +55,15 @@ public class PID extends Module {
     }
 
     public double calculateDerivative() {
-        derivative = alphaFilter((measurement - previousMeasurement) / DT, previousDerivative);
+        derivative = (measurement - previousMeasurement) / DT;
         if (Math.abs(derivative) < 0.001)
             derivative = 0;
-        previousDerivative = derivative;
+        return derivative;
+    }
+    public double calculateDerivative(double measurement, double previousMeasurement) {
+        derivative = (measurement - previousMeasurement) / DT;
+        if (Math.abs(derivative) < 0.001)
+            derivative = 0;
         return derivative;
     }
 
@@ -75,7 +81,8 @@ public class PID extends Module {
 
     public double PIDPosition(double measurement, double setpoint, double derivative) {
         double controlSignal;
-        error = setpoint - setMeasurement(measurement);
+        setMeasurement(measurement);
+        error = setpoint - measurement;
         if (Math.abs(error) < TOLERANCE) {
             controlSignal = 0;
         } else {
@@ -93,7 +100,8 @@ public class PID extends Module {
 
     public double PIDGravity(double measurement, double setpoint, double derivative, double compensation) {
         double controlSignal;
-        error = setpoint - setMeasurement(measurement);
+        setMeasurement(measurement);
+        error = setpoint - measurement;
         if (Math.abs(error) < MINIMUM_ERROR_INTEGRAL) {
             integral += ((error + previousError) * DT) / 2 * ki;
             integral = range(integral, MINIMUM_INTEGRAL, MAXIMUM_INTEGRAL);
@@ -106,9 +114,12 @@ public class PID extends Module {
 
     public double PIDVelocity(double measurement, double setpoint) {
         double controlSignal;
+        log("distance: "+measurement);
         setMeasurement(measurement);
-        calculateDerivative();
         error = setpoint - derivative;
+        calculateDerivative();
+        log("derivative: "+derivative);
+        //log("derivative: "+derivative);
         if (Math.abs(setpoint) < MINIMUM_SETPOINT) {
             // Zeroing controlSignal prevents braking when setpoint returns from high to 0
             if (Math.abs(derivative) < TOLERANCE) {
@@ -119,18 +130,18 @@ public class PID extends Module {
             }
             integral = 0;
         } else {
-            integral += ((error + previousError) * DT) / 2.0 * ki;
+            integral += (((error + previousError) * DT) / 2.0) * ki;
             integral = range(integral, -MAXIMUM_INTEGRAL, MAXIMUM_INTEGRAL);
-            controlSignal = (setpoint * kf) + (error * kp) + integral;
+            controlSignal = (setpoint * kf) + (error * kp) + integral - (derivative*kd);
         }
         previousError = error;
+        previousDerivative = derivative;
         return range(controlSignal, -MAXIMUM_SIGNAL, MAXIMUM_SIGNAL);
     }
 
-    public double setMeasurement(double value) {
+    public void setMeasurement(double value) {
         previousMeasurement = measurement;
         measurement = value;
-        return measurement;
     }
 
     public void setPIDF(double kp, double ki, double kd, double kf) {
