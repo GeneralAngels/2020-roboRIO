@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.util.Units;
 import frc.robot.base.drive.DifferentialDrive;
 import frc.robot.base.utils.MotorGroup;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -24,7 +26,52 @@ public class PathFollower extends frc.robot.base.Module {
                 }
                 return "OK";
             }
+
+//            command("visionpath",new Command() {
+//                @Override
+//                public String execute(String s) throws Exception {
+//                    String[] split = s.split(" ");
+//                    if (split.length == 5) {
+//                        drive.setTrajectory(visionpath());
+//                    }
+//                    return "OK";
+//                }
         });
+        command("get_da_yeet", new Command() {
+            @Override
+            public String execute(String s) throws Exception {
+                if (trajectory != null) {
+                    JSONArray array = new JSONArray();
+                    for (Trajectory.State state : trajectory.getStates()) {
+                        JSONObject object = new JSONObject();
+                        object.put("x", state.poseMeters.getTranslation().getX());
+                        object.put("y", state.poseMeters.getTranslation().getY());
+                        object.put("angle", state.poseMeters.getRotation().getDegrees());
+                        array.put(object);
+                    }
+                    return array.toString();
+                }
+                return "[]";
+            }
+        });
+    }
+
+    public double[][] getPoints(double[] a, double[] b, int amount) {//coefx, coefy, amount of point
+        double[][] points = new double[amount][2];
+
+        for (int i = 0; i < amount; i++) {
+            points[i][0] = put(a, ((double) i) / amount);
+            points[i][1] = put(b, ((double) i) / amount);
+        }
+        return points;
+    }
+
+    private double put(double[] a, double val) {
+        double ret = 0;
+        for (int i = 0; i < a.length; i++) {
+            ret += a[i] * Math.pow(val, a.length - i - 1);
+        }
+        return ret;
     }
 
     public Trajectory createPath() {
@@ -39,12 +86,13 @@ public class PathFollower extends frc.robot.base.Module {
         TrajectoryConfig config = new TrajectoryConfig(4, 2);
         config.setEndVelocity(0);
         //config.setReversed(true);
-        Trajectory res = TrajectoryGenerator.generateTrajectory(startPoint, interiorWaypoints, endPoint, config);
-        log("trajectory:" + res.toString());
-        res.getStates();
-        return res;
+        trajectory = TrajectoryGenerator.generateTrajectory(startPoint, interiorWaypoints, endPoint, config);
+        trajectory.getStates();
+        return trajectory;
 
     }
+
+    private Trajectory trajectory;
 
 //    static class TrajectoryGenerator {
 //        static double[] get_force(double gyro, double encoderLeft, double encoderRight, double wheel_dist, double wheel_diameter) {

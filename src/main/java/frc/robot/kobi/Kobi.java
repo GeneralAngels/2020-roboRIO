@@ -64,13 +64,13 @@ public class Kobi extends Bot {
 //        drive.setNoPID(driver.getY(), driver.getX());
 //        super.teleop();
 //        batteries.updateRobot(pdp)
-        double divider = driver.getRawButton(2) ? 1 : 2;
+        //double divider = driver.getRawButton(2) ? 1 : 2;
 //        log("divider");
-        log(driver.getY() + "");
-        drive.setNoPID(-driver.getY() / divider, driver.getX() / divider);
-        drive.loop(0);
+        //drive.setNoPID(-driver.getY() / divider, driver.getX() / divider);
+//        drive.loop(0);
 //        drive.direct(driver.getY() + driver.getX(), driver.getY() - driver.getX());
   //      drive.updateOdometry();
+        drive.set(0.2,0);
         if (time < 10000000){
             //drive.loop(time);
             time += 0.02;

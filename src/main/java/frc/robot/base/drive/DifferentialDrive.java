@@ -86,7 +86,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         this.trajectory = follower.createPath();
         gyro = new Gyroscope();
         initGyro(gyro);
-        setMode(false);
+        setMode(true);
     }
     public void printEncoders(){
         log("leftEncoder: "+left.getEncoder().getRaw()+"rightEncoder: "+right.getEncoder().getRaw());
@@ -109,21 +109,23 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         if (isAuto) {
             //log(time + "");
             Trajectory.State goal = this.trajectory.sample(time);
+
             //goal.timeSeconds = time / 1000.0;
             //goal = this.trajectory.sample(goal.timeSeconds);
-            log("goal: " + goal);
+            log("goal: " + goal.velocityMetersPerSecond);
             RamseteController controller = new RamseteController();
             Pose2d currentPose = new Pose2d(this.x, this.y, Rotation2d.fromDegrees(this.theta)); //x, y, rotation
 
             DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(0.7112); //parameter is the wheel to wheel distance
 
             ChassisSpeeds adjustedSpeeds = controller.calculate(currentPose, goal);
-
             DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(adjustedSpeeds);
 
             double leftVelocity = wheelSpeeds.leftMetersPerSecond;
             double rightVelocity = wheelSpeeds.rightMetersPerSecond;
-
+            log( String.valueOf(leftVelocity - motorControlLeftVelocity.getDerivative()));
+            super.set("velocities ", String.valueOf(leftVelocity - motorControlLeftVelocity.getDerivative()));
+            //log("left:" + leftVelocity + "   right: " + rightVelocity);
             //log("left Encoder: "+left.getEncoder().getRaw());
             double vel, omega;
             double[] speeds = wheelsToRobot(leftVelocity, rightVelocity);
@@ -131,7 +133,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
             vel = speeds[0];
             omega = speeds[1];
             //log("vel: " + vel + ",   omega: " + omega);
-            log("setpointVelocity: "+goal.velocityMetersPerSecond);
+            //log("setpointVelocity: "+goal.velocityMetersPerSecond);
             set(goal.velocityMetersPerSecond, omega);
         } else {
             direct(motorOutputs[0], motorOutputs[1]);
@@ -212,10 +214,10 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         setTank((-2 - motorControlLeftPosition.PIDPosition(angle, initialAngle + target)), (2 + motorControlRightPosition.PIDPosition(angle, initialAngle + target)));
     }
 
-    public void driveStraightPID() {
-        int initialSpeed = 4;
-        setTank(initialSpeed + motorControlLeftPosition.PIDPosition(toRadians(gyro.getYaw()), 0), initialSpeed - motorControlRightPosition.PIDPosition(toRadians(gyro.getYaw()), 0));
-    }
+//    public void driveStraightPID() {
+//        int initialSpeed = 4;
+//        setTank(initialSpeed + motorControlLeftPosition.PIDPosition(toRadians(gyro.getYaw()), 0), initialSpeed - motorControlRightPosition.PIDPosition(toRadians(gyro.getYaw()), 0));
+//    }
 
     public void set(double setpointV, double setpointOmega) {
         if (Math.abs(setpointV) < 0.1)
@@ -260,18 +262,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     }
 
     public void updateOdometry() {
-        theta = 0;
-        if (gyro == null) {
-            set("gyro", "Not Working");
-        } else {
-            if (checkGyro) {
-                checkGyro = false;
-                gyro.reset();
-            } else {
-                set("gyro", "Working");
-                theta = gyro.getAngle();
-            }
-        }
+        theta = gyro.getAngle();
         encoders[0] = left.getEncoder().getRaw();
         encoders[1] = right.getEncoder().getRaw();
         //log("encoder right: " + right.getEncoder().getRaw());
@@ -298,9 +289,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
     public void initGyro(Gyroscope gyro) {
         this.gyro = gyro;
-        while (gyro.isCalibrating()) //log("Calibrating Gyro");
-        offsetGyro = gyro.getYaw();
-
+        offsetGyro = gyro.getAngle();
     }
 
     public void direct(double leftSpeed, double rightSpeed) {
