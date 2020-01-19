@@ -58,7 +58,7 @@ public class Gyroscope {
         return previousFiltered;
     }
 
-//    @Override
+    //    @Override
     public double getAngle() {
 //        double raw = getRawGyroZ();
 //        previousFiltered = filter(raw, ALPHA);
@@ -69,7 +69,7 @@ public class Gyroscope {
         double[] ypr = new double[3];
         pigeon.getYawPitchRoll(ypr);
 //        pigeon.getRawGyro(ypr);
-        return ypr[0];
+        return ypr[0] * (9.0 / 140.0);
     }
 
     protected double filter(double raw, double alpha) {
