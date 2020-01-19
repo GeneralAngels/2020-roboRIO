@@ -15,7 +15,7 @@ public class Gyroscope {
     private static final double DEADZONE = 0.2;
     private static final double DELTA = 0.02;
 
-    private PigeonIMU pigeon = new PigeonIMU(69);
+    private PigeonIMU pigeon = new PigeonIMU(30);
 
     protected double bias = 0;
     protected double angle = 0;
@@ -68,6 +68,7 @@ public class Gyroscope {
 //        return angle;
         double[] ypr = new double[3];
         pigeon.getYawPitchRoll(ypr);
+//        pigeon.getRawGyro(ypr);
         return ypr[0];
     }
 

@@ -70,7 +70,8 @@ public class Kobi extends Bot {
 //        drive.loop(0);
 //        drive.direct(driver.getY() + driver.getX(), driver.getY() - driver.getX());
   //      drive.updateOdometry();
-        drive.set(0.2,0);
+        drive.updateOdometry();
+//        drive.set(0.2,0);
         if (time < 10000000){
             //drive.loop(time);
             time += 0.02;
