@@ -17,6 +17,12 @@ public class Module extends Node {
         command("json", s -> pullJSON(false).toString());
         command("telemetry", s -> pullJSON(true).toString());
         command("exists", s -> "true");
+        command("help", new Command() {
+            @Override
+            public String execute(String s) throws Exception {
+                return help("");
+            }
+        });
     }
 
     public JSONObject pullJSON(boolean recursive) {
@@ -28,6 +34,18 @@ public class Module extends Node {
             }
         }
         return json;
+    }
+
+    public String help(String prependingTabs) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(prependingTabs).append(":").append(" ").append(id.toLowerCase()).append("\n");
+        getCommands().forEach((s, command) -> {
+            builder.append(prependingTabs).append(">").append(" ").append(s).append("\n");
+        });
+        for (Node slav : super.getSlaves()) {
+            builder.append(((Module) slav).help(prependingTabs + "\t"));
+        }
+        return builder.toString();
     }
 
     protected void log(String string) {
