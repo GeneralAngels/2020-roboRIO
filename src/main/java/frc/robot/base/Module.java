@@ -12,17 +12,13 @@ import org.json.JSONObject;
 
 public class Module extends Node {
 
+    private static final String WHITESPACE = "\t";
+
     public Module(String id) {
         super(id);
         command("json", s -> pullJSON(false).toString());
         command("telemetry", s -> pullJSON(true).toString());
-        command("exists", s -> "true");
-        command("help", new Command() {
-            @Override
-            public String execute(String s) throws Exception {
-                return help("");
-            }
-        });
+        command("help", s -> help(""));
     }
 
     public JSONObject pullJSON(boolean recursive) {
@@ -36,14 +32,14 @@ public class Module extends Node {
         return json;
     }
 
-    public String help(String prependingTabs) {
+    public String help(String prependingWhitespace) {
         StringBuilder builder = new StringBuilder();
-        builder.append(prependingTabs).append(":").append(" ").append(id.toLowerCase()).append("\n");
+        builder.append(prependingWhitespace).append(":").append(" ").append(id.toLowerCase()).append("\r\n");
         getCommands().forEach((s, command) -> {
-            builder.append(prependingTabs).append(">").append(" ").append(s).append("\n");
+            builder.append(prependingWhitespace).append(WHITESPACE).append(">").append(" ").append(s).append("\r\n");
         });
         for (Node slav : super.getSlaves()) {
-            builder.append(((Module) slav).help(prependingTabs + "\t"));
+            builder.append(((Module) slav).help(prependingWhitespace + WHITESPACE));
         }
         return builder.toString();
     }

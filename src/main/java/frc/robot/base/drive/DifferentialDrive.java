@@ -11,10 +11,9 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import frc.robot.base.Module;
 import frc.robot.base.control.PID;
-import frc.robot.base.control.path.PathFollower;
+import frc.robot.base.control.path.PathManager;
 import frc.robot.base.utils.MotorGroup;
 
-import static java.lang.Thread.getAllStackTraces;
 import static java.lang.Thread.sleep;
 
 // TODO redo the whole thing
@@ -56,7 +55,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public double xPrev = 0;
     public MotorGroup<T> left = new MotorGroup<>("left"), right = new MotorGroup<>("right");
     public Odometry odometry = new Odometry();
-    public PathFollower follower;
+    public PathManager follower;
     public Trajectory trajectory;
     public double battery = 12;
     public double batteryPrev = 0;
@@ -78,7 +77,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         motorControlRightVelocity = new PID("pid_right_velocity", 0.33, 0, 1, 0);
         motorControlLeftPosition = new PID("pid_left_position", 3, 0.1, 0.2, 0);
         motorControlRightPosition = new PID("pid_right_position", 3, 0.1, 0.2, 0);
-        follower = new PathFollower(this);
+        follower = new PathManager(this);
         enslave(follower);
         enslave(left);
         enslave(right);
