@@ -69,12 +69,18 @@ public class Gyroscope {
         double[] ypr = new double[3];
         pigeon.getYawPitchRoll(ypr);
 //        pigeon.getRawGyro(ypr);
-        return ypr[0] * (9.0 / 140.0);
+        return ypr[0];
     }
 
     protected double filter(double raw, double alpha) {
         double filtered = raw * (1 - alpha) + previousX * alpha;
         previousX = raw;
         return filtered;
+    }
+
+    protected void resetGyro(){
+        pigeon.setYaw(0);
+        pigeon.setFusedHeading(0);
+//        pigeon.enterCalibrationMode(PigeonIMU.CalibrationMode.BootTareGyroAccel);
     }
 }

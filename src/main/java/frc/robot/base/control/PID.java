@@ -119,7 +119,6 @@ public class PID extends Module {
         error = setpoint - derivative;
         calculateDerivative();
         //log("derivative: "+derivative);
-        //log("derivative: "+derivative);
         if (Math.abs(setpoint) < MINIMUM_SETPOINT) {
             // Zeroing controlSignal prevents braking when setpoint returns from high to 0
             if (Math.abs(derivative) < TOLERANCE) {

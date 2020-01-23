@@ -23,6 +23,7 @@ public class Kobi extends Bot {
     private Batteries batteries;
     private RGB rgb;
     private double time = 0;
+    boolean toggle = true;
     // PDP
     private PowerDistributionPanel pdp;
 
@@ -61,20 +62,24 @@ public class Kobi extends Bot {
         // drive.left.applyPower(driver.getY());
         //drive.right.applyPower(driver.getY());
 //        }
-//        drive.setNoPID(driver.getY(), driver.getX());
+        drive.setNoPID(driver.getY(), driver.getX());
 //        super.teleop();
 //        batteries.updateRobot(pdp)
-        //double divider = driver.getRawButton(2) ? 1 : 2;
+          double divider = driver.getRawButton(2) ? 1 : 2;
+
 //        log("divider");
-        //drive.setNoPID(-driver.getY() / divider, driver.getX() / divider);
+          drive.setNoPID(-driver.getY() / divider, driver.getX() / divider);
 //        drive.loop(0);
 //        drive.direct(driver.getY() + driver.getX(), driver.getY() - driver.getX());
   //      drive.updateOdometry();
-        drive.updateOdometry();
 //        drive.set(0.2,0);
         if (time < 10000000){
-            //drive.loop(time);
+            drive.loop(time);
             time += 0.02;
+            if (driver.getTriggerPressed() & toggle){
+                toggle = false;
+                drive.isAuto = false;
+            }
 //            log("x: " + drive.x);
 //            log("y:" + drive.y);
 //            log("theta: " + drive.theta);
