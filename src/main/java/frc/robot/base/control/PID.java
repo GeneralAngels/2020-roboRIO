@@ -13,8 +13,8 @@ public class PID extends Module {
 
     private static final double TOLERANCE = 0.01;
     private static final double ALPHA = 0.5;
-    private static final double MINIMUM_INTEGRAL = -3;
-    private static final double MAXIMUM_INTEGRAL = 3;
+    private static final double MINIMUM_INTEGRAL = -1;
+    private static final double MAXIMUM_INTEGRAL = 1;
     private static final double MINIMUM_SIGNAL = -12;
     private static final double MAXIMUM_SIGNAL = 12;
     private static final double MINIMUM_SETPOINT = 0.01;
@@ -114,11 +114,13 @@ public class PID extends Module {
 
     public double PIDVelocity(double measurement, double setpoint) {
         double controlSignal;
-        log("distance: "+measurement);
+        //log("distance: "+measurement);
         setMeasurement(measurement);
-        error = setpoint - derivative;
         calculateDerivative();
-        //log("derivative: "+derivative);
+        alphaFilter(derivative, previousDerivative);
+        log("derivative: "+derivative);
+        super.set("derivative: ", ""+derivative);
+        error = setpoint - derivative;
         if (Math.abs(setpoint) < MINIMUM_SETPOINT) {
             // Zeroing controlSignal prevents braking when setpoint returns from high to 0
             if (Math.abs(derivative) < TOLERANCE) {
@@ -131,7 +133,8 @@ public class PID extends Module {
         } else {
             integral += (((error + previousError) * DT) / 2.0) * ki;
             integral = range(integral, -MAXIMUM_INTEGRAL, MAXIMUM_INTEGRAL);
-            controlSignal = (setpoint * kf) + (error * kp) + integral - (derivative*kd);
+            controlSignal = (setpoint * kf) + (error * kp) + integral - (derivative*0); //kd???
+//            log("\n\n\nvelocity: "+derivative+"\n\n\n");
         }
         previousError = error;
         previousDerivative = derivative;

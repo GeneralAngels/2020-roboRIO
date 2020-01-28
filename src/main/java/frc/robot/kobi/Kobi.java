@@ -2,6 +2,7 @@ package frc.robot.kobi;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
+import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.base.Bot;
 import frc.robot.base.rgb.RGB;
 import frc.robot.base.rgb.patterns.TestPush;
@@ -9,13 +10,17 @@ import frc.robot.base.utils.Batteries;
 import frc.robot.kobi.systems.KobiDrive;
 import frc.robot.kobi.systems.KobiFeeder;
 import frc.robot.kobi.systems.KobiShooter;
+import frc.robot.base.control.path.PathManager;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class Kobi extends Bot {
 
     // Joystick
     private Joystick driver;
+    private Joystick driver2;
+    private PathManager pather;
     // Modules
     private KobiDrive drive;
     private KobiFeeder feeder;
@@ -24,12 +29,22 @@ public class Kobi extends Bot {
     private RGB rgb;
     private double time = 0;
     boolean toggle = true;
+    private int trajectoryIndex = 0;
     // PDP
     private PowerDistributionPanel pdp;
+    private boolean go = false;
+    private boolean tog1 = false;
+    private boolean tog1pressed = false;
+    private boolean tog2 = false;
+    private boolean tog2pressed = false;
+
+    private double[] splinex;
+    private double[] spliney;
 
     public Kobi() {
         // Joystick
         driver = new Joystick(0);
+//        driverTest =
         log(driver + " jyro thingy");
         // PDP
 //        pdp = new PowerDistributionPanel(2);
@@ -38,12 +53,20 @@ public class Kobi extends Bot {
         drive = new KobiDrive();
         rgb = new RGB(30);
         rgb.setPattern(new TestPush());
+        pather = new PathManager(drive);
         // Ah yes, enslaved modules
         enslave(batteries);
         enslave(drive);
         enslave(rgb);
         drive.setTrajectory(drive.trajectory);
         drive.updateOdometry();
+
+        splinex = pather.createSpline(0.5,1,0.5,-1);
+        for (int i = 0; i < splinex.length; i++) {
+            log("*"+splinex[i]);
+        }
+        spliney = pather.createSpline(0.5,-1,0.5,0);
+        log("*"+Arrays.toString(spliney));
     }
 
     @Override
@@ -54,41 +77,18 @@ public class Kobi extends Bot {
         set("right", String.valueOf(drive.right.getEncoder().get()));
         set("random", String.valueOf(new Random().nextInt(100)));
         set("time", String.valueOf(millis()));
-//        drive.left.applyPower(driver.getY()*10);
-//        if(Math.abs(driver.getY())<0.1){
-//            drive.right.applyPower(0);
-//        }
-//        else {
-        // drive.left.applyPower(driver.getY());
-        //drive.right.applyPower(driver.getY());
-//        }
-        drive.setNoPID(driver.getY(), driver.getX());
-//        super.teleop();
-//        batteries.updateRobot(pdp)
-          double divider = driver.getRawButton(2) ? 1 : 2;
 
-//        log("divider");
-          drive.setNoPID(-driver.getY() / divider, driver.getX() / divider);
-//        drive.loop(0);
-//        drive.direct(driver.getY() + driver.getX(), driver.getY() - driver.getX());
-  //      drive.updateOdometry();
+        time +=0.02;
 //        drive.set(0.2,0);
-        if (time < 10000000){
-            drive.loop(time);
-            time += 0.02;
-            if (driver.getTriggerPressed() & toggle){
-                toggle = false;
-                drive.isAuto = false;
-            }
-//            log("x: " + drive.x);
-//            log("y:" + drive.y);
-//            log("theta: " + drive.theta);
-        }
-//        if (time > 5){
-//            log("left: " + drive.left.getEncoder().getRaw());
-//            log("right: " + drive.right.getEncoder().getRaw());
-//    }
-        //log("ang:" + drive.theta);
+        drive.set(0.2,0);
 
+//        double left = pather.put(splinex,time)/3;
+//        double right = -pather.put(spliney,time)/3;
+//        if(time <= 1){
+//            drive.direct(right,left);
+//            log("*\n"+time);}
+//        else{
+//            drive.direct(0,0);
+//        }
     }
 }
