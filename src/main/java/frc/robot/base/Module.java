@@ -45,8 +45,7 @@ public class Module extends Node {
     }
 
     protected void log(String string) {
-        if (string.charAt(0) == '*')
-            System.out.println(id.toUpperCase() + ": " + string.substring(1));
+        System.out.println(id.toUpperCase() + ": " + string);
     }
 
     protected long millis() {

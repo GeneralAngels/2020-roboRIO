@@ -72,14 +72,13 @@ public class Kobi extends Bot {
     @Override
     public void teleop() {
 //
-
+        log("Yeeete?");
         set("left", String.valueOf(drive.left.getEncoder().get()));
         set("right", String.valueOf(drive.right.getEncoder().get()));
         set("random", String.valueOf(new Random().nextInt(100)));
         set("time", String.valueOf(millis()));
 
         time +=0.02;
-//        drive.set(0.2,0);
         drive.set(0.2,0);
 
 //        double left = pather.put(splinex,time)/3;
