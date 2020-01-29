@@ -118,9 +118,10 @@ public class PID extends Module {
         setMeasurement(measurement);
         calculateDerivative();
         alphaFilter(derivative, previousDerivative);
-        log("derivative: "+derivative);
+        //log("derivative: "+derivative);
         super.set("derivative: ", ""+derivative);
         error = setpoint - derivative;
+        super.set("error: ", ""+error);
         if (Math.abs(setpoint) < MINIMUM_SETPOINT) {
             // Zeroing controlSignal prevents braking when setpoint returns from high to 0
             if (Math.abs(derivative) < TOLERANCE) {
@@ -133,7 +134,8 @@ public class PID extends Module {
         } else {
             integral += (((error + previousError) * DT) / 2.0) * ki;
             integral = range(integral, -MAXIMUM_INTEGRAL, MAXIMUM_INTEGRAL);
-            controlSignal = (setpoint * kf) + (error * kp) + integral - (derivative*0); //kd???
+            set("integral", String.valueOf(integral));
+            controlSignal = (setpoint * kf) + (error * kp) + integral; //kd???
 //            log("\n\n\nvelocity: "+derivative+"\n\n\n");
         }
         previousError = error;

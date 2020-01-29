@@ -34,7 +34,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public Gyroscope gyro;
     public double WHEEL_DISTANCE = 0.7112;
     public double WHEEL_RADIUS = 0.0762;
-    public double MAX_V = 0.5;
+    public double MAX_V = 1.0;
     public double MAX_OMEGA = 3.14 * 2;
     public double gearRatio = 1.0;
     public double ENCODER_COUNT_PER_REVOLUTION = 512;
@@ -75,14 +75,15 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public boolean lastIndex = true;
     private long trajectoryStart = 0;
     public double Kv = 1;
-    public double Komega = 0.3;
+    public double Komega = 2; // Note that low values (for example 0.33) means it should get to the setpoint in ~3 seconds!
+    public double Kcurv = 0;
 
 
     public DifferentialDrive() {
         super("drive");
         pdp = new PowerDistributionPanel(0);
-        motorControlLeftVelocity = new PID("pid_left_velocity", 0, 1, 0, 0.2);
-        motorControlRightVelocity = new PID("pid_right_velocity", 0, 1, 0, 0.2);
+        motorControlLeftVelocity = new PID("pid_left_velocity", 0, 0.03, 0, 0.24);
+        motorControlRightVelocity = new PID("pid_right_velocity", 0, 0.03, 0, 0.24);
         motorControlLeftPosition = new PID("pid_left_position", 3, 0.1, 0.2, 0);
         motorControlRightPosition = new PID("pid_right_position", 3, 0.1, 0.2, 0);
         follower = new PathManager(this);
@@ -102,15 +103,16 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         gyro.resetGyro();
         trajectoryIndex = 1;
     }
-    public void printEncoders(){
-        log("leftEncoder: "+left.getEncoder().getRaw()+"rightEncoder: "+right.getEncoder().getRaw());
+
+    public void printEncoders() {
+        log("leftEncoder: " + left.getEncoder().getRaw() + "rightEncoder: " + right.getEncoder().getRaw());
     }
 
     public void setTrajectory(Trajectory trajectory) {
         this.basePose = new Trajectory.State();
         this.trajectory = trajectory;
         this.trajectoryStart = millis();
-        //log("traj:" + this.trajectory);
+
     }
 
     public void setMode(boolean trajectory) {
@@ -123,13 +125,12 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         if (isAuto) {
             Trajectory.State goal = this.trajectory.sample(time);
             //log("curve: " + goal.curvatureRadPerMeter);
-            double[] speeds = calcErrors(goal);
-            if (true){//!isDone(getPose(), trajectory.sample(trajectory.getTotalTimeSeconds()).poseMeters) || goal.velocityMetersPerSecond + (errorDistance * 0.7) > 0.05) {
+            double[] speeds = calcErrors(goal, goal); // Sent goal twice because there is no meaning to prevGoal
+            if (true) {//!isDone(getPose(), trajectory.sample(trajectory.getTotalTimeSeconds()).poseMeters) || goal.velocityMetersPerSecond + (errorDistance * 0.7) > 0.05) {
                 //set(speeds[0] * 8, speeds[1] * 0.7);
-                set(goal.velocityMetersPerSecond + speeds[0], (goal.velocityMetersPerSecond*goal.curvatureRadPerMeter) + speeds[1]);
+                set(goal.velocityMetersPerSecond + speeds[0], (goal.velocityMetersPerSecond * goal.curvatureRadPerMeter) + speeds[1]);
                 log("done");
-            }
-            else {
+            } else {
                 setMode(false);
             }
         } else {
@@ -138,104 +139,118 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         updateOdometry();
     }
 
-    public void pathFollowingProcedure(){
+    public void pathFollowingProcedure() {
+        Trajectory.State currentGoal = trajectoryStates.get(trajectoryIndex);
+        Trajectory.State previousGoal = trajectoryStates.get(trajectoryIndex - 1);
+        double curvature = currentGoal.curvatureRadPerMeter;
+        double[] errors = calcErrors(currentGoal, previousGoal);
+        super.set("errorTheta", "" + errors[2]);
+        super.set("trajectoryIndex", "" + trajectoryIndex);
+
         if (trajectoryIndex < trajectoryStates.size() - 1) { //length of the trajectory
-            Trajectory.State currentState = trajectoryStates.get(trajectoryIndex);
-            log("next point: " + currentState);
-            Trajectory.State previousState = trajectoryStates.get(trajectoryIndex - 1);
-            double errorXCurrent, errorYCurrent, errorYPrev, errorXPrev;
-            errorXCurrent = currentState.poseMeters.getTranslation().getX() - x;
-            errorYCurrent = currentState.poseMeters.getTranslation().getY() - y;
-            errorXPrev = previousState.poseMeters.getTranslation().getX() - x;
-            errorYPrev = previousState.poseMeters.getTranslation().getY() - y;
-            double errorTheta = Math.atan2(errorYCurrent, errorXCurrent);
-
-            if (errorTheta > 3.141)
-                errorTheta -= 6.282;
-            if (errorTheta < -3.141)
-                errorTheta += 6.282;
-            double curvature = currentState.curvatureRadPerMeter;
-            double errorPositionCurrent = Math.sqrt(Math.pow(errorXCurrent, 2) + Math.pow(errorYCurrent, 2));
-            double errorPositionPrev = Math.sqrt(Math.pow(errorXPrev, 2) + Math.pow(errorYPrev, 2));
-
-            //double[] speeds = calcErrors(trajectoryStates.get(trajectoryIndex));
-            double desiredVelocity = MAX_V - curvature*0.001;
-//            set(desiredVelocity, speeds[1]);
-            set(desiredVelocity, errorTheta*Komega);
+            double desiredVelocity = MAX_V - curvature * Kcurv;
+            set(desiredVelocity, errors[2] * Komega);
             log("not last point");
-            if (errorPositionCurrent*2 < errorPositionPrev) {
+            if (errors[0] < errors[1]) {
                 trajectoryIndex++;
             }
-        }
-        else {
+        } else {
             //lastIndex = true;
-            double[] speeds = calcErrors(trajectoryStates.get(trajectoryIndex));
+            //double[] speeds = calcErrors(trajectoryStates.get(trajectoryIndex));
             if (!isDone(getPose(), trajectoryStates.get(trajectoryIndex).poseMeters)) {
-                set(speeds[0]*Kv, speeds[1]*Komega);
+                set(errors[0] * Kv, errors[2] * Komega);
                 log("last point");
-            }
-            else {
-                set(0,0);
+            } else {
+                set(0, 0);
                 log("done");
-
             }
         }
     }
 
-    public double[] calcErrors(Trajectory.State goal){
-        double errorX, errorY;
-        errorX = goal.poseMeters.getTranslation().getX() - x;
-        errorY = goal.poseMeters.getTranslation().getY() - y;
-        //double errorAng = Math.atan2(errorY, errorX);
-        double errorAng = Math.atan2(goal.poseMeters.getTranslation().getY(), goal.poseMeters.getTranslation().getX());
-        double errorTheta = toRadians(goal.poseMeters.getRotation().getDegrees() - theta);
-        if (errorAng > 3.141)
-            errorAng -= 6.282;
-        if (errorAng < -3.141)
-            errorAng += 6.282;
+    public double[] calcErrors(Trajectory.State currentGoal, Trajectory.State previousGoal) {
+        double errorXCurrent, errorYCurrent, errorYPrev, errorXPrev;
+        errorXCurrent = currentGoal.poseMeters.getTranslation().getX() - x;
+        errorYCurrent = currentGoal.poseMeters.getTranslation().getY() - y;
+        errorXPrev = previousGoal.poseMeters.getTranslation().getX() - x;
+        errorYPrev = previousGoal.poseMeters.getTranslation().getY() - y;
+        double errorTheta = Math.atan2(errorYCurrent, errorXCurrent) - toRadians(theta);
+        if (errorTheta > 3.141)
+            errorTheta -= 6.282;
+        if (errorTheta < -3.141)
+            errorTheta += 6.282;
 
-        double errorPosition = Math.sqrt(Math.pow(errorX, 2) + Math.pow(errorY, 2));
-        double[] errors =  new double[] {errorPosition, errorAng};
-        log("\n\nerrorTheta:"+errorTheta);
-        log("errorAngle: "+errorAng+"\n\n");
+        double errorPositionCurrent = Math.sqrt(Math.pow(errorXCurrent, 2) + Math.pow(errorYCurrent, 2));
+        double errorPositionPrev = Math.sqrt(Math.pow(errorXPrev, 2) + Math.pow(errorYPrev, 2));
+        double[] errors = new double[]{errorPositionCurrent, errorPositionPrev, errorTheta};
+        log("\n\nerrorTheta:" + errorTheta);
+
         //double dir = sign(Math.cos(errors[1]));
-
-        double dir = (trajectoryIndex < trajectoryStates.size() - 1) ? 1 : -1;
-        double v = errors[0] * -dir;
-
-        //double v = errors[0];
-        double omega = errorTheta;
-        return new double[] {v, omega};
+//        double dir = (trajectoryIndex < trajectoryStates.size() - 1) ? 1 : -1;
+//        double v = errors[0] * -dir;
+        //double omega = errorTheta;
+        //return new double[] {v, omega};
+        return errors;
     }
 
+//    public double[] calcErrors(Trajectory.State goal){
+//        double errorX, errorY;
+//        errorX = goal.poseMeters.getTranslation().getX() - x;
+//        errorY = goal.poseMeters.getTranslation().getY() - y;
+//        //double errorAng = Math.atan2(errorY, errorX);
+//        double errorAng = Math.atan2(goal.poseMeters.getTranslation().getY(), goal.poseMeters.getTranslation().getX());
+//        double errorTheta = toRadians(goal.poseMeters.getRotation().getDegrees() - theta);
+//        if (errorAng > 3.141)
+//            errorAng -= 6.282;
+//        if (errorAng < -3.141)
+//            errorAng += 6.282;
+//
+//        double errorPosition = Math.sqrt(Math.pow(errorX, 2) + Math.pow(errorY, 2));
+//        double[] errors =  new double[] {errorPosition, errorAng};
+//        log("\n\nerrorTheta:"+errorTheta);
+//        log("errorAngle: "+errorAng+"\n\n");
+//        //double dir = sign(Math.cos(errors[1]));
+//
+////        double dir = (trajectoryIndex < trajectoryStates.size() - 1) ? 1 : -1;
+////        double v = errors[0] * -dir;
+//
+//
+//        //double v = errors[0];
+//        //double omega = errorTheta;
+//        //return new double[] {v, omega};
+//        return new double[] {errorPosition, errorTheta};
+//    }
 
-    public void followSplineNoPID(double[] splinex,double[] spliney,double t){
+
+    public void followSplineNoPID(double[] splinex, double[] spliney, double t) {
         double[] dsplinex = follower.derivePolynom(splinex);
         double[] dspliney = follower.derivePolynom(spliney);
-        double dx = follower.put(dsplinex,t);
-        double dy = follower.put(dspliney,t);
-        log("*dx, dy "+dx+", "+dy);
-        direct(dx,dy);
+        double dx = follower.put(dsplinex, t);
+        double dy = follower.put(dspliney, t);
+        log("*dx, dy " + dx + ", " + dy);
+        direct(dx, dy);
     }
 
 
-    public double sign(double num){
+    public double sign(double num) {
         return (num < 0) ? -1 : 1;
     }
-    public Pose2d getPose(){
+
+    public Pose2d getPose() {
         return new Pose2d(x, y, Rotation2d.fromDegrees(theta));
     }
 
-    public boolean isDone(Pose2d current, Pose2d end){
+    public boolean isDone(Pose2d current, Pose2d end) {
         double tolerance = 0.2;
         double errorX = Math.abs(current.getTranslation().getX() - end.getTranslation().getX());
         double errorY = Math.abs(current.getTranslation().getY() - end.getTranslation().getY());
         double errorTheta = Math.abs(current.getRotation().getDegrees() - end.getRotation().getDegrees());
         return errorX < tolerance && errorY < tolerance && errorTheta < 5;
     }
+
     public void setNoPID(double speed, double turn) {
-        motorOutputs[0] = (turn + speed) / 2;
-        motorOutputs[1] = (turn - speed) / 2;
+        motorOutputs[0] = (turn + speed);
+        motorOutputs[1] = (turn - speed);
+        direct(motorOutputs[0], motorOutputs[1]);
     }
 
     public static double noPIDCalculateRight(double speed, double turn) {
@@ -315,11 +330,10 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         if (Math.abs(setpointOmega) < 0.05)
             setpointOmega = 0;
         motorOutputs = calculateOutputs(setpointV, setpointOmega);
-        direct(motorOutputs[0]/12.0, -motorOutputs[1]/12.0);
+        //direct(motorOutputs[0]/12.0, -motorOutputs[1]/12.0);
+        direct(motorOutputs[0] / pdp.getVoltage(), -motorOutputs[1] / pdp.getVoltage());
         updateOdometry();
     }
-
-
 
 
     public double[] calculateOutputs(double speed, double turn) {
@@ -328,7 +342,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         VSetpoints[1] = wheelSetPoints[1];
         double leftPositionRadians = left.getEncoder().getRaw() * ENCODER_TO_RADIAN;
         double rightPositionRadians = right.getEncoder().getRaw() * ENCODER_TO_RADIAN;
-        super.set("setpointLeft",""+wheelSetPoints[0]);
+        super.set("setpointLeft", "" + wheelSetPoints[0]);
         double motorOutputLeft = motorControlLeftVelocity.PIDVelocity(leftPositionRadians, wheelSetPoints[0]);
         double motorOutputRight = motorControlRightVelocity.PIDVelocity(rightPositionRadians, wheelSetPoints[1]);
         return new double[]{motorOutputLeft, motorOutputRight};
@@ -356,7 +370,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         distanceFromEncoders = (leftMeters + rightMeters) / 2.0;
         x += distanceFromEncoders * Math.cos(toRadians(theta)); //sin
         y += distanceFromEncoders * Math.sin(toRadians(theta)); //cos
-        log("x: "+x+" y: "+y+" theta: "+theta);
+        log("x: " + x + " y: " + y + " theta: " + theta);
         xPrev = x;
         leftMetersPrev = leftMeters;
         rightMetersPrev = rightMeters;
@@ -380,7 +394,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         left.applyPower(leftSpeed);
         right.applyPower(rightSpeed);
     }
-    public void directLeft(double leftSpeed){
+
+    public void directLeft(double leftSpeed) {
         left.applyPower(leftSpeed);
     }
 
@@ -392,7 +407,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         return radians * (180 / Math.PI);
     }
 
-    public void splineFollower(double[] coefsLeft, double coefsRight){
+    public void splineFollower(double[] coefsLeft, double coefsRight) {
 
     }
 }

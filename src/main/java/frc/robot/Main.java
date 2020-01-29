@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.base.Bot;
 import frc.robot.kobi.Kobi;
+import frc.robot.shuby.Shuby;
 
 public final class Main {
 

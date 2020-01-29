@@ -86,7 +86,7 @@ public class PathManager extends frc.robot.base.Module {
         //we don't need the abcdk. the library does this itself
 
         Pose2d startPoint = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
-        Pose2d endPoint = new Pose2d(1, 1, Rotation2d.fromDegrees(0));
+        Pose2d endPoint = new Pose2d(2, 0.5, Rotation2d.fromDegrees(-45));
         ArrayList<Translation2d> interiorWaypoints = new ArrayList<>();
         //interiorWaypoints.add(new Translation2d(1, 0));
 //        interiorWaypoints.add(new Translation2d(1.0, 0.5));

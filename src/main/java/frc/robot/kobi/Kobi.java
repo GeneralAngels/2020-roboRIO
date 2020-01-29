@@ -72,15 +72,23 @@ public class Kobi extends Bot {
     @Override
     public void teleop() {
 //
-        log("Yeeete?");
-        set("left", String.valueOf(drive.left.getEncoder().get()));
-        set("right", String.valueOf(drive.right.getEncoder().get()));
-        set("random", String.valueOf(new Random().nextInt(100)));
+//        log("Yeeete?");
+//        set("left", String.valueOf(drive.left.getEncoder().get()));
+//        set("right", String.valueOf(drive.right.getEncoder().get()));
+//        set("random", String.valueOf(new Random().nextInt(100)));
+        set("left_velocity", String.valueOf(drive.motorControlLeftVelocity));
+        set("right_velocity", String.valueOf(drive.motorControlRightVelocity));
         set("time", String.valueOf(millis()));
 
         time +=0.02;
-        drive.set(0.2,0);
-
+        drive.setNoPID(-driver.getY(), driver.getX());
+        drive.isAuto = false;
+        drive.loop(time);
+        //drive.pathFollowingProcedure();
+//        if (time < 10)
+//            drive.set(1,0);
+//        else
+//            drive.set(0,0);
 //        double left = pather.put(splinex,time)/3;
 //        double right = -pather.put(spliney,time)/3;
 //        if(time <= 1){
@@ -91,3 +99,4 @@ public class Kobi extends Bot {
 //        }
     }
 }
+//0.2 / 0.07 = 0.85
