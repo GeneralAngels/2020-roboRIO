@@ -11,6 +11,7 @@ import frc.robot.kobi.systems.KobiDrive;
 import frc.robot.kobi.systems.KobiFeeder;
 import frc.robot.kobi.systems.KobiShooter;
 import frc.robot.base.control.path.PathManager;
+import frc.robot.shuby.ShubyDrive;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -44,6 +45,7 @@ public class Kobi extends Bot {
     public Kobi() {
         // Joystick
         driver = new Joystick(0);
+        driver2 = new Joystick(1);
 //        driverTest =
         log(driver + " jyro thingy");
         // PDP
@@ -80,23 +82,9 @@ public class Kobi extends Bot {
         set("right_velocity", String.valueOf(drive.motorControlRightVelocity));
         set("time", String.valueOf(millis()));
 
-        time +=0.02;
-        drive.setNoPID(-driver.getY(), driver.getX());
-        drive.isAuto = false;
-        drive.loop(time);
-        //drive.pathFollowingProcedure();
-//        if (time < 10)
-//            drive.set(1,0);
-//        else
-//            drive.set(0,0);
-//        double left = pather.put(splinex,time)/3;
-//        double right = -pather.put(spliney,time)/3;
-//        if(time <= 1){
-//            drive.direct(right,left);
-//            log("*\n"+time);}
-//        else{
-//            drive.direct(0,0);
-//        }
+
+//        drive.setNoPID(-driver.getY()/5, driver.getX()/5);
+        //log("left: " + drive.left.getEncoder().getRaw() + "     right: " + drive.right.getEncoder().getRaw());
     }
 }
 //0.2 / 0.07 = 0.85

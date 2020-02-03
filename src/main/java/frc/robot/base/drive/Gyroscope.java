@@ -72,6 +72,12 @@ public class Gyroscope {
         return ypr[0];
     }
 
+    public double getAngularVelocity(){
+        double[] xyz = new double[3];
+        pigeon.getRawGyro(xyz);
+        return xyz[2];
+    }
+
     protected double filter(double raw, double alpha) {
         double filtered = raw * (1 - alpha) + previousX * alpha;
         previousX = raw;

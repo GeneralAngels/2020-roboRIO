@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PathManager extends frc.robot.base.Module {
 
@@ -86,7 +87,7 @@ public class PathManager extends frc.robot.base.Module {
         //we don't need the abcdk. the library does this itself
 
         Pose2d startPoint = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
-        Pose2d endPoint = new Pose2d(2, 0.5, Rotation2d.fromDegrees(-45));
+        Pose2d endPoint = new Pose2d(2, 0.5, Rotation2d.fromDegrees(0));
         ArrayList<Translation2d> interiorWaypoints = new ArrayList<>();
         //interiorWaypoints.add(new Translation2d(1, 0));
 //        interiorWaypoints.add(new Translation2d(1.0, 0.5));
@@ -97,6 +98,15 @@ public class PathManager extends frc.robot.base.Module {
         trajectory = TrajectoryGenerator.generateTrajectory(startPoint, interiorWaypoints, endPoint, config);
         trajectory.getStates();
         return trajectory;
+    }
+
+    public double movingAverageCurvature(List<Trajectory.State> trajectory){
+        int size = trajectory.size();
+        double average = (Math.abs(trajectory.get(size - 1).curvatureRadPerMeter) + Math.abs(trajectory.get(size - 2).curvatureRadPerMeter)) / 2;
+        for(int i = size - 3; i >= 0; i -= 1){
+            average = (average + Math.abs(trajectory.get(i).curvatureRadPerMeter)) / 2;
+        }
+        return average;
     }
 
     private double[] dot(double[][] A, double[] y){ //Solving for Ax = y (A=Matrix, a=vector, y = vector)
