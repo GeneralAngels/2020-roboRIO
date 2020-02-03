@@ -28,6 +28,10 @@ public class KobiShooter extends frc.robot.base.Module {
         });
     }
 
+    public void applyPower(double power){
+        motor.set(power);
+    }
+
     public void setVelocity(double velocity){
 //        motorControlVelocity.PIDVelocity();
     }
