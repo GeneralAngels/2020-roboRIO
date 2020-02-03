@@ -2,7 +2,6 @@ package frc.robot.base.rgb;
 
 import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.base.Module;
-import frc.robot.base.rgb.patterns.TestPush;
 
 import java.awt.*;
 import java.util.*;
@@ -65,10 +64,10 @@ public class RGB extends Module {
             if (this.serial != null) {
                 try {
                     serial.write(new byte[]{
-                            (byte)(mode == Mode.Fill ? 0 : 1),
-                            (byte)(sentColor.getRed()),
-                            (byte)(sentColor.getGreen()),
-                            (byte)(sentColor.getBlue())
+                            (byte) (mode == Mode.Fill ? 0 : 1),
+                            (byte) ((sentColor.getRed() / 8) + 2),
+                            (byte) ((sentColor.getGreen() / 8) + 2),
+                            (byte) ((sentColor.getBlue() / 8) + 2)
                     }, 4);
                 } catch (Exception ignored) {
                     log("RGB serial transmit failure");

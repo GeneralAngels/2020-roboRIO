@@ -33,6 +33,7 @@ public class KobiShooter extends frc.robot.base.Module {
     }
 
     public void setVelocity(double velocity){
+//        double positionRadians =
 //        motorControlVelocity.PIDVelocity();
     }
 
