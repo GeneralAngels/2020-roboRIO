@@ -72,7 +72,7 @@ public class Kobi extends Bot {
         spliney = pather.createSpline(0.5, -1, 0.5, 0);
         log("*" + Arrays.toString(spliney));
 
-        rgb.setMode(RGB.Mode.Fill);
+        rgb.setMode(RGB.Mode.Slide);
     }
 
     @Override

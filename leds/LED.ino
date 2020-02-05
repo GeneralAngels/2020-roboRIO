@@ -2,7 +2,9 @@
 
 #define NUM_MATRIX 8
 
-#define NUM_LEDS NUM_MATRIX * 64
+#define NUM_ROW 8
+
+#define NUM_LEDS NUM_MATRIX * NUM_ROW * NUM_ROW
 
 #define DATA_PIN 3
 
@@ -20,6 +22,8 @@ uint8_t buffer[3];
 uint8_t index = 0;
 
 uint8_t mode = 0;
+
+int led = 0;
 
 void loop() {
   while (Serial.available() > 0) {
@@ -45,16 +49,19 @@ void loop() {
     }
     FastLED.show();
   } else if (mode == 1) {
-    for (int i = 0; i < NUM_LEDS; i++) {
-      leds[i] = CRGB::Black;
-    }
-    for (int i = 0; i < NUM_LEDS; i++) {
-      leds[i] = color;
-      if (i % 8 == 0) {
-        FastLED.show();
-        delay(10);
+    if (led < NUM_LEDS) {
+      for (uint8_t a = 0; a < NUM_ROW; ++a) {
+        leds[led + a] = color;
       }
+      led += NUM_ROW;
+      FastLED.show();
+    } else {
+      for (led = 0; led < NUM_LEDS; ++led) {
+        leds[led] = CRGB::Black;
+      }
+      FastLED.show();
+      led = 0;
     }
   }
-  delay(100);
+  delay(20);
 }
