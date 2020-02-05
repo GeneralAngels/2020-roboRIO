@@ -152,9 +152,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
             Trajectory.State startPoint = trajectoryStates.get(1);
             Trajectory.State endPoint = trajectoryStates.get(trajectoryStates.size() - 1);
             if(check) {
-                MAX_V = 0.75
-
-                        / Math.abs(Math.atan2(endPoint.poseMeters.getTranslation().getY() - startPoint.poseMeters.getTranslation().getY(), endPoint.poseMeters.getTranslation().getX() - startPoint.poseMeters.getTranslation().getX()));
+                MAX_V = 0.75 / Math.abs(Math.atan2(endPoint.poseMeters.getTranslation().getY() - startPoint.poseMeters.getTranslation().getY(), endPoint.poseMeters.getTranslation().getX() - startPoint.poseMeters.getTranslation().getX()));
                 if(MAX_V > 1.5)
                     MAX_V = 1.5;
                 MAX_A = 0.5 / Math.abs(Math.atan2(endPoint.poseMeters.getTranslation().getY() - startPoint.poseMeters.getTranslation().getY(), endPoint.poseMeters.getTranslation().getX() - startPoint.poseMeters.getTranslation().getX()));

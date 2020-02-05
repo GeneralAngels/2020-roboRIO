@@ -71,6 +71,8 @@ public class Kobi extends Bot {
         }
         spliney = pather.createSpline(0.5, -1, 0.5, 0);
         log("*" + Arrays.toString(spliney));
+
+        rgb.setMode(RGB.Mode.Fill);
     }
 
     @Override
@@ -83,11 +85,19 @@ public class Kobi extends Bot {
         set("left_velocity", String.valueOf(drive.motorControlLeftVelocity));
         set("right_velocity", String.valueOf(drive.motorControlRightVelocity));
         set("time", String.valueOf(millis()));
-        log("Enc " + shooter.getPosition());
-        shooter.applyPower(driver.getY());
-        rgb.setColor(new Color(0, 0, (int) ((driver.getY() + 1) * 127)));
+//        log("Enc " + shooter.getPosition());
+//        shooter.applyPower(driver.getY());
+//        rgb.setMode(RGB.Mode.Slide);
+//        if (driver.getTrigger()){
+//            rgb.setColor(Color.GREEN);
+//        }else{
+//            rgb.setColor(Color.RED);
+//        }
+        rgb.setColor(new Color(0, 255, (int) ((Math.abs(driver.getY()) * 255))));
 
-//        drive.setNoPID(-driver.getY()/5, driver.getX()/5);
+//        drive.printEncoders();
+
+        drive.setNoPID(-driver.getY() / 5, driver.getX() / 5);
         //log("left: " + drive.left.getEncoder().getRaw() + "     right: " + drive.right.getEncoder().getRaw());
     }
 }

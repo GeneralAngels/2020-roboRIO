@@ -8,8 +8,6 @@
 
 CRGB leds[NUM_LEDS];
 
-uint8_t buffer[4];
-
 void setup() {
   FastLED.addLeds<WS2812, DATA_PIN, GRB>(leds, NUM_LEDS);  // GRB ordering is typical
   Serial.begin(9600);
@@ -17,26 +15,36 @@ void setup() {
 
 CRGB color = CRGB::Blue;
 
-bool offseted = false;
+uint8_t buffer[3];
+
+uint8_t index = 0;
+
+uint8_t mode = 0;
 
 void loop() {
-  if (Serial.available() > 0) {
-    if (!offseted) {
-      uint8_t i = Serial.read();
-      if (i < 2)
-        offseted = true;
+  while (Serial.available() > 0) {
+    // Read last
+    uint8_t input = Serial.read();
+    if (input < 2) {
+      // Update color
+      if (index == 3)
+        color = CRGB((buffer[0] - 2) * 8, (buffer[1] - 2) * 8, (buffer[2] - 2) * 8);
+      // Change mode
+      mode = input;
+      // Reset index
+      index = 0;
     } else {
-      Serial.readBytes(buffer, 4);
-      color = CRGB((buffer[1]-2)*8, (buffer[2]-2)*8, (buffer[3]-2)*8);
+      // Write buffer
+      if (index < 3)
+        buffer[index++] = input;
     }
   }
-  if (buffer[0] == 0) {
+  if (mode == 0) {
     for (int i = 0; i < NUM_LEDS; i++) {
       leds[i] = color;
     }
     FastLED.show();
-    delay(50);
-  } else if (buffer[0] == 1) {
+  } else if (mode == 1) {
     for (int i = 0; i < NUM_LEDS; i++) {
       leds[i] = CRGB::Black;
     }
@@ -44,8 +52,9 @@ void loop() {
       leds[i] = color;
       if (i % 8 == 0) {
         FastLED.show();
-        delay(50);
+        delay(10);
       }
     }
   }
+  delay(100);
 }
