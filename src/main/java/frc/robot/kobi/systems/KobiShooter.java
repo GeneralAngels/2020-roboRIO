@@ -6,13 +6,19 @@ import frc.robot.base.control.PID;
 
 public class KobiShooter extends frc.robot.base.Module {
 
-    private WPI_TalonSRX motor;
-    private PID motorControlVelocity;
+    private WPI_TalonSRX motor1;
+    private WPI_TalonSRX motor2;
+    private WPI_TalonSRX motor3;
+    private PID motorsControlVelocity;
 
     public KobiShooter() {
         super("shooter");
-        motor = new WPI_TalonSRX(20); // TODO config in phonix
-        motorControlVelocity = new PID("motorControlVelocity", 0 , 0, 0, 0);
+
+        motor1 = new WPI_TalonSRX(20); // TODO config in phonix
+        motor2 = new WPI_TalonSRX(21); // TODO config in phonix
+        motor3 = new WPI_TalonSRX(22); // TODO config in phonix
+
+        motorsControlVelocity = new PID("motorControlVelocity", 0 , 0, 0, 0);
 
         command("shoot", new Command() {
             @Override
@@ -29,15 +35,16 @@ public class KobiShooter extends frc.robot.base.Module {
     }
 
     public void applyPower(double power){
-        motor.set(power);
+        motor1.set(power);
+        motor2.set(power);
+        motor3.set(-power);
     }
 
     public void setVelocity(double velocity){
-//        double positionRadians =
-//        motorControlVelocity.PIDVelocity();
+//        motorsControlVelocity.
     }
 
     public int getPosition(){
-        return motor.getSelectedSensorPosition();
+        return motor1.getSelectedSensorPosition();
     }
 }

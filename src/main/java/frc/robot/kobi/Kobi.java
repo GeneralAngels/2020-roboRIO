@@ -93,12 +93,14 @@ public class Kobi extends Bot {
 //        }else{
 //            rgb.setColor(Color.RED);
 //        }
-        rgb.setColor(new Color(0, 255, (int) ((Math.abs(driver.getY()) * 255))));
+        //rgb.setColor(new Color(0, 255, (int) ((Math.abs(driver.getY()) * 255))));
 
 //        drive.printEncoders();
 
-        drive.setNoPID(-driver.getY() / 5, driver.getX() / 5);
-        //log("left: " + drive.left.getEncoder().getRaw() + "     right: " + drive.right.getEncoder().getRaw());
+        //drive.setNoPID(-driver.getY() / 5, driver.getX() / 5);
+        //log("left: " + drive.left.getEncoder().getRaw() + "
+        //
+        // right: " + drive.right.getEncoder().getRaw());
     }
 }
 //0.2 / 0.07 = 0.85
