@@ -2,105 +2,86 @@ package frc.robot.kobi;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import frc.robot.base.Bot;
+import frc.robot.base.control.path.PathManager;
 import frc.robot.base.rgb.RGB;
 import frc.robot.base.utils.Batteries;
 import frc.robot.kobi.systems.KobiDrive;
 import frc.robot.kobi.systems.KobiFeeder;
 import frc.robot.kobi.systems.KobiShooter;
-import frc.robot.base.control.path.PathManager;
-import frc.robot.shuby.ShubyDrive;
-
-import java.awt.*;
-import java.util.Arrays;
-import java.util.Random;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class Kobi extends Bot {
 
     // Joystick
     private Joystick driver;
-    private Joystick driver2;
-    private PathManager pather;
+
     // Modules
     private KobiDrive drive;
     private KobiFeeder feeder;
     private KobiShooter shooter;
     private Batteries batteries;
     private RGB rgb;
-    private double time = 0;
-    boolean toggle = true;
-    private int trajectoryIndex = 0;
+
     // PDP
     private PowerDistributionPanel pdp;
-    private boolean go = false;
-    private boolean tog1 = false;
-    private boolean tog1pressed = false;
-    private boolean tog2 = false;
-    private boolean tog2pressed = false;
-
-    private double[] splinex;
-    private double[] spliney;
 
     public Kobi() {
+        // Commands
+        command("get_trajectory", new Command() {
+            @Override
+            public String execute(String s) throws Exception {
+                if (PathManager.getTrajectory() != null) {
+                    JSONArray array = new JSONArray();
+                    for (Trajectory.State state : PathManager.getTrajectory().getStates()) {
+                        JSONObject object = new JSONObject();
+                        object.put("x", state.poseMeters.getTranslation().getX());
+                        object.put("y", state.poseMeters.getTranslation().getY());
+                        object.put("angle", state.poseMeters.getRotation().getDegrees());
+                        array.put(object);
+                    }
+                    return array.toString();
+                }
+                return "[]";
+            }
+        });
+
         // Joystick
         driver = new Joystick(0);
-        driver2 = new Joystick(1);
 
-        shooter = new KobiShooter();
-
-        rgb = new RGB();
-//        driverTest =
-        log(driver + " jyro thingy");
-        // PDP
-//        pdp = new PowerDistributionPanel(2);
         // Modules
         batteries = new Batteries();
         drive = new KobiDrive();
-        pather = new PathManager(drive);
+        shooter = new KobiShooter();
+        rgb = new RGB();
+
         // Ah yes, enslaved modules
+        enslave(shooter);
         enslave(batteries);
         enslave(drive);
         enslave(rgb);
-        drive.setTrajectory(drive.trajectory);
+
+        // Resets
+        drive.resetTrajectory();
         drive.updateOdometry();
 
-        splinex = pather.createSpline(0.5, 1, 0.5, -1);
-        for (int i = 0; i < splinex.length; i++) {
-            log("*" + splinex[i]);
-        }
-        spliney = pather.createSpline(0.5, -1, 0.5, 0);
-        log("*" + Arrays.toString(spliney));
-
+        // RGB mode
         rgb.setMode(RGB.Mode.Slide);
     }
 
     @Override
     public void teleop() {
-//
-//        log("Yeeete?");
-//        set("left", String.valueOf(drive.left.getEncoder().get()));
-//        set("right", String.valueOf(drive.right.getEncoder().get()));
-//        set("random", String.valueOf(new Random().nextInt(100)));
-        set("left_velocity", String.valueOf(drive.motorControlLeftVelocity));
-        set("right_velocity", String.valueOf(drive.motorControlRightVelocity));
+//        set("left_velocity", String.valueOf(drive.motorControlLeftVelocity));
+//        set("right_velocity", String.valueOf(drive.motorControlRightVelocity));
         set("time", String.valueOf(millis()));
 //        log("Enc " + shooter.getPosition());
-//        shooter.applyPower(driver.getY());
-//        rgb.setMode(RGB.Mode.Slide);
-//        if (driver.getTrigger()){
-//            rgb.setColor(Color.GREEN);
-//        }else{
-//            rgb.setColor(Color.RED);
-//        }
-        //rgb.setColor(new Color(0, 255, (int) ((Math.abs(driver.getY()) * 255))));
-
-//        drive.printEncoders();
+//        shooter.setVelocity(1);
+//        shooter.setVelocity((1000.0 / 60.0) * driver.getY());
 
         //drive.setNoPID(-driver.getY() / 5, driver.getX() / 5);
-        //log("left: " + drive.left.getEncoder().getRaw() + "
-        //
-        // right: " + drive.right.getEncoder().getRaw());
+
+        drive.loop();
     }
 }
-//0.2 / 0.07 = 0.85

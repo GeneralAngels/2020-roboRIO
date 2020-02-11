@@ -9,7 +9,6 @@ import frc.robot.base.Module;
 
 public class PID extends Module {
 
-    private static final double DT = 0.02;
 
     private static final double TOLERANCE = 0.01;
     private static final double ALPHA = 0.5;
@@ -24,6 +23,10 @@ public class PID extends Module {
     private double ki;
     private double kd;
     private double kf;
+
+    private double previousTime = millis();
+
+    private double timeDelta = 0.02;
 
     private double measurement = 0;
     private double previousMeasurement = 0;
@@ -55,13 +58,16 @@ public class PID extends Module {
     }
 
     public double calculateDerivative() {
-        derivative = (measurement - previousMeasurement) / DT;
+        if (measurement == previousMeasurement)
+            return derivative;
+        derivative = (measurement - previousMeasurement) / timeDelta;
         if (Math.abs(derivative) < 0.001)
             derivative = 0;
         return derivative;
     }
+
     public double calculateDerivative(double measurement, double previousMeasurement) {
-        derivative = (measurement - previousMeasurement) / DT;
+        derivative = (measurement - previousMeasurement) / timeDelta;
         if (Math.abs(derivative) < 0.001)
             derivative = 0;
         return derivative;
@@ -86,7 +92,7 @@ public class PID extends Module {
         if (Math.abs(error) < TOLERANCE) {
             controlSignal = 0;
         } else {
-            integral += ((error + previousError) * DT) / 2 * ki;
+            integral += ((error + previousError) * timeDelta) / 2 * ki;
             integral = range(integral, MINIMUM_INTEGRAL, MAXIMUM_INTEGRAL);
             controlSignal = (error * kp) + integral - (derivative * kd);
         }
@@ -103,7 +109,7 @@ public class PID extends Module {
         setMeasurement(measurement);
         error = setpoint - measurement;
         if (Math.abs(error) < MINIMUM_ERROR_INTEGRAL) {
-            integral += ((error + previousError) * DT) / 2 * ki;
+            integral += ((error + previousError) * timeDelta) / 2 * ki;
             integral = range(integral, MINIMUM_INTEGRAL, MAXIMUM_INTEGRAL);
         } else {
             integral = 0;
@@ -112,14 +118,24 @@ public class PID extends Module {
         return range((error * kp) + integral - (derivative * kd) + compensation, MINIMUM_SIGNAL, MAXIMUM_SIGNAL);
     }
 
+    public void updateDelta() {
+        this.timeDelta = (millis() - previousTime) / 1000;
+        previousTime = millis();
+    }
+
     public double PIDVelocity(double measurement, double setpoint) {
-        super.set("setpoint", ""+setpoint);
+//        log("deltaTime: " + timeDelta);
+        super.set("setpoint", "" + setpoint);
         double controlSignal;
-        //log("distance: "+measurement);
+//        log("distance: " + measurement);
         setMeasurement(measurement);
         calculateDerivative();
-        alphaFilter(derivative, previousDerivative);
+        //alphaFilter(derivative, previousDerivative);
+//        log("derivative: " + derivative);
+        super.set("derivative", "" + derivative);
         error = setpoint - derivative;
+//        log("error: "+error);
+//        log("setpoint: "+setpoint);
         if (Math.abs(setpoint) < MINIMUM_SETPOINT) {
             // Zeroing controlSignal prevents braking when setpoint returns from high to 0
             if (Math.abs(derivative) < TOLERANCE) {
@@ -130,13 +146,14 @@ public class PID extends Module {
             }
             integral = 0;
         } else {
-            integral += (((error + previousError) * DT) / 2.0) * ki;
+            integral += (((error + previousError) * timeDelta) / 2.0) * ki;
             integral = range(integral, -MAXIMUM_INTEGRAL, MAXIMUM_INTEGRAL);
-            controlSignal = (setpoint * kf) + (error * kp) + integral; //kd???
-//            log("\n\n\nvelocity: "+derivative+"\n\n\n");
+            controlSignal = (setpoint * kf) + (error * kp) + integral;
+//            log("controlSignal: " + controlSignal);
         }
         previousError = error;
         previousDerivative = derivative;
+//        if(previousMeasurement != this.measurement)
         return range(controlSignal, -MAXIMUM_SIGNAL, MAXIMUM_SIGNAL);
     }
 
@@ -152,7 +169,7 @@ public class PID extends Module {
         this.kf = kf;
     }
 
-    public double getDerivative(){
+    public double getDerivative() {
         return derivative;
     }
 }

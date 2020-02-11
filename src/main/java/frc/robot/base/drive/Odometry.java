@@ -25,14 +25,6 @@ public class Odometry extends Module {
         set("distance", String.valueOf(distance));
     }
 
-    public void setLinear(double linear) {
-        set("linear", String.valueOf(linear));
-    }
-
-    public void setAngular(double angular) {
-        set("angular", String.valueOf(angular));
-    }
-
     public void setX(double x) {
         set("x", String.valueOf(x));
     }
@@ -45,15 +37,15 @@ public class Odometry extends Module {
         set("theta", String.valueOf(theta));
     }
 
-//    public double getX(){
-//        return Double.parseDouble(get("x"));
-//    }
-//
-//    public double getY(){
-//        return Double.parseDouble(get("y"));
-//    }
-//
-//    public double getTheta(){
-//        return Double.parseDouble(get("theta"));
-//    }
+    public double getX() {
+        return Double.parseDouble(get("x"));
+    }
+
+    public double getY() {
+        return Double.parseDouble(get("y"));
+    }
+
+    public double getTheta() {
+        return Double.parseDouble(get("theta"));
+    }
 }

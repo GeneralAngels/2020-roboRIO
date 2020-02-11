@@ -84,7 +84,7 @@ public class Gyroscope {
         return filtered;
     }
 
-    protected void resetGyro(){
+    protected void reset(){
         pigeon.setYaw(0);
         pigeon.setFusedHeading(0);
 //        pigeon.enterCalibrationMode(PigeonIMU.CalibrationMode.BootTareGyroAccel);

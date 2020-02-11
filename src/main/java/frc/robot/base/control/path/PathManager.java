@@ -13,55 +13,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PathManager extends frc.robot.base.Module {
+public class PathManager {
 
-    private Trajectory trajectory;
-    private double[][] Ainverse = new double[][]{{2,1,-2,1},{-3,-2,3,-1},{0,1,0,0},{1,0,0,0}};
-    private double[][] A = new double[][]{{0,0,0,1},{0,0,1,0},{1,1,1,1},{3,2,1,0}};
-
-    public PathManager(DifferentialDrive drive) {
-        super("pathman");
-        command("create_with_abcd", new Command() {
-            @Override
-            public String execute(String s) throws Exception {
-                String[] split = s.split(" ");
-                if (split.length == 4) {
-                    drive.setTrajectory(createTrajectory(Double.parseDouble(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]), Double.parseDouble(split[3])));
-                }
-                return "OK";
-            }
-
-//            command("visionpath",new Command() {
-//                @Override
-//                public String execute(String s) throws Exception {
-//                    String[] split = s.split(" ");
-//                    if (split.length == 5) {
-//                        drive.setTrajectory(visionpath());
-//                    }
-//                    return "OK";
-//                }
-        });
-        command("get_da_yeet", new Command() {
-            @Override
-            public String execute(String s) throws Exception {
-                if (trajectory != null) {
-                    JSONArray array = new JSONArray();
-                    for (Trajectory.State state : trajectory.getStates()) {
-                        JSONObject object = new JSONObject();
-                        object.put("x", state.poseMeters.getTranslation().getX());
-                        object.put("y", state.poseMeters.getTranslation().getY());
-                        object.put("angle", state.poseMeters.getRotation().getDegrees());
-                        array.put(object);
-                    }
-                    return array.toString();
-                }
-                return "[]";
-            }
-        });
-    }
+    private static Trajectory trajectory;
 
     public double[][] getPoints(double[] a, double[] b, int amount) {//coefx, coefy, amount of point
-        double[][] points = new double[amount][3];
+        double[][] points = new double[3][amount];
 
         for (int i = 0; i < amount; i++) {
             points[i][0] = put(a, ((double) i) / amount);
@@ -79,69 +36,40 @@ public class PathManager extends frc.robot.base.Module {
         return ret;
     }
 
-    public Trajectory createTrajectory(double a, double b, double c, double d) {
-        return null;
-    }
-
-    public Trajectory createPath() {
-        //we don't need the abcdk. the library does this itself
+    public static Trajectory createPath(ArrayList<Translation2d> waypoints) {
 
         Pose2d startPoint = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
         Pose2d endPoint = new Pose2d(2, 0.5, Rotation2d.fromDegrees(0));
-        ArrayList<Translation2d> interiorWaypoints = new ArrayList<>();
         //interiorWaypoints.add(new Translation2d(1, 0));
 //        interiorWaypoints.add(new Translation2d(1.0, 0.5));
 
         TrajectoryConfig config = new TrajectoryConfig(4, 1);
         config.setEndVelocity(0);
         //config.setReversed(true);
-        trajectory = TrajectoryGenerator.generateTrajectory(startPoint, interiorWaypoints, endPoint, config);
+        trajectory = TrajectoryGenerator.generateTrajectory(startPoint, waypoints, endPoint, config);
         trajectory.getStates();
         return trajectory;
     }
 
-    public double movingAverageCurvature(List<Trajectory.State> trajectory){
+    public static double movingAverageCurvature(List<Trajectory.State> trajectory) {
         int size = trajectory.size();
         double average = (Math.abs(trajectory.get(size - 1).curvatureRadPerMeter) + Math.abs(trajectory.get(size - 2).curvatureRadPerMeter)) / 2;
-        for(int i = size - 3; i >= 0; i -= 1){
+        for (int i = size - 3; i >= 0; --i) {
             average = (average + Math.abs(trajectory.get(i).curvatureRadPerMeter)) / 2;
         }
         return average;
     }
 
-    private double[] dot(double[][] A, double[] y){ //Solving for Ax = y (A=Matrix, a=vector, y = vector)
-        double[] res = new double[y.length];
-        for (int j = 0; j < y.length; j++) {
-            double rowProduct = 0;
-            for (int i = 0; i < A[0].length; i++) {
-                rowProduct += A[j][i]*y[i];
-            }
-            res[j] = rowProduct;
+    public static double[] derivePolynomial(double[] coefficients) {
+        double[] result = new double[coefficients.length];
+        result[0] = 0;
+        for (int i = 1; i < coefficients.length; i++) {
+            result[i] = coefficients[i - 1] * i;
         }
-        return res;
+        return result;
     }
 
-    /**
-     * @param start start x
-     * @param dS direction at the start
-     * @param end end X
-     * @param dE direction at the end
-     * @return the coefficients
-     */
-    public double[] createSpline(double start, double dS, double end, double dE){
-        double[] y = new double[]{start,dS,end,dE};
-        return dot(Ainverse,y);
+    public static Trajectory getTrajectory() {
+        return trajectory;
     }
-
-    public double[] derivePolynom(double[] coefs){
-        double[] res = new double[coefs.length];
-        res[0] = 0;
-        for (int i = 1; i < coefs.length; i++) {
-            res[i] = coefs[i-1]*i;
-        }
-        return res;
-    }
-
-
-
 }
