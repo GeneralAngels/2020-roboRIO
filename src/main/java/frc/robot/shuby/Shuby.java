@@ -7,17 +7,20 @@ import frc.robot.base.drive.DifferentialDrive;
 public class Shuby extends Bot {
 
     private ShubyDrive drive;
-    private Joystick joystick;
+    private Joystick joystick1, joystick2;
 
     public Shuby() {
         drive = new ShubyDrive();
-        joystick = new Joystick(0);
+        joystick1 = new Joystick(0);
+        joystick2 = new Joystick(1);
         drive.setMode(DifferentialDrive.Mode.Manual);
     }
 
     @Override
     public void teleop() {
-        drive.driveManual(-joystick.getY(), joystick.getX());
-        drive.loop();
+        drive.direct(-joystick1.getY(), -joystick2.getY());
+
+        //  drive.driveManual(-joystick.getY(), joystick.getX());
+        //  drive.loop();
     }
 }
