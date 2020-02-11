@@ -48,6 +48,10 @@ public class MotorGroup<Type extends SpeedController> extends Module {
         this.encoder = encoder;
     }
 
+    public boolean hasEncoder() {
+        return encoder != null;
+    }
+
     public int getDirection() {
         return direction;
     }

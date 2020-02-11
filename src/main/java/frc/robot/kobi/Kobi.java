@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import frc.robot.base.Bot;
 import frc.robot.base.control.path.PathManager;
+import frc.robot.base.drive.DifferentialDrive;
 import frc.robot.base.rgb.RGB;
 import frc.robot.base.utils.Batteries;
 import frc.robot.kobi.systems.KobiDrive;
@@ -66,6 +67,7 @@ public class Kobi extends Bot {
         // Resets
         drive.resetTrajectory();
         drive.updateOdometry();
+        drive.setMode(DifferentialDrive.Mode.Manual);
 
         // RGB mode
         rgb.setMode(RGB.Mode.Slide);

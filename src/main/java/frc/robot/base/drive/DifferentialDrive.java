@@ -87,6 +87,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         motorControlLeftPosition = new PID("pid_left_position", 3, 0.1, 0.2, 0);
         motorControlRightPosition = new PID("pid_right_position", 3, 0.1, 0.2, 0);
 
+        odometry = new Odometry();
+
         // MotorGroups
         enslave(left);
         enslave(right);
@@ -114,21 +116,27 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     }
 
     public void updateOdometry() {
-        // Set lasts
-        lastEncoders = currentEncoders;
-        // Set currents
-        currentEncoders = new double[]{left.getEncoder().getRaw(), right.getEncoder().getRaw()};
-        // Calculate meters
-        double leftMeters = ((currentEncoders[0] - lastEncoders[0]) / TICKS_PER_REVOLUTION) * METERS_PER_REVOLUTION;
-        double rightMeters = ((currentEncoders[1] - lastEncoders[1]) / TICKS_PER_REVOLUTION) * METERS_PER_REVOLUTION;
-        // Calculate distance
-        double distanceFromEncoders = (leftMeters + rightMeters);
-        // Divide
-        distanceFromEncoders /= 2;
-        // Set odometry
-        odometry.setX(x += distanceFromEncoders * Math.cos(Math.toRadians(theta)));
-        odometry.setY(y += distanceFromEncoders * Math.sin(Math.toRadians(theta)));
-        odometry.setTheta(theta = gyro.getAngle());
+        if (left.hasEncoder() && right.hasEncoder()) {
+            // Set lasts
+            lastEncoders = currentEncoders;
+            // Set currents
+            currentEncoders = new double[]{left.getEncoder().getRaw(), right.getEncoder().getRaw()};
+            // Calculate meters
+            double leftMeters = ((currentEncoders[0] - lastEncoders[0]) / TICKS_PER_REVOLUTION) * METERS_PER_REVOLUTION;
+            double rightMeters = ((currentEncoders[1] - lastEncoders[1]) / TICKS_PER_REVOLUTION) * METERS_PER_REVOLUTION;
+            // Calculate distance
+            double distanceFromEncoders = (leftMeters + rightMeters);
+            // Divide
+            distanceFromEncoders /= 2;
+
+            // Set odometry
+            odometry.setX(x += distanceFromEncoders * Math.cos(Math.toRadians(theta)));
+            odometry.setY(y += distanceFromEncoders * Math.sin(Math.toRadians(theta)));
+        }
+        if (gyro != null) {
+            // Set odometry
+            odometry.setTheta(theta = gyro.getAngle());
+        }
     }
 
     public void initializeGyroscope(Gyroscope gyro) {
