@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import frc.robot.base.drive.DifferentialDrive;
 import frc.robot.base.drive.Gyroscope;
 import frc.robot.base.drive.Odometry;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,12 +18,21 @@ import java.util.List;
 public class PathManager extends frc.robot.base.Module {
 
     private static final double TOLERANCE = 0.05;
+    private static final double DEGREE_TOLERANCE = 3;
 
     private DifferentialDrive drive;
 
     private Trajectory trajectory;
 
+    // Trajectory progress
     private int index = 0;
+
+    // Odometry
+    private double theta, omega, x, y;
+
+    // Errors
+    private double[] lastErrors = new double[3];
+    private double[] currentErrors = new double[3];
 
     private double maxV = 1.5;
     private double maxA = 1.5;
@@ -38,21 +49,55 @@ public class PathManager extends frc.robot.base.Module {
     public double acc = 0;
 
     public PathManager(DifferentialDrive drive) {
-        super("follower");
+        super("path");
         this.drive = drive;
         this.createPath(new ArrayList<>());
+
+        // Command registration for autonomous
+
+        command("fetch", new Command() {
+            @Override
+            public Tuple<Boolean, String> execute(String s) throws Exception {
+                if (trajectory != null) {
+                    JSONArray array = new JSONArray();
+                    for (Trajectory.State state : trajectory.getStates()) {
+                        JSONObject object = new JSONObject();
+                        object.put("x", state.poseMeters.getTranslation().getX());
+                        object.put("y", state.poseMeters.getTranslation().getY());
+                        object.put("angle", state.poseMeters.getRotation().getDegrees());
+                        array.put(object);
+                    }
+                    return new Tuple<>(true, array.toString());
+                }
+                return new Tuple<>(true, "[]");
+            }
+        });
+
+        command("create", new Command() {
+            @Override
+            public Tuple<Boolean, String> execute(String s) throws Exception {
+                index = 1;
+                return null;
+            }
+        });
+
+        command("follow", new Command() {
+            @Override
+            public Tuple<Boolean, String> execute(String s) throws Exception {
+                if (index >= trajectory.getStates().size()) {
+                    return new Tuple<>(true, "Done");
+                }
+                follow();
+                return new Tuple<>(false, "Not done");
+            }
+        });
     }
 
     public void follow() {
-//        drive.direct(); TODO
-        drive.updateOdometry();
-    }
-
-    public void trajectoryFollow() {
+        // Follow trajectory
         // Setup previous values
         previousDesiredVelocity = currentDesiredVelocity;
         // Setup odometry value
-        double theta, omega, x, y;
         Odometry odometry = drive.getOdometry();
         theta = odometry.getTheta();
         omega = odometry.getOmega();
@@ -119,6 +164,8 @@ public class PathManager extends frc.robot.base.Module {
             ++index;
         }
         drive.driveVector(currentDesiredVelocity, desiredOmega);
+        // Update odometry
+        drive.updateOdometry();
     }
 
     public double[] calculateErrors(Trajectory.State currentGoal) {
@@ -165,37 +212,18 @@ public class PathManager extends frc.robot.base.Module {
             finalDirectionSwitch = true;
     }
 
-    public double[][] getPoints(double[] a, double[] b, int amount) {//coefx, coefy, amount of point
-        double[][] points = new double[3][amount];
-
-        for (int i = 0; i < amount; i++) {
-            points[i][0] = put(a, ((double) i) / amount);
-            points[i][1] = put(b, ((double) i) / amount);
-            //points[i][2] = Math.atan(put())
-        }
-        return points;
-    }
-
-    public double put(double[] a, double val) {
-        double ret = 0;
-        for (int i = 0; i < a.length; i++) {
-            ret += a[i] * Math.pow(val, a.length - i - 1);
-        }
-        return ret;
-    }
-
     public void createPath(ArrayList<Translation2d> waypoints) {
-
+        // Reset index
+        index = 1;
+        // Create poses
         Pose2d startPoint = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
         Pose2d endPoint = new Pose2d(2, 0.5, Rotation2d.fromDegrees(0));
         //interiorWaypoints.add(new Translation2d(1, 0));
 //        interiorWaypoints.add(new Translation2d(1.0, 0.5));
-
         TrajectoryConfig config = new TrajectoryConfig(4, 1);
         config.setEndVelocity(0);
         //config.setReversed(true);
         trajectory = TrajectoryGenerator.generateTrajectory(startPoint, waypoints, endPoint, config);
-        trajectory.getStates();
     }
 
     public double movingAverageCurvature(List<Trajectory.State> trajectory) {
@@ -214,9 +242,5 @@ public class PathManager extends frc.robot.base.Module {
             result[i] = coefficients[i - 1] * i;
         }
         return result;
-    }
-
-    public Trajectory getTrajectory() {
-        return trajectory;
     }
 }

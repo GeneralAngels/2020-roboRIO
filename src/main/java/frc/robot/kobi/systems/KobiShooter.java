@@ -18,8 +18,10 @@ public class KobiShooter extends frc.robot.base.Module {
     private WPI_TalonSRX motor1;
     private WPI_TalonSRX motor2;
     private WPI_TalonSRX motor3;
+
     private PID motorsControlVelocity;
-    private PowerDistributionPanel pdp;
+
+    // Encoder
     private int encoder = 0;
     private int previousEncoder = 0;
 
@@ -52,21 +54,6 @@ public class KobiShooter extends frc.robot.base.Module {
         motor3.follow(motor1);
 
         motorsControlVelocity = new PID("motorControlVelocity", 0.005, 0.007, 0.05, 0.05); // todo not finished. pay attention! - very small k's!
-        pdp = new PowerDistributionPanel(1);
-
-
-        command("shoot", new Command() {
-            @Override
-            public String execute(String s) throws Exception {
-                return "NI";
-            }
-        });
-        command("move", new Command() {
-            @Override
-            public String execute(String s) throws Exception {
-                return "NI";
-            }
-        });
     }
 
     public void setVelocity(double velocity) {

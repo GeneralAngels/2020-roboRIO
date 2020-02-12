@@ -43,12 +43,12 @@ public class PID extends Module {
         integral = 0;
         command("setpidf", new Command() {
             @Override
-            public String execute(String s) throws Exception {
+            public Tuple<Boolean, String> execute(String s) throws Exception {
                 String[] split = s.split(" ");
                 if (split.length == 4) {
                     setPIDF(Double.parseDouble(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]), Double.parseDouble(split[3]));
                 }
-                return "OK";
+                return new Tuple<>(true, "OK");
             }
         });
     }

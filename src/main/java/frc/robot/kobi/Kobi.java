@@ -26,50 +26,33 @@ public class Kobi extends Bot {
     private RGB rgb;
 
     private Autonomous autonomous;
+    private PathManager manager;
 
     // PDP
     private PowerDistributionPanel pdp;
 
     public Kobi() {
-        // Commands
-        command("get_trajectory", new Command() {
-            @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
-                if (PathManager.getTrajectory() != null) {
-                    JSONArray array = new JSONArray();
-                    for (Trajectory.State state : PathManager.getTrajectory().getStates()) {
-                        JSONObject object = new JSONObject();
-                        object.put("x", state.poseMeters.getTranslation().getX());
-                        object.put("y", state.poseMeters.getTranslation().getY());
-                        object.put("angle", state.poseMeters.getRotation().getDegrees());
-                        array.put(object);
-                    }
-                    return new Tuple<>(true, array.toString());
-                }
-                return new Tuple<>(true, "[]");
-            }
-        });
 
         // Joystick
         driver = new Joystick(0);
 
         // Modules
-        autonomous = new Autonomous(this);
         drive = new KobiDrive();
         shooter = new KobiShooter();
+        manager = new PathManager(drive);
+        autonomous = new Autonomous(this);
 
         rgb = new RGB();
 
         // Ah yes, enslaved modules
-        enslave(shooter);
         enslave(autonomous);
+        enslave(manager);
+        enslave(shooter);
         enslave(drive);
         enslave(rgb);
 
         // Resets
-        drive.resetTrajectory();
         drive.updateOdometry();
-        drive.setMode(DifferentialDrive.Mode.Manual);
 
         // RGB mode
         rgb.setMode(RGB.Mode.Slide);

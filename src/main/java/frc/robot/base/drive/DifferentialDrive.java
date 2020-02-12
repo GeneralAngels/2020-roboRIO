@@ -19,7 +19,6 @@ import static java.lang.Thread.sleep;
 public class DifferentialDrive<T extends SpeedController> extends Module {
 
     private static final double TOLERANCE = 0.05;
-    private static final double DEGREE_TOLERANCE = 3;
 
     private static final double WHEEL_DISTANCE = 0.7112; // TODO 2020 update
     private static final double WHEEL_RADIUS = 0.0762; // TODO 2020 update
@@ -38,10 +37,6 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     // Encoders
     private double[] lastEncoders = new double[2];
     private double[] currentEncoders = new double[2];
-
-    // Errors
-    private double[] lastErrors = new double[3];
-    private double[] currentErrors = new double[3];
 
     // Modules
     public PID motorControlLeftVelocity;

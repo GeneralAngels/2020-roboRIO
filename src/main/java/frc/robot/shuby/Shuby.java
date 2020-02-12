@@ -13,7 +13,6 @@ public class Shuby extends Bot {
         drive = new ShubyDrive();
         joystick1 = new Joystick(0);
         joystick2 = new Joystick(1);
-        drive.setMode(DifferentialDrive.Mode.Manual);
     }
 
     @Override
