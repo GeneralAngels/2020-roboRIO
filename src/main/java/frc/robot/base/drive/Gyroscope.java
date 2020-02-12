@@ -5,7 +5,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
 
-public class Gyroscope {
+public abstract class Gyroscope {
 
     private static PigeonIMU pigeon = new PigeonIMU(30);
 

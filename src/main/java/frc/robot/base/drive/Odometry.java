@@ -37,6 +37,10 @@ public class Odometry extends Module {
         set("theta", String.valueOf(theta));
     }
 
+    public void setOmega(double omega) {
+        set("omega", String.valueOf(omega));
+    }
+
     public double getX() {
         return Double.parseDouble(get("x"));
     }
@@ -47,5 +51,9 @@ public class Odometry extends Module {
 
     public double getTheta() {
         return Double.parseDouble(get("theta"));
+    }
+
+    public double getOmega() {
+        return Double.parseDouble(get("omega"));
     }
 }

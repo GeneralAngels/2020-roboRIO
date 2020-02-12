@@ -8,8 +8,7 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import frc.robot.base.drive.DifferentialDrive;
 import frc.robot.base.drive.Gyroscope;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import frc.robot.base.drive.Odometry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +33,8 @@ public class PathManager extends frc.robot.base.Module {
     public boolean check = true;
     public boolean finalDirectionSwitch = true;
     public double desiredOmega;
-    public double desiredVelocity;
-    public double desiredVelocityPrev = 0;
+    public double currentDesiredVelocity;
+    public double previousDesiredVelocity = 0;
     public double acc = 0;
 
     public PathManager(DifferentialDrive drive) {
@@ -51,59 +50,67 @@ public class PathManager extends frc.robot.base.Module {
 
     public void trajectoryFollow() {
         // Setup previous values
-        desiredVelocityPrev = desiredVelocity;
-
-        Trajectory.State startPoint = trajectory.getStates().get(1);
-        Trajectory.State endPoint = trajectory.getStates().get(trajectory.getStates().size() - 1);
+        previousDesiredVelocity = currentDesiredVelocity;
+        // Setup odometry value
+        double theta, omega, x, y;
+        Odometry odometry = drive.getOdometry();
+        theta = odometry.getTheta();
+        omega = odometry.getOmega();
+        x = odometry.getX();
+        y = odometry.getY();
+        // Setup states
+        Trajectory.State start = trajectory.getStates().get(1);
+        Trajectory.State current = trajectory.getStates().get(index);
+        Trajectory.State end = trajectory.getStates().get(trajectory.getStates().size() - 1);
+        // Setup magic
         if (check) {
-            maxV = 0.75 / Math.abs(Math.atan2(endPoint.poseMeters.getTranslation().getY() - startPoint.poseMeters.getTranslation().getY(), endPoint.poseMeters.getTranslation().getX() - startPoint.poseMeters.getTranslation().getX()));
+            maxV = 0.75 / Math.abs(Math.atan2(end.poseMeters.getTranslation().getY() - start.poseMeters.getTranslation().getY(), end.poseMeters.getTranslation().getX() - start.poseMeters.getTranslation().getX()));
             if (maxV > 1.5)
                 maxV = 1.5;
-            maxA = 0.5 / Math.abs(Math.atan2(endPoint.poseMeters.getTranslation().getY() - startPoint.poseMeters.getTranslation().getY(), endPoint.poseMeters.getTranslation().getX() - startPoint.poseMeters.getTranslation().getX()));
+            maxA = 0.5 / Math.abs(Math.atan2(end.poseMeters.getTranslation().getY() - start.poseMeters.getTranslation().getY(), end.poseMeters.getTranslation().getX() - start.poseMeters.getTranslation().getX()));
             if (maxA > 1.5)
                 maxA = 1.5;
             check = false;
         }
-        double omega = Gyroscope.getAngularVelocity();
-        Trajectory.State currentGoal = trajectory.getStates().get(index);
-        double curvature = currentGoal.curvatureRadPerMeter;
-        if (index < trajectory.getStates().size() - 2) {
-            Trajectory.State curvatureGoal = trajectory.getStates().get(index + 2);
-            curvature = curvatureGoal.curvatureRadPerMeter;
-        }
+        // Calculate curvature
+        double curvature = current.curvatureRadPerMeter;
+        if (index < trajectory.getStates().size() - 2)
+            curvature = trajectory.getStates().get(index + 2).curvatureRadPerMeter;
         curvature = Math.abs(curvature);
-        set("curvature", "" + curvature);
-        double[] errors = calculateErrors(currentGoal);
-        if (index < trajectory.getStates().size() - 1) { //length of the trajectory
-            desiredVelocity = maxV - curvature * Kcurv;
+        double[] errors = calculateErrors(current);
+        // Make sure we are not done yet
+        if (index < trajectory.getStates().size() - 1) {
+            // Calculate average curvature
             acc = maxA - (movingAverageCurvature(trajectory.getStates()) / 2.0);
-            log("acc: " + acc);
-            desiredVelocity = Math.min(desiredVelocity, desiredVelocityPrev + (acc * 0.02));
-            if ((desiredVelocity >= 0 && desiredVelocity < 0.5) || (maxV < (curvature * Kcurv))) {
-                desiredVelocity = 0.5;
-            }
+            // Calculate velocity
+            currentDesiredVelocity = Math.min(maxV - curvature * Kcurv, previousDesiredVelocity + (acc * 0.02));
+            // Check range
+            if ((currentDesiredVelocity >= 0 && currentDesiredVelocity < 0.5) || (maxV < (curvature * Kcurv)))
+                currentDesiredVelocity = 0.5;
+            // Calculate omega
             desiredOmega = errors[2] * Ktheta - omega * Komega;
             log("not last point");
-            if (errors[0] < errors[1]) {
+            if (errors[0] < errors[1])
                 ++index;
-            }
         } else {
+            // Reverse
             toReverse(getPose(), trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters);
-            desiredVelocity = errors[0] * Kv;
-            desiredOmega = (currentGoal.poseMeters.getRotation().getRadians() - Math.toRadians(Gyroscope.getAngle())) * Ktheta - omega * Komega;
+            // Calculate desired shit
+            currentDesiredVelocity = errors[0] * Kv;
+            desiredOmega = (current.poseMeters.getRotation().getRadians() - Math.toRadians(Gyroscope.getAngle())) * Ktheta - omega * Komega;
             // Check if done
             if (!isDone(getPose(), trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters)) {
                 if (errors[0] > TOLERANCE) {
                     desiredOmega *= 1.3;
                     log("close");
                 } else {
-                    desiredVelocity = 0;
+                    currentDesiredVelocity = 0;
                     desiredOmega *= 1.8;
                     log("almost");
                 }
                 set("last point: ", "true");
             } else {
-                desiredVelocity = 0;
+                currentDesiredVelocity = 0;
                 desiredOmega = 0;
                 log("done");
             }
@@ -111,7 +118,7 @@ public class PathManager extends frc.robot.base.Module {
         if (index < trajectory.getStates().size() - 1 && errors[0] < errors[1]) {
             ++index;
         }
-        drive.driveVector(desiredVelocity, desiredOmega);
+        drive.driveVector(currentDesiredVelocity, desiredOmega);
     }
 
     public double[] calculateErrors(Trajectory.State currentGoal) {

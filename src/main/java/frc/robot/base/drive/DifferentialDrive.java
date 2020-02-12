@@ -78,14 +78,11 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         enslave(motorControlRightVelocity);
         enslave(motorControlLeftPosition);
         enslave(motorControlRightPosition);
-        // Reset all
-        initializeGyroscope(new Gyroscope());
     }
 
     public void printEncoders() {
         log("left: " + left.getEncoder().getRaw() + "right: " + right.getEncoder().getRaw());
     }
-
 
     public void updateOdometry() {
         if (left.hasEncoder() && right.hasEncoder()) {
@@ -111,10 +108,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         }
     }
 
-    public void initializeGyroscope(Gyroscope gyro) {
-        this.gyro = gyro;
-        this.gyro.reset();
-        this.gyroscopeOffset = this.gyro.getAngle();
+    public Odometry getOdometry() {
+        return odometry;
     }
 
     // Drive output setters
