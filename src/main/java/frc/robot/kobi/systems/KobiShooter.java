@@ -11,7 +11,9 @@ public class KobiShooter extends frc.robot.base.Module {
 
     private static final double TIMEOUT = 50;
 
-    private static final double TICK_ROUNDS = (2 * Math.PI / 4096);
+    private static final double GEAR = 1.0/3.0;
+    private static final double ENCODER_TICKS = 4096;
+    private static final double TALON_VELOCITY_RATE = 1000.0 / 100.0; // 10Hz
 
     private WPI_TalonSRX motor1;
     private WPI_TalonSRX motor2;
@@ -32,12 +34,22 @@ public class KobiShooter extends frc.robot.base.Module {
 
         motor1.setSelectedSensorPosition(1);
 
-        motor1.config_kP(0, 0);
-        motor1.config_kI(0, 0);
-        motor1.config_kD(0, 0);
-        motor1.config_kF(0, 0.3);
+        motor1.configFactoryDefault();
+        motor1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
+        motor1.setSensorPhase(true);
+        motor1.configNominalOutputForward(0, 30);
+        motor1.configNominalOutputReverse(0, 30);
+        motor1.configPeakOutputForward(1, 30);
+        motor1.configPeakOutputReverse(-1, 30);
+        motor1.config_kP(0, 0, 30);
+        motor1.config_kI(0, 0, 30);
+        motor1.config_kD(0, 0, 30);
+        motor1.config_kF(0, 0.7, 30);
 
-//        motor1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
+        motor3.setInverted(true);
+
+        motor2.follow(motor1);
+        motor3.follow(motor1);
 
         motorsControlVelocity = new PID("motorControlVelocity", 0.005, 0.007, 0.05, 0.05); // todo not finished. pay attention! - very small k's!
         pdp = new PowerDistributionPanel(1);
@@ -57,27 +69,16 @@ public class KobiShooter extends frc.robot.base.Module {
         });
     }
 
-    public void applyPower(double power) {
-        double motorOutput = power / pdp.getVoltage();
-        if (motorOutput < -0.1)
-            motorOutput = -0.1;
-        motor1.set(motorOutput);
-        motor2.set(motorOutput);
-        motor3.set(-motorOutput);
+    public void setVelocity(double velocity) {
+        // Velocity is RPM
+        double input = velocity * GEAR * (ENCODER_TICKS / (60 * TALON_VELOCITY_RATE));
+        // Input is (?)
+        motor1.set(ControlMode.Velocity, input);
     }
 
-    public void setVelocity(double velocity) {
-//        motorsControlVelocity.updateDelta();
-//        applyPower(motorsControlVelocity.PIDVelocity(TICK_ROUNDS * getPosition(), velocity / 0.0722));
-        motor1.set(ControlMode.Velocity, velocity);
-        motor2.set(motor1.get());
-        motor3.set(-motor1.get());
-        set("speed", String.valueOf(motorsControlVelocity.getDerivative()));
-    }
 
     public int getPosition() {
         set("encoder", String.valueOf(this.encoder));
-        set("delcoder", String.valueOf(this.encoder - this.previousEncoder));
         previousEncoder = encoder;
         previousTime = millis();
         if ((encoder = motor1.getSelectedSensorPosition()) == 0)

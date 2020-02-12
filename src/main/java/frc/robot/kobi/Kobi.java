@@ -56,6 +56,7 @@ public class Kobi extends Bot {
         batteries = new Batteries();
         drive = new KobiDrive();
         shooter = new KobiShooter();
+
         rgb = new RGB();
 
         // Ah yes, enslaved modules
@@ -79,11 +80,12 @@ public class Kobi extends Bot {
 //        set("right_velocity", String.valueOf(drive.motorControlRightVelocity));
         set("time", String.valueOf(millis()));
 //        log("Enc " + shooter.getPosition());
-//        shooter.setVelocity(1);
+        shooter.setVelocity(60);
 //        shooter.setVelocity((1000.0 / 60.0) * driver.getY());
 
         //drive.setNoPID(-driver.getY() / 5, driver.getX() / 5);
 
-        drive.loop();
+//        drive
+//        drive.loop();
     }
 }

@@ -24,9 +24,6 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     private static final double WHEEL_DISTANCE = 0.7112; // TODO 2020 update
     private static final double WHEEL_RADIUS = 0.0762; // TODO 2020 update
 
-    private static final double MAX_V = 1.5;
-    private static final double MAX_A = 1.5;
-
     private static final double TICKS_PER_REVOLUTION = 2048;
     private static final double METERS_PER_REVOLUTION = (2 * Math.PI) * (4 * 2.45);
     private static final double ENCODER_TO_RADIAN = (2 * Math.PI) / TICKS_PER_REVOLUTION;
@@ -63,12 +60,16 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     private Mode driveMode = Mode.Disable;
 
     // Excuse me WTF
+
+    private double maxV = 1.5;
+    private double maxA = 1.5;
+
     public double Kv = 3;
-    public double Ktheta = 1.3 * MAX_V; // Note that low values (for example 0.33) means it should get to the setpoint in ~3 seconds! // 1.6*MAX_V
-    public double Kcurv = 1 * MAX_V; //0.45*MAX_V
+    public double Ktheta = 1.3 * maxV; // Note that low values (for example 0.33) means it should get to the setpoint in ~3 seconds! // 1.6*MAX_V
+    public double Kcurv = 1 * maxV; //0.45*MAX_V
     public double Komega = 0;
     public boolean check = true;
-    public boolean check2 = true;
+    public boolean finalDirectionSwitch = true;
     public double desiredOmega;
     public double desiredVelocity;
     public double desiredVelocityPrev = 0;
@@ -174,17 +175,17 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public void trajectoryFollow() {
         Trajectory.State startPoint = PathManager.getTrajectory().getStates().get(1);
         Trajectory.State endPoint = PathManager.getTrajectory().getStates().get(PathManager.getTrajectory().getStates().size() - 1);
-//        if (check) {
-//            MAX_V = 0.75 / Math.abs(Math.atan2(endPoint.poseMeters.getTranslation().getY() - startPoint.poseMeters.getTranslation().getY(), endPoint.poseMeters.getTranslation().getX() - startPoint.poseMeters.getTranslation().getX()));
-//            if (MAX_V > 1.5)
-//                MAX_V = 1.5;
-//            MAX_A = 0.5 / Math.abs(Math.atan2(endPoint.poseMeters.getTranslation().getY() - startPoint.poseMeters.getTranslation().getY(), endPoint.poseMeters.getTranslation().getX() - startPoint.poseMeters.getTranslation().getX()));
-//            if (MAX_A > 1.5)
-//                MAX_A = 1.5;
-//            check = false;
-//        }
-        log("MAX_V: " + MAX_V);
-        log("MAX_A: " + MAX_A);
+        if (check) {
+            maxV = 0.75 / Math.abs(Math.atan2(endPoint.poseMeters.getTranslation().getY() - startPoint.poseMeters.getTranslation().getY(), endPoint.poseMeters.getTranslation().getX() - startPoint.poseMeters.getTranslation().getX()));
+            if (maxV > 1.5)
+                maxV = 1.5;
+            maxA = 0.5 / Math.abs(Math.atan2(endPoint.poseMeters.getTranslation().getY() - startPoint.poseMeters.getTranslation().getY(), endPoint.poseMeters.getTranslation().getX() - startPoint.poseMeters.getTranslation().getX()));
+            if (maxA > 1.5)
+                maxA = 1.5;
+            check = false;
+        }
+        log("MAX_V: " + maxV);
+        log("MAX_A: " + maxA);
         double omega = gyro.getAngularVelocity();
         log("omega: " + omega);
         Trajectory.State currentGoal = PathManager.getTrajectory().getStates().get(trajectoryIndex);
@@ -198,11 +199,11 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         double[] errors = calculateErrors(currentGoal);
 
         if (trajectoryIndex < PathManager.getTrajectory().getStates().size() - 1) { //length of the trajectory
-            desiredVelocity = MAX_V - curvature * Kcurv;
-            acc = MAX_A - (PathManager.movingAverageCurvature(PathManager.getTrajectory().getStates()) / 2.0);
+            desiredVelocity = maxV - curvature * Kcurv;
+            acc = maxA - (PathManager.movingAverageCurvature(PathManager.getTrajectory().getStates()) / 2.0);
             log("acc: " + acc);
             desiredVelocity = Math.min(desiredVelocity, desiredVelocityPrev + (acc * 0.02));
-            if ((desiredVelocity >= 0 && desiredVelocity < 0.5) || (MAX_V < (curvature * Kcurv))) {
+            if ((desiredVelocity >= 0 && desiredVelocity < 0.5) || (maxV < (curvature * Kcurv))) {
                 desiredVelocity = 0.5;
             }
             desiredOmega = errors[2] * Ktheta - omega * Komega;
@@ -275,14 +276,14 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         // Calculate errors
         double errorTheta = Math.abs(current.getRotation().getDegrees() - end.getRotation().getDegrees());
         double errorPosition = errorX * Math.cos(Math.toRadians(theta)) + errorY * Math.sin(Math.toRadians(theta));
-        // ToDo wHaT deFuk
+        // Black magic
         if ((errorPosition > 0 && Kv > 0) || (errorPosition < 0 && Kv < 0)) {
-            if (check2) {
+            if (finalDirectionSwitch) {
                 Kv *= -1;
-                check2 = false;
+                finalDirectionSwitch = false;
             }
         } else
-            check2 = true;
+            finalDirectionSwitch = true;
     }
 
     // Drive output setters
