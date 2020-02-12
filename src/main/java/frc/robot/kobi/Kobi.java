@@ -7,7 +7,7 @@ import frc.robot.base.Bot;
 import frc.robot.base.control.path.PathManager;
 import frc.robot.base.drive.DifferentialDrive;
 import frc.robot.base.rgb.RGB;
-import frc.robot.base.utils.Batteries;
+import frc.robot.base.utils.auto.Autonomous;
 import frc.robot.kobi.systems.KobiDrive;
 import frc.robot.kobi.systems.KobiFeeder;
 import frc.robot.kobi.systems.KobiShooter;
@@ -23,8 +23,9 @@ public class Kobi extends Bot {
     private KobiDrive drive;
     private KobiFeeder feeder;
     private KobiShooter shooter;
-    private Batteries batteries;
     private RGB rgb;
+
+    private Autonomous autonomous;
 
     // PDP
     private PowerDistributionPanel pdp;
@@ -33,7 +34,7 @@ public class Kobi extends Bot {
         // Commands
         command("get_trajectory", new Command() {
             @Override
-            public String execute(String s) throws Exception {
+            public Tuple<Boolean, String> execute(String s) throws Exception {
                 if (PathManager.getTrajectory() != null) {
                     JSONArray array = new JSONArray();
                     for (Trajectory.State state : PathManager.getTrajectory().getStates()) {
@@ -43,9 +44,9 @@ public class Kobi extends Bot {
                         object.put("angle", state.poseMeters.getRotation().getDegrees());
                         array.put(object);
                     }
-                    return array.toString();
+                    return new Tuple<>(true, array.toString());
                 }
-                return "[]";
+                return new Tuple<>(true, "[]");
             }
         });
 
@@ -53,7 +54,7 @@ public class Kobi extends Bot {
         driver = new Joystick(0);
 
         // Modules
-        batteries = new Batteries();
+        autonomous = new Autonomous(this);
         drive = new KobiDrive();
         shooter = new KobiShooter();
 
@@ -61,7 +62,7 @@ public class Kobi extends Bot {
 
         // Ah yes, enslaved modules
         enslave(shooter);
-        enslave(batteries);
+        enslave(autonomous);
         enslave(drive);
         enslave(rgb);
 
@@ -72,6 +73,11 @@ public class Kobi extends Bot {
 
         // RGB mode
         rgb.setMode(RGB.Mode.Slide);
+    }
+
+    @Override
+    public void autonomous() {
+        autonomous.loop();
     }
 
     @Override

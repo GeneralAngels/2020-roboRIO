@@ -16,9 +16,9 @@ public class Module extends Node {
 
     public Module(String id) {
         super(id);
-        command("json", s -> pullJSON(false).toString());
-        command("telemetry", s -> pullJSON(true).toString());
-        command("help", s -> help(""));
+        command("json", s -> new Tuple<>(true, pullJSON(false).toString()));
+        command("telemetry", s -> new Tuple<>(true, pullJSON(true).toString()));
+        command("help", s -> new Tuple<>(true, help("")));
     }
 
     public JSONObject pullJSON(boolean recursive) {

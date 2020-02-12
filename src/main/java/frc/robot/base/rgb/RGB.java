@@ -35,35 +35,35 @@ public class RGB extends Module {
         }
         command("color", new Command() {
             @Override
-            public String execute(String s) throws Exception {
+            public Tuple<Boolean, String> execute(String s) throws Exception {
                 String[] split = s.split(" ");
                 if (!(split.length == 3))
-                    return "Must have 3 parameters";
+                    return new Tuple<>(false, "Must have 3 parameters");
                 // Parse things
                 int r = Integer.parseInt(split[0]);
                 int g = Integer.parseInt(split[1]);
                 int b = Integer.parseInt(split[2]);
                 // Validate
                 if (!(r < 256 && g < 256 && b < 256))
-                    return "Not in valid range";
+                    return new Tuple<>(false, "Not in valid range");
                 // Set the color
                 setColor(new Color(r, g, b));
                 // Return OK
-                return "OK";
+                return new Tuple<>(true, "OK");
             }
         });
         command("mode", new Command() {
             @Override
-            public String execute(String s) throws Exception {
-                if (s.equals("fill")){
+            public Tuple<Boolean, String> execute(String s) throws Exception {
+                if (s.equals("fill")) {
                     setMode(Mode.Fill);
-                    return "OK, Fill";
-                }else if (s.equals("slide")){
+                    return new Tuple<>(true, "OK");
+                } else if (s.equals("slide")) {
                     setMode(Mode.Slide);
-                    return "OK, Slide";
+                    return new Tuple<>(true, "OK");
                 }
                 // Return help
-                return "Must be 'fill' or 'slide'";
+                return new Tuple<>(false, "Must be fill or slide");
             }
         });
     }
