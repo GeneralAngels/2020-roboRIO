@@ -52,28 +52,6 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public MotorGroup<T> right;
     public Gyroscope gyro;
     public Odometry odometry;
-    // Outputs
-    private double[] motorOutputs = new double[2];
-
-    private int trajectoryIndex;
-
-    private Mode driveMode = Mode.Disable;
-
-    // Excuse me WTF
-
-    private double maxV = 1.5;
-    private double maxA = 1.5;
-
-    public double Kv = 3;
-    public double Ktheta = 1.3 * maxV; // Note that low values (for example 0.33) means it should get to the setpoint in ~3 seconds! // 1.6*MAX_V
-    public double Kcurv = 1 * maxV; //0.45*MAX_V
-    public double Komega = 0;
-    public boolean check = true;
-    public boolean finalDirectionSwitch = true;
-    public double desiredOmega;
-    public double desiredVelocity;
-    public double desiredVelocityPrev = 0;
-    public double acc = 0;
 
     private double currentVoltage = 12;
 
@@ -101,20 +79,13 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         enslave(motorControlLeftPosition);
         enslave(motorControlRightPosition);
         // Reset all
-        resetTrajectory();
         initializeGyroscope(new Gyroscope());
-        // Default mode
-        setMode(Mode.Disable);
     }
 
     public void printEncoders() {
         log("left: " + left.getEncoder().getRaw() + "right: " + right.getEncoder().getRaw());
     }
 
-    public void resetTrajectory() {
-        PathManager.createPath(new ArrayList<>());
-        this.trajectoryIndex = 1;
-    }
 
     public void updateOdometry() {
         if (left.hasEncoder() && right.hasEncoder()) {
@@ -146,154 +117,16 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         this.gyroscopeOffset = this.gyro.getAngle();
     }
 
-    public void loop() {
-        if (driveMode == Mode.Disable) {
-            log("Disabled! - Use .setMode!");
-        } else {
-            if (driveMode == Mode.Trajectory) {
-                trajectoryFollow();
-            }
-            direct(motorOutputs[0], motorOutputs[1]);
-            updateOdometry();
-        }
-        // todo
-//        if (isAuto) {
-//            Trajectory.State goal = PathManager.getTrajectory().sample(millis());
-//            //log("curve: " + goal.curvatureRadPerMeter);
-//            double[] speeds = calcErrors(goal, goal); // Sent goal twice because there is no meaning to prevGoal
-//            if (true) {//!isDone(getPose(), trajectory.sample(trajectory.getTotalTimeSeconds()).poseMeters) || goal.velocityMetersPerSecond + (errorDistance * 0.7) > 0.05) {
-//                //set(speeds[0] * 8, speeds[1] * 0.7);
-//                setVector(goal.velocityMetersPerSecond + speeds[0], (goal.velocityMetersPerSecond * goal.curvatureRadPerMeter) + speeds[1]);
-//                log("done");
-//            } else {
-//                setMode(false);
-//            }
-//        } else {
-//        }
-    }
-
-    public void trajectoryFollow() {
-        Trajectory.State startPoint = PathManager.getTrajectory().getStates().get(1);
-        Trajectory.State endPoint = PathManager.getTrajectory().getStates().get(PathManager.getTrajectory().getStates().size() - 1);
-        if (check) {
-            maxV = 0.75 / Math.abs(Math.atan2(endPoint.poseMeters.getTranslation().getY() - startPoint.poseMeters.getTranslation().getY(), endPoint.poseMeters.getTranslation().getX() - startPoint.poseMeters.getTranslation().getX()));
-            if (maxV > 1.5)
-                maxV = 1.5;
-            maxA = 0.5 / Math.abs(Math.atan2(endPoint.poseMeters.getTranslation().getY() - startPoint.poseMeters.getTranslation().getY(), endPoint.poseMeters.getTranslation().getX() - startPoint.poseMeters.getTranslation().getX()));
-            if (maxA > 1.5)
-                maxA = 1.5;
-            check = false;
-        }
-        log("MAX_V: " + maxV);
-        log("MAX_A: " + maxA);
-        double omega = gyro.getAngularVelocity();
-        log("omega: " + omega);
-        Trajectory.State currentGoal = PathManager.getTrajectory().getStates().get(trajectoryIndex);
-        double curvature = currentGoal.curvatureRadPerMeter;
-        if (trajectoryIndex < PathManager.getTrajectory().getStates().size() - 2) {
-            Trajectory.State curvatureGoal = PathManager.getTrajectory().getStates().get(trajectoryIndex + 2);
-            curvature = curvatureGoal.curvatureRadPerMeter;
-        }
-        curvature = Math.abs(curvature);
-        set("curvature", "" + curvature);
-        double[] errors = calculateErrors(currentGoal);
-
-        if (trajectoryIndex < PathManager.getTrajectory().getStates().size() - 1) { //length of the trajectory
-            desiredVelocity = maxV - curvature * Kcurv;
-            acc = maxA - (PathManager.movingAverageCurvature(PathManager.getTrajectory().getStates()) / 2.0);
-            log("acc: " + acc);
-            desiredVelocity = Math.min(desiredVelocity, desiredVelocityPrev + (acc * 0.02));
-            if ((desiredVelocity >= 0 && desiredVelocity < 0.5) || (maxV < (curvature * Kcurv))) {
-                desiredVelocity = 0.5;
-            }
-            desiredOmega = errors[2] * Ktheta - omega * Komega;
-            log("desiredVelocity: " + desiredVelocity);
-            super.set("desiredVelocity", "" + desiredVelocity);
-            super.set("desiredOmega", "" + desiredOmega);
-            driveVector(desiredVelocity, desiredOmega);
-            log("not last point");
-            if (errors[0] < errors[1]) {
-                trajectoryIndex++;
-            }
-        } else {
-            toReverse(getPose(), PathManager.getTrajectory().getStates().get(PathManager.getTrajectory().getStates().size() - 1).poseMeters);
-            desiredVelocity = errors[0] * Kv;
-            desiredOmega = (currentGoal.poseMeters.getRotation().getRadians() - Math.toRadians(theta)) * Ktheta - omega * Komega;
-            super.set("desiredVelocity", "" + desiredVelocity);
-            super.set("desiredOmega", "" + desiredOmega);
-            if (!isDone(getPose(), PathManager.getTrajectory().getStates().get(PathManager.getTrajectory().getStates().size() - 1).poseMeters)) {
-                if (errors[0] > TOLERANCE) {
-                    driveVector(desiredVelocity, desiredOmega * 1.3);
-                    log("close");
-                } else {
-                    driveVector(0, desiredOmega * 1.8);
-                    log("almost");
-                }
-                set("last point: ", "true");
-
-            } else {
-                driveVector(0, 0);
-                log("done");
-            }
-        }
-        if (trajectoryIndex < PathManager.getTrajectory().getStates().size() - 1 && errors[0] < errors[1]) {
-            ++trajectoryIndex;
-        }
-        desiredVelocityPrev = desiredVelocity;
-    }
-
-    public double[] calculateErrors(Trajectory.State currentGoal) {
-        // Previous error
-        this.lastErrors = currentErrors;
-        // Assign values
-        double errorX = currentGoal.poseMeters.getTranslation().getX() - x;
-        double errorY = currentGoal.poseMeters.getTranslation().getY() - y;
-        // Theta calculation
-        double errorTheta = (Math.atan2(errorY, errorX) - Math.toRadians(theta)) % (2 * Math.PI);
-        // Return tuple
-        return currentErrors = new double[]{Math.sqrt(Math.pow(errorX, 2) + Math.pow(errorY, 2)), lastErrors[1], errorTheta};
-    }
-
-    public Pose2d getPose() {
-        return new Pose2d(x, y, Rotation2d.fromDegrees(theta));
-    }
-
-    public boolean isDone(Pose2d current, Pose2d end) {
-        // Assign values
-        double errorX = current.getTranslation().getX() - end.getTranslation().getX();
-        double errorY = current.getTranslation().getY() - end.getTranslation().getY();
-        // Calculate errors
-        double errorTheta = Math.abs(current.getRotation().getDegrees() - end.getRotation().getDegrees());
-        double errorPosition = errorX * Math.cos(Math.toRadians(theta)) + errorY * Math.sin(Math.toRadians(theta));
-        // Check against tolerances
-        return Math.abs(errorPosition) < TOLERANCE && errorTheta < DEGREE_TOLERANCE;
-    }
-
-    public void toReverse(Pose2d current, Pose2d end) {
-        // Assign values
-        double errorX = current.getTranslation().getX() - end.getTranslation().getX();
-        double errorY = current.getTranslation().getY() - end.getTranslation().getY();
-        // Calculate errors
-        double errorTheta = Math.abs(current.getRotation().getDegrees() - end.getRotation().getDegrees());
-        double errorPosition = errorX * Math.cos(Math.toRadians(theta)) + errorY * Math.sin(Math.toRadians(theta));
-        // Black magic
-        if ((errorPosition > 0 && Kv > 0) || (errorPosition < 0 && Kv < 0)) {
-            if (finalDirectionSwitch) {
-                Kv *= -1;
-                finalDirectionSwitch = false;
-            }
-        } else
-            finalDirectionSwitch = true;
-    }
-
     // Drive output setters
 
     public void driveManual(double speed, double turn) {
-        motorOutputs = new double[]{(turn + speed), (turn - speed)};
+        direct((turn + speed), (turn - speed));
     }
 
     public void driveVector(double velocity, double omega) {
-        motorOutputs = calculateOutputs(Math.abs(velocity) < TOLERANCE ? 0 : velocity, Math.abs(omega) < TOLERANCE ? 0 : omega);
+        // Outputs
+        double[] motorOutputs = calculateOutputs(Math.abs(velocity) < TOLERANCE ? 0 : velocity, Math.abs(omega) < TOLERANCE ? 0 : omega);
+        direct(motorOutputs[0], motorOutputs[1]);
     }
 
     // Output calculations
@@ -333,17 +166,5 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public void direct(double leftSpeed, double rightSpeed) {
         left.applyPower(leftSpeed);
         right.applyPower(rightSpeed);
-    }
-
-    // Modes
-
-    public void setMode(Mode mode) {
-        this.driveMode = mode;
-    }
-
-    public enum Mode {
-        Manual,
-        Trajectory,
-        Disable
     }
 }
