@@ -1,23 +1,25 @@
 package frc.robot.kobi.systems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.Faults;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import edu.wpi.first.wpilibj.PowerDistributionPanel;
+import edu.wpi.first.wpilibj.Servo;
 import frc.robot.base.control.PID;
 
 public class KobiShooter extends frc.robot.base.Module {
 
     private static final double TIMEOUT = 50;
 
-    private static final double GEAR = 1.0/3.0;
+    private static final double GEAR = 1.0 / 3.0;
     private static final double ENCODER_TICKS = 4096;
     private static final double TALON_VELOCITY_RATE = 1000.0 / 100.0; // 10Hz
 
     private WPI_TalonSRX motor1;
     private WPI_TalonSRX motor2;
     private WPI_TalonSRX motor3;
+
+    private WPI_TalonSRX turret;
+    private Servo hood;
 
     private PID motorsControlVelocity;
 
@@ -33,6 +35,10 @@ public class KobiShooter extends frc.robot.base.Module {
         motor1 = new WPI_TalonSRX(20);
         motor2 = new WPI_TalonSRX(21);
         motor3 = new WPI_TalonSRX(22);
+
+        turret = new WPI_TalonSRX(13);
+
+        hood = new Servo(9);
 
         motor1.setSelectedSensorPosition(1);
 
@@ -52,8 +58,7 @@ public class KobiShooter extends frc.robot.base.Module {
 
         motor2.follow(motor1);
         motor3.follow(motor1);
-
-        motorsControlVelocity = new PID("motorControlVelocity", 0.005, 0.007, 0.05, 0.05); // todo not finished. pay attention! - very small k's!
+//        motorsControlVelocity = new PID("motorControlVelocity", 0.005, 0.007, 0.05, 0.05); // todo not finished. pay attention! - very small k's!
     }
 
     public void setVelocity(double velocity) {
@@ -63,6 +68,15 @@ public class KobiShooter extends frc.robot.base.Module {
         motor1.set(ControlMode.Velocity, input);
     }
 
+    public void setTurretPosition(double position) {
+        // Position is degrees
+        double input = (position / 360.0) * GEAR * ENCODER_TICKS;
+        turret.set(ControlMode.Position, input);
+    }
+
+    public void setHoodPosition(double position) {
+        hood.set(position);
+    }
 
     public int getPosition() {
         set("encoder", String.valueOf(this.encoder));
