@@ -86,13 +86,13 @@ public class KobiShooter extends frc.robot.base.Module {
         });
     }
 
-    public void setVelocity(double velocity) {
+    public void setShooterVelocity(double velocity) {
         // Velocity is RPM
         double input = velocity * GEAR * (ENCODER_TICKS / (60 * TALON_VELOCITY_RATE));
         // Input is (?)
         shooter1.set(ControlMode.Velocity, input);
 
-        set("shooter-encoder", String.valueOf(getPosition()));
+        set("shooter-encoder", String.valueOf(getShooterPosition()));
     }
 
     public int setTurretPosition(double position) {
@@ -112,7 +112,7 @@ public class KobiShooter extends frc.robot.base.Module {
         hood.set(position);
     }
 
-    public int getPosition() {
+    public int getShooterPosition() {
         return shooter1.getSelectedSensorPosition();
     }
 }
