@@ -8,13 +8,14 @@ import frc.robot.base.control.PID;
 
 public class KobiShooter extends frc.robot.base.Module {
 
-    private static final double TIMEOUT = 50;
-
+    private static final double ENCODER_TICKS = 4096;
     private static final double TURRET_TICKS_TOLERANCE = 50; // 50 tick tolerance
 
+    private static final double SHOOTER_WHEEL_RADIUS = 0.0762; // M
+
     private static final double GEAR = 1.0 / 3.0;
-    private static final double ENCODER_TICKS = 4096;
-    private static final double TALON_VELOCITY_RATE = 1000.0 / 100.0; // 10Hz
+
+    private static final double TALON_RATE = 100.0 / 1000.0; // 100ms/1s
 
     private WPI_TalonSRX shooter1;
     private WPI_TalonSRX shooter2;
@@ -52,10 +53,11 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter1.configNominalOutputReverse(0, 30);
         shooter1.configPeakOutputForward(1, 30);
         shooter1.configPeakOutputReverse(-1, 30);
+
         shooter1.config_kP(0, 0, 30);
         shooter1.config_kI(0, 0, 30);
         shooter1.config_kD(0, 0, 30);
-        shooter1.config_kF(0, 0.7, 30);
+        shooter1.config_kF(0, 0.05, 30);
 
         shooter3.setInverted(true);
 
@@ -87,10 +89,13 @@ public class KobiShooter extends frc.robot.base.Module {
     }
 
     public void setShooterVelocity(double velocity) {
-        // Velocity is RPM
-        double input = velocity * GEAR * (ENCODER_TICKS / (60 * TALON_VELOCITY_RATE));
-        // Input is (?)
+        // Velocity is M/S
+        double input = (velocity * ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS);
+        set("shooter-tick-ps", String.valueOf(input));
+        // Set is Tick/100ms
         shooter1.set(ControlMode.Velocity, input);
+
+        set("shooter-velocity", String.valueOf(shooter1.getSelectedSensorVelocity()));
 
         set("shooter-encoder", String.valueOf(getShooterPosition()));
     }
@@ -114,5 +119,11 @@ public class KobiShooter extends frc.robot.base.Module {
 
     public int getShooterPosition() {
         return shooter1.getSelectedSensorPosition();
+    }
+
+    @Deprecated
+    public void test() {
+        set("shooter-encoder", String.valueOf(getShooterPosition()));
+        set("turret-encoder", String.valueOf(getTurretPosition()));
     }
 }

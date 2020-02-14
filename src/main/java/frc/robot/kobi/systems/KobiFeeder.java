@@ -7,8 +7,8 @@ public class KobiFeeder extends frc.robot.base.Module {
     private WPI_TalonSRX collector1, collector2;
     private WPI_TalonSRX feeder;
 
-    public KobiFeeder(String id) {
-        super(id);
+    public KobiFeeder() {
+        super("feeder");
 
         collector1 = new WPI_TalonSRX(16);
         collector2 = new WPI_TalonSRX(17);

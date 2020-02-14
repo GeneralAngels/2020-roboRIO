@@ -41,6 +41,7 @@ public class Kobi extends Bot {
         // Modules
         drive = new KobiDrive();
         shooter = new KobiShooter();
+        feeder = new KobiFeeder();
         manager = new PathManager(drive);
         autonomous = new Autonomous(this);
         rgb = new RGB();
@@ -48,6 +49,7 @@ public class Kobi extends Bot {
         enslave(autonomous);
         enslave(manager);
         enslave(shooter);
+        enslave(feeder);
         enslave(drive);
         enslave(rgb);
         // Resets
@@ -73,7 +75,9 @@ public class Kobi extends Bot {
     public void teleop() {
         set("time", String.valueOf(millis()));
 //        shooter.setTurretPosition(0.5);
-        shooter.setTurretPosition(driver.getY());
+//        shooter.setShooterVelocity((2 * Math.PI * 0.0762) * 4);
+        shooter.setShooterVelocity(5);
+        shooter.test();
         // manager.follow();
     }
 }
