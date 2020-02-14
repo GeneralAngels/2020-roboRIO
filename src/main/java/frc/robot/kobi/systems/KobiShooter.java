@@ -14,9 +14,9 @@ public class KobiShooter extends frc.robot.base.Module {
     private static final double ENCODER_TICKS = 4096;
     private static final double TALON_VELOCITY_RATE = 1000.0 / 100.0; // 10Hz
 
-    private WPI_TalonSRX motor1;
-    private WPI_TalonSRX motor2;
-    private WPI_TalonSRX motor3;
+    private WPI_TalonSRX shooter1;
+    private WPI_TalonSRX shooter2;
+    private WPI_TalonSRX shooter3;
 
     private WPI_TalonSRX turret;
     private Servo hood;
@@ -32,32 +32,32 @@ public class KobiShooter extends frc.robot.base.Module {
     public KobiShooter() {
         super("shooter");
 
-//        motor1 = new WPI_TalonSRX(20);
-//        motor2 = new WPI_TalonSRX(21);
-//        motor3 = new WPI_TalonSRX(22);
+        turret = new WPI_TalonSRX(19);
 
-        turret = new WPI_TalonSRX(13);
-//
-//        hood = new Servo(9);
-//
-//        motor1.setSelectedSensorPosition(1);
-//
-//        motor1.configFactoryDefault();
-//        motor1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
-//        motor1.setSensorPhase(true);
-//        motor1.configNominalOutputForward(0, 30);
-//        motor1.configNominalOutputReverse(0, 30);
-//        motor1.configPeakOutputForward(1, 30);
-//        motor1.configPeakOutputReverse(-1, 30);
-//        motor1.config_kP(0, 0, 30);
-//        motor1.config_kI(0, 0, 30);
-//        motor1.config_kD(0, 0, 30);
-//        motor1.config_kF(0, 0.7, 30);
-//
-//        motor3.setInverted(true);
-//
-//        motor2.follow(motor1);
-//        motor3.follow(motor1);
+        shooter1 = new WPI_TalonSRX(20);
+        shooter2 = new WPI_TalonSRX(21);
+        shooter3 = new WPI_TalonSRX(22);
+
+        hood = new Servo(9);
+
+        shooter1.setSelectedSensorPosition(1);
+
+        shooter1.configFactoryDefault();
+        shooter1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
+        shooter1.setSensorPhase(true);
+        shooter1.configNominalOutputForward(0, 30);
+        shooter1.configNominalOutputReverse(0, 30);
+        shooter1.configPeakOutputForward(1, 30);
+        shooter1.configPeakOutputReverse(-1, 30);
+        shooter1.config_kP(0, 0, 30);
+        shooter1.config_kI(0, 0, 30);
+        shooter1.config_kD(0, 0, 30);
+        shooter1.config_kF(0, 0.7, 30);
+
+        shooter3.setInverted(true);
+
+        shooter2.follow(shooter1);
+        shooter3.follow(shooter1);
 //        motorsControlVelocity = new PID("motorControlVelocity", 0.005, 0.007, 0.05, 0.05); // todo not finished. pay attention! - very small k's!
     }
 
@@ -65,7 +65,7 @@ public class KobiShooter extends frc.robot.base.Module {
         // Velocity is RPM
         double input = velocity * GEAR * (ENCODER_TICKS / (60 * TALON_VELOCITY_RATE));
         // Input is (?)
-        motor1.set(ControlMode.Velocity, input);
+        shooter1.set(ControlMode.Velocity, input);
     }
 
     public void setTurretPosition(double position) {
@@ -82,7 +82,7 @@ public class KobiShooter extends frc.robot.base.Module {
         set("encoder", String.valueOf(this.encoder));
         previousEncoder = encoder;
         previousTime = millis();
-        if ((encoder = motor1.getSelectedSensorPosition()) == 0)
+        if ((encoder = shooter1.getSelectedSensorPosition()) == 0)
             encoder = previousEncoder;
         return encoder;
     }

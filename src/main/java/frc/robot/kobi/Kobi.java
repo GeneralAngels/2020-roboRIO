@@ -72,6 +72,7 @@ public class Kobi extends Bot {
     @Override
     public void teleop() {
         set("time", String.valueOf(millis()));
+        shooter.setTurretPosition(driver.getY());
         // manager.follow();
     }
 }
