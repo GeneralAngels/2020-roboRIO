@@ -21,8 +21,8 @@ public class Shuby extends Bot {
     @Override
     public void teleop() {
 //        drive.driveManual(joystick1.getY()*(-joystick1.getTwist() + 1) / 2, joystick1.getX()*(-joystick1.getTwist() + 1)/2);
-        shooter.setHoodPosition(joystick1.getY()*180);
-        //  drive.driveManual(-joystick.getY(), joystick.getX());
+//        shooter.setHoodPosition(joystick1.getY()*180);
+          drive.driveManual(-joystick1.getY(), joystick1.getX());
         //  drive.loop();
     }
 }

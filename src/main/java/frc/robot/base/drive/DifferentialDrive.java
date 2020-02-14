@@ -1,5 +1,6 @@
 package frc.robot.base.drive;
 
+import com.ctre.phoenix.sensors.PigeonIMU;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
@@ -12,9 +13,6 @@ import frc.robot.base.utils.MotorGroup;
 import java.util.ArrayList;
 
 import static java.lang.Thread.sleep;
-
-// TODO redo the whole thing
-// TODO once complete, add copyright comment, its too embarrassing rn
 
 public class DifferentialDrive<T extends SpeedController> extends Module {
 
@@ -33,6 +31,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     private double x = 0;
     private double y = 0;
     private double theta = 0;
+    private double omega = 0;
 
     // Encoders
     private double[] lastEncoders = new double[2];
@@ -45,14 +44,12 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public PID motorControlRightPosition;
     public MotorGroup<T> left;
     public MotorGroup<T> right;
-    public Gyroscope gyro;
     public Odometry odometry;
 
     private double currentVoltage = 12;
 
     public DifferentialDrive() {
         super("drive");
-
         left = new MotorGroup<>("left");
         right = new MotorGroup<>("right");
 
@@ -97,10 +94,10 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
             odometry.setX(x += distanceFromEncoders * Math.cos(Math.toRadians(theta)));
             odometry.setY(y += distanceFromEncoders * Math.sin(Math.toRadians(theta)));
         }
-        if (gyro != null) {
-            // Set odometry
-            odometry.setTheta(theta = gyro.getAngle());
-        }
+
+        odometry.setTheta(theta = Gyroscope.getAngle());
+        odometry.setOmega(omega = Gyroscope.getAngularVelocity());
+
     }
 
     public Odometry getOdometry() {

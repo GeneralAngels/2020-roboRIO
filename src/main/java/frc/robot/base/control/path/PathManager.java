@@ -51,7 +51,7 @@ public class PathManager extends frc.robot.base.Module {
     public PathManager(DifferentialDrive drive) {
         super("path");
         this.drive = drive;
-        this.createPath(new ArrayList<>());
+        this.createPath(new ArrayList<>(), new Pose2d(0, 0.02, Rotation2d.fromDegrees(0)));
 
         // Command registration for autonomous
 
@@ -104,10 +104,11 @@ public class PathManager extends frc.robot.base.Module {
         x = odometry.getX();
         y = odometry.getY();
         // Setup states
+        log("states: " + trajectory);
         Trajectory.State start = trajectory.getStates().get(1);
         Trajectory.State current = trajectory.getStates().get(index);
         Trajectory.State end = trajectory.getStates().get(trajectory.getStates().size() - 1);
-        // Setup magic
+        //Setup magic
         if (check) {
             maxV = 0.75 / Math.abs(Math.atan2(end.poseMeters.getTranslation().getY() - start.poseMeters.getTranslation().getY(), end.poseMeters.getTranslation().getX() - start.poseMeters.getTranslation().getX()));
             if (maxV > 1.5)
@@ -212,18 +213,12 @@ public class PathManager extends frc.robot.base.Module {
             finalDirectionSwitch = true;
     }
 
-    public void createPath(ArrayList<Translation2d> waypoints) {
+    public void createPath(ArrayList<Translation2d> waypoints, Pose2d end) {
         // Reset index
         index = 1;
-        // Create poses
-        Pose2d startPoint = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
-        Pose2d endPoint = new Pose2d(2, 0.5, Rotation2d.fromDegrees(0));
-        //interiorWaypoints.add(new Translation2d(1, 0));
-//        interiorWaypoints.add(new Translation2d(1.0, 0.5));
         TrajectoryConfig config = new TrajectoryConfig(4, 1);
         config.setEndVelocity(0);
-        //config.setReversed(true);
-        trajectory = TrajectoryGenerator.generateTrajectory(startPoint, waypoints, endPoint, config);
+        trajectory = TrajectoryGenerator.generateTrajectory(getPose(), waypoints, end, config);
     }
 
     public double movingAverageCurvature(List<Trajectory.State> trajectory) {

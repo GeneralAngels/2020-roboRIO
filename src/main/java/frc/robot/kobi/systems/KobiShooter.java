@@ -32,32 +32,32 @@ public class KobiShooter extends frc.robot.base.Module {
     public KobiShooter() {
         super("shooter");
 
-        motor1 = new WPI_TalonSRX(20);
-        motor2 = new WPI_TalonSRX(21);
-        motor3 = new WPI_TalonSRX(22);
+//        motor1 = new WPI_TalonSRX(20);
+//        motor2 = new WPI_TalonSRX(21);
+//        motor3 = new WPI_TalonSRX(22);
 
         turret = new WPI_TalonSRX(13);
-
-        hood = new Servo(9);
-
-        motor1.setSelectedSensorPosition(1);
-
-        motor1.configFactoryDefault();
-        motor1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
-        motor1.setSensorPhase(true);
-        motor1.configNominalOutputForward(0, 30);
-        motor1.configNominalOutputReverse(0, 30);
-        motor1.configPeakOutputForward(1, 30);
-        motor1.configPeakOutputReverse(-1, 30);
-        motor1.config_kP(0, 0, 30);
-        motor1.config_kI(0, 0, 30);
-        motor1.config_kD(0, 0, 30);
-        motor1.config_kF(0, 0.7, 30);
-
-        motor3.setInverted(true);
-
-        motor2.follow(motor1);
-        motor3.follow(motor1);
+//
+//        hood = new Servo(9);
+//
+//        motor1.setSelectedSensorPosition(1);
+//
+//        motor1.configFactoryDefault();
+//        motor1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
+//        motor1.setSensorPhase(true);
+//        motor1.configNominalOutputForward(0, 30);
+//        motor1.configNominalOutputReverse(0, 30);
+//        motor1.configPeakOutputForward(1, 30);
+//        motor1.configPeakOutputReverse(-1, 30);
+//        motor1.config_kP(0, 0, 30);
+//        motor1.config_kI(0, 0, 30);
+//        motor1.config_kD(0, 0, 30);
+//        motor1.config_kF(0, 0.7, 30);
+//
+//        motor3.setInverted(true);
+//
+//        motor2.follow(motor1);
+//        motor3.follow(motor1);
 //        motorsControlVelocity = new PID("motorControlVelocity", 0.005, 0.007, 0.05, 0.05); // todo not finished. pay attention! - very small k's!
     }
 
