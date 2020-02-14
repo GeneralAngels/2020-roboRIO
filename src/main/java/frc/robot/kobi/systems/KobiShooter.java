@@ -46,7 +46,7 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
         turret.configSelectedFeedbackSensor(FeedbackDevice.PulseWidthEncodedPosition, 0, 30);
 
-        shooter1.setSensorPhase(true);
+        shooter1.setSensorPhase(false); // Flip encoder polarity (+/-)
         // turret.setSensorPhase(true); todo
 
         shooter1.configNominalOutputForward(0, 30);
@@ -55,9 +55,9 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter1.configPeakOutputReverse(-1, 30);
 
         shooter1.config_kP(0, 0, 30);
-        shooter1.config_kI(0, 0, 30);
+        shooter1.config_kI(0, 0.00003, 30);
         shooter1.config_kD(0, 0, 30);
-        shooter1.config_kF(0, 0.05, 30);
+        shooter1.config_kF(0, 0.04, 30);
 
         shooter3.setInverted(true);
 
