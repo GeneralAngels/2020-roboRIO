@@ -10,10 +10,7 @@ public class KobiShooter extends frc.robot.base.Module {
 
     private static final double ENCODER_TICKS = 4096;
     private static final double TURRET_TICKS_TOLERANCE = 50; // 50 tick tolerance
-
     private static final double SHOOTER_WHEEL_RADIUS = 0.0762; // M
-
-    private static final double GEAR = 1.0 / 3.0;
 
     private static final double TALON_RATE = 100.0 / 1000.0; // 100ms/1s
 
@@ -23,8 +20,6 @@ public class KobiShooter extends frc.robot.base.Module {
 
     private WPI_TalonSRX turret;
     private Servo hood;
-
-    private PID motorsControlVelocity;
 
     public KobiShooter() {
         super("shooter");
@@ -63,27 +58,15 @@ public class KobiShooter extends frc.robot.base.Module {
 
         shooter2.follow(shooter1);
         shooter3.follow(shooter1);
-//        motorsControlVelocity = new PID("motorControlVelocity", 0.005, 0.007, 0.05, 0.05); // todo not finished. pay attention! - very small k's!
 
         command("turret", new Command() {
 
-            private boolean finished = true;
-            private int targetPosition = 0;
-
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
-                double delta = Double.parseDouble(s);
+                double speed = Double.parseDouble(s);
                 // Set position
-                if (finished) {
-                    targetPosition = setTurretPosition(delta);
-                    finished = false;
-                } else {
-                    if (Math.abs(getTurretPosition() - targetPosition) < TURRET_TICKS_TOLERANCE) {
-                        finished = true;
-                        return new Tuple<>(true, "Finished");
-                    }
-                }
-                return new Tuple<>(false, "Moving turret");
+                setTurretVelocity(speed);
+                return new Tuple<>(true, "Moving turret");
             }
         });
     }
@@ -91,39 +74,15 @@ public class KobiShooter extends frc.robot.base.Module {
     public void setShooterVelocity(double velocity) {
         // Velocity is M/S
         double input = (velocity * ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS);
-        set("shooter-tick-ps", String.valueOf(input));
         // Set is Tick/100ms
         shooter1.set(ControlMode.Velocity, input);
-
-        set("shooter-velocity", String.valueOf(shooter1.getSelectedSensorVelocity()));
-
-        set("shooter-encoder", String.valueOf(getShooterPosition()));
     }
 
-    public int setTurretPosition(double position) {
-        // Position is degrees
-        int input = (int) ((position / 360.0) * GEAR * ENCODER_TICKS);
-        turret.set(ControlMode.Position, input);
-
-        set("turret-encoder", String.valueOf(getTurretPosition()));
-        return input;
-    }
-
-    public int getTurretPosition() {
-        return turret.getSelectedSensorPosition();
+    public void setTurretVelocity(double speed) {
+        turret.set(speed);
     }
 
     public void setHoodPosition(double position) {
         hood.set(position);
-    }
-
-    public int getShooterPosition() {
-        return shooter1.getSelectedSensorPosition();
-    }
-
-    @Deprecated
-    public void test() {
-        set("shooter-encoder", String.valueOf(getShooterPosition()));
-        set("turret-encoder", String.valueOf(getTurretPosition()));
     }
 }
