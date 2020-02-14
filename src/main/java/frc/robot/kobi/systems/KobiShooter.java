@@ -23,12 +23,6 @@ public class KobiShooter extends frc.robot.base.Module {
 
     private PID motorsControlVelocity;
 
-    // Encoder
-    private int encoder = 0;
-    private int previousEncoder = 0;
-
-    private double previousTime = 0;
-
     public KobiShooter() {
         super("shooter");
 
@@ -41,10 +35,17 @@ public class KobiShooter extends frc.robot.base.Module {
         hood = new Servo(9);
 
         shooter1.setSelectedSensorPosition(1);
+        turret.setSelectedSensorPosition(1);
 
         shooter1.configFactoryDefault();
+        turret.configFactoryDefault();
+
         shooter1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
+        turret.configSelectedFeedbackSensor(FeedbackDevice.PulseWidthEncodedPosition, 0, 30);
+
         shooter1.setSensorPhase(true);
+        // turret.setSensorPhase(true); todo
+
         shooter1.configNominalOutputForward(0, 30);
         shooter1.configNominalOutputReverse(0, 30);
         shooter1.configPeakOutputForward(1, 30);
@@ -66,12 +67,21 @@ public class KobiShooter extends frc.robot.base.Module {
         double input = velocity * GEAR * (ENCODER_TICKS / (60 * TALON_VELOCITY_RATE));
         // Input is (?)
         shooter1.set(ControlMode.Velocity, input);
+
+        set("shooter-encoder", String.valueOf(getPosition()));
     }
 
     public void setTurretPosition(double position) {
         // Position is degrees
         double input = (position / 360.0) * GEAR * ENCODER_TICKS;
         turret.set(ControlMode.Position, input);
+        turret.set(position);
+
+        set("turret-encoder", String.valueOf(getTurretPosition()));
+    }
+
+    public int getTurretPosition(){
+        return turret.getSelectedSensorPosition();
     }
 
     public void setHoodPosition(double position) {
@@ -79,11 +89,6 @@ public class KobiShooter extends frc.robot.base.Module {
     }
 
     public int getPosition() {
-        set("encoder", String.valueOf(this.encoder));
-        previousEncoder = encoder;
-        previousTime = millis();
-        if ((encoder = shooter1.getSelectedSensorPosition()) == 0)
-            encoder = previousEncoder;
-        return encoder;
+        return shooter1.getSelectedSensorPosition();
     }
 }
