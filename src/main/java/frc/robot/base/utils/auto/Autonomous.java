@@ -15,10 +15,6 @@ public class Autonomous extends frc.robot.base.Module {
     public Autonomous(Bot bot) {
         super("autonomous");
         this.bot = bot;
-
-        // TODO only for testing
-        currentlyAwaiting.add("b follower create 10 10");
-        currentlyAwaiting.add("a follower follow");
     }
 
     public void loop() {
@@ -56,6 +52,10 @@ public class Autonomous extends frc.robot.base.Module {
         }
         // Set state
         set("state", currentlyAsync.size() == 0 && currentlyAwaiting.size() == 0 ? "done" : "running");
+    }
+
+    public void add(String command) {
+        currentlyAwaiting.add(command);
     }
 
     private boolean executeCommand(String command) {

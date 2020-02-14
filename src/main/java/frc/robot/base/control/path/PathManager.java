@@ -76,8 +76,17 @@ public class PathManager extends frc.robot.base.Module {
         command("create", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
-                index = 1;
-                return null;
+                // Parse string into three parameters (x, y, theta)
+                String[] split = s.split(" ");
+                if (split.length == 3) {
+                    double x = Double.parseDouble(split[0]);
+                    double y = Double.parseDouble(split[1]);
+                    double theta = Double.parseDouble(split[2]);
+                    createPath(new ArrayList<>(), new Pose2d(x, y, Rotation2d.fromDegrees(theta)));
+                    return new Tuple<>(true, "Trajectory created");
+                } else {
+                    return new Tuple<>(false, "Wrong number of parameters");
+                }
             }
         });
 
