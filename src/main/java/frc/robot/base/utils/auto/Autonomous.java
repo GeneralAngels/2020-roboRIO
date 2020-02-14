@@ -18,6 +18,16 @@ public class Autonomous extends frc.robot.base.Module {
     }
 
     public void loop() {
+        if (currentlyAsync.size() > 0) {
+            // Run all async
+            for (String string : currentlyAsync) {
+                if (executeCommand(string)) {
+                    // Move to done
+                    currentlyAsync.remove(string);
+                    currentlyDone.add(string);
+                }
+            }
+        }
         if (currentlyAwaiting.size() > 0) {
             // Parse
             String currentAwaiting = currentlyAwaiting.get(0);
@@ -39,16 +49,6 @@ public class Autonomous extends frc.robot.base.Module {
                 }
             }
 
-        }
-        if (currentlyAsync.size() > 0) {
-            // Run all async
-            for (String string : currentlyAsync) {
-                if (executeCommand(string)) {
-                    // Move to done
-                    currentlyAsync.remove(string);
-                    currentlyDone.add(string);
-                }
-            }
         }
         // Set state
         set("state", currentlyAsync.size() == 0 && currentlyAwaiting.size() == 0 ? "done" : "running");

@@ -10,6 +10,8 @@ public class KobiShooter extends frc.robot.base.Module {
 
     private static final double TIMEOUT = 50;
 
+    private static final double TURRET_TICKS_TOLERANCE = 50; // 50 tick tolerance
+
     private static final double GEAR = 1.0 / 3.0;
     private static final double ENCODER_TICKS = 4096;
     private static final double TALON_VELOCITY_RATE = 1000.0 / 100.0; // 10Hz
@@ -60,6 +62,28 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter2.follow(shooter1);
         shooter3.follow(shooter1);
 //        motorsControlVelocity = new PID("motorControlVelocity", 0.005, 0.007, 0.05, 0.05); // todo not finished. pay attention! - very small k's!
+
+        command("turret", new Command() {
+
+            private boolean finished = true;
+            private int targetPosition = 0;
+
+            @Override
+            public Tuple<Boolean, String> execute(String s) throws Exception {
+                double delta = Double.parseDouble(s);
+                // Set position
+                if (finished) {
+                    targetPosition = setTurretPosition(delta);
+                    finished = false;
+                } else {
+                    if (Math.abs(getTurretPosition() - targetPosition) < TURRET_TICKS_TOLERANCE) {
+                        finished = true;
+                        return new Tuple<>(true, "Finished");
+                    }
+                }
+                return new Tuple<>(false, "Moving turret");
+            }
+        });
     }
 
     public void setVelocity(double velocity) {
@@ -71,16 +95,16 @@ public class KobiShooter extends frc.robot.base.Module {
         set("shooter-encoder", String.valueOf(getPosition()));
     }
 
-    public void setTurretPosition(double position) {
+    public int setTurretPosition(double position) {
         // Position is degrees
-        double input = (position / 360.0) * GEAR * ENCODER_TICKS;
+        int input = (int) ((position / 360.0) * GEAR * ENCODER_TICKS);
         turret.set(ControlMode.Position, input);
-        turret.set(position);
 
         set("turret-encoder", String.valueOf(getTurretPosition()));
+        return input;
     }
 
-    public int getTurretPosition(){
+    public int getTurretPosition() {
         return turret.getSelectedSensorPosition();
     }
 
