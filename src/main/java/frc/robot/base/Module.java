@@ -19,6 +19,29 @@ public class Module extends Node {
         command("json", s -> new Tuple<>(true, pullJSON(false).toString()));
         command("telemetry", s -> new Tuple<>(true, pullJSON(true).toString()));
         command("help", s -> new Tuple<>(true, help("")));
+        command("sleep", new Command() {
+
+            private boolean sleeping = false;
+            private long targetTime = 0;
+
+            @Override
+            public Tuple<Boolean, String> execute(String s) throws Exception {
+                if (!sleeping) {
+                    int time = Integer.parseInt(s);
+                    // Set target time
+                    targetTime = millis() + time;
+                    // Sleeping switch
+                    sleeping = true;
+                } else {
+                    if (millis() > targetTime) {
+                        sleeping = false;
+                        // Return done
+                        return new Tuple<>(true, "Waited");
+                    }
+                }
+                return new Tuple<>(false, "Sleeping");
+            }
+        });
     }
 
     public JSONObject pullJSON(boolean recursive) {

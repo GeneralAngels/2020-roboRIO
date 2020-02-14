@@ -150,7 +150,7 @@ public class PathManager extends frc.robot.base.Module {
         } else {
             // Reverse
             toReverse(getPose(), trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters);
-            // Calculate desired shit
+            // Calculate desired sh*t
             currentDesiredVelocity = errors[0] * Kv;
             desiredOmega = (current.poseMeters.getRotation().getRadians() - Math.toRadians(Gyroscope.getAngle())) * Ktheta - omega * Komega;
             // Check if done
