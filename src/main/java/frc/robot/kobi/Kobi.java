@@ -77,7 +77,6 @@ public class Kobi extends Bot {
 //        shooter.setTurretPosition(0.5);
 //        shooter.setShooterVelocity((2 * Math.PI * 0.0762) * 4);
         shooter.setShooterVelocity(5);
-        shooter.test();
         // manager.follow();
     }
 }

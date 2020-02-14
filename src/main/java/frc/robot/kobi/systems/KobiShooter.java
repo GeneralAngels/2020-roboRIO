@@ -63,7 +63,9 @@ public class KobiShooter extends frc.robot.base.Module {
 
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
-                double speed = Double.parseDouble(s);
+                String[] split = s.split(" ");
+                boolean inFrame = Boolean.parseBoolean(split[0]);
+                double speed = Double.parseDouble(split[1]);
                 // Set position
                 setTurretVelocity(speed);
                 return new Tuple<>(true, "Moving turret");
