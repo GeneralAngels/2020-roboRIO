@@ -29,9 +29,9 @@ public class RGB extends Module {
         super("rgb");
         try {
             this.serial = new SerialPort(9600, SerialPort.Port.kUSB);
-        } catch (Exception ignored) {
+        } catch (Exception exception) {
             this.serial = null;
-            log("RGB serial Initialization failure");
+            log("RGB serial Initialization failure: " + exception.toString());
         }
         command("color", new Command() {
             @Override
@@ -94,7 +94,6 @@ public class RGB extends Module {
                 }, 5);
             }
         }
-        // }
     }
 
     public enum Mode {

@@ -14,6 +14,7 @@ import frc.robot.kobi.systems.KobiDrive;
 import frc.robot.kobi.systems.KobiFeeder;
 import frc.robot.kobi.systems.KobiShooter;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class Kobi extends Bot {
@@ -55,15 +56,11 @@ public class Kobi extends Bot {
         // Resets
         drive.updateOdometry();
         // RGB mode
-        rgb.setMode(RGB.Mode.Slide);
+        rgb.setMode(RGB.Mode.Fill);
         // Create path
-        manager.createPath(new ArrayList<>(), new Pose2d(1,1, Rotation2d.fromDegrees(0)));
+        manager.createPath(new ArrayList<>(), new Pose2d(1, 1, Rotation2d.fromDegrees(0)));
 
         // Create test-autonomous program
-
-        // TODO only for testing
-        autonomous.add("b follower create 10 10");
-        autonomous.add("a follower follow");
     }
 
     @Override
@@ -74,9 +71,7 @@ public class Kobi extends Bot {
     @Override
     public void teleop() {
         set("time", String.valueOf(millis()));
-//        shooter.setTurretPosition(0.5);
-//        shooter.setShooterVelocity((2 * Math.PI * 0.0762) * 4);
-        shooter.setShooterVelocity(5);
-        // manager.follow();
+        rgb.setColor(new Color(40, 40, (int) (40 * Math.abs(driver.getY()))));
+        drive.driveManual(-driver.getY(), driver.getX());
     }
 }

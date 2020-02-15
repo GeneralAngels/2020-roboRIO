@@ -3,6 +3,9 @@ package frc.robot.base.utils.auto;
 import frc.robot.base.Bot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.zip.CRC32;
 
 public class Autonomous extends frc.robot.base.Module {
 
@@ -15,6 +18,21 @@ public class Autonomous extends frc.robot.base.Module {
     public Autonomous(Bot bot) {
         super("autonomous");
         this.bot = bot;
+
+        command("load", new Command() {
+            @Override
+            public Tuple<Boolean, String> execute(String s) throws Exception {
+                CRC32 crc = new CRC32();
+                crc.update(s.getBytes());
+                // Parse auto
+                String decoded = new String(Base64.getDecoder().decode(s));
+                // Clear
+                currentlyAwaiting.clear();
+                // Add
+                currentlyAwaiting.addAll(Arrays.asList(decoded.split("\n")));
+                return new Tuple<>(true, String.valueOf(crc.getValue()));
+            }
+        });
     }
 
     public void loop() {
