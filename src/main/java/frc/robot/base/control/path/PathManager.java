@@ -32,21 +32,20 @@ public class PathManager extends frc.robot.base.Module {
     // Trajectory progress
     private int index = 0;
 
-    // Odometry
     private double theta, omega, x, y;
 
     private double maxVelocity = 1.5;
     private double maxAcceleration = 1.5;
 
-    public double Ktheta = 1.3 * maxVelocity; // Note that low values (for example 0.33) means it should get to the setpoint in ~3 seconds! // 1.6*MAX_V
-    public double Kcurv = 1 * maxVelocity; //0.45*MAX_V
-    public double Komega = 0;
-    public double Kv = 1;
-    public boolean checkMaximumValues = true;
-    public boolean finalDirectionSwitch = true;
+    public double kTheta = 1.3 * maxVelocity; // Note that low values (for example 0.33) means it should get to the setpoint in ~3 seconds! // 1.6*MAX_V
+    public double kCurvature = 1 * maxVelocity;
+    public double kOmega = 0;
+
     public double currentDesiredOmega;
     public double currentDesiredVelocity;
-    public double previousDesiredVelocity = 0;
+    public double previousDesiredVelocity ;
+
+    public double kV = 1;
 
     public PathManager(DifferentialDrive drive) {
         super("path");
@@ -92,8 +91,8 @@ public class PathManager extends frc.robot.base.Module {
         command("follow", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
-                log("Index " + index + " len " + trajectory.getStates().size());
-                if (index > trajectory.getStates().size()) {
+                log("Index " + index + " of Length " + trajectory.getStates().size());
+                if (index >= trajectory.getStates().size()) {
                     return new Tuple<>(true, "Done");
                 }
                 follow();
@@ -131,24 +130,23 @@ public class PathManager extends frc.robot.base.Module {
                 // Calculate average curvature
                 double acceleration = maxAcceleration - (movingAverageCurvature() / 2.0); // 2.0 is an arbitrary value
                 // Calculate velocity (maxVelocity - curvature * kCurv)(V = V0 + a*t)
-                currentDesiredVelocity = Math.min(maxVelocity - (curvature * Kcurv), previousDesiredVelocity + (acceleration * TIME_DELTA));
+                currentDesiredVelocity = Math.min(maxVelocity - (curvature * kCurvature), previousDesiredVelocity + (acceleration * TIME_DELTA));
                 // Check range
-                if ((currentDesiredVelocity >= 0 && currentDesiredVelocity < MINIMUM_VELOCITY) || (maxVelocity < (curvature * Kcurv))) // To make sure velocity isn't too low
+                if ((currentDesiredVelocity >= 0 && currentDesiredVelocity < MINIMUM_VELOCITY) || (maxVelocity < (curvature * kCurvature))) // To make sure velocity isn't too low
                     currentDesiredVelocity = MINIMUM_VELOCITY;
                 // Calculate omega (PD control)
-                currentDesiredOmega = errors[2] * Ktheta - omega * Komega;
+                currentDesiredOmega = errors[2] * kTheta - omega * kOmega;
             } else {
                 // Last point
-                Kv = reverseNeeded() ? -1 : 1;
+                kV = reverseNeeded() ? -1 : 1;
                 // Calculate desired sh*t
-                currentDesiredVelocity = errors[0] * Kv;
-                currentDesiredOmega = (current.poseMeters.getRotation().getRadians() - Math.toRadians(Gyroscope.getAngle())) * Ktheta - omega * Komega;
+                currentDesiredVelocity = errors[0] * kV;
+                currentDesiredOmega = (current.poseMeters.getRotation().getRadians() - Math.toRadians(Gyroscope.getAngle())) * kTheta - omega * kOmega;
                 // Check if done
                 if (!(errors[0] < DISTANCE_TOLERANCE && errors[2] < DEGREE_TOLERANCE)) {
                     // Distance
                     if (errors[0] > DISTANCE_TOLERANCE) {
                         currentDesiredOmega *= 1.3;
-                        log("close");
                     } else {
                         currentDesiredVelocity = 0;
                     }
@@ -197,7 +195,7 @@ public class PathManager extends frc.robot.base.Module {
         // Calculate errors
         double errorDistance = errorX * Math.cos(Math.toRadians(theta)) + errorY * Math.sin(Math.toRadians(theta));
         // Black magic
-        return Math.abs(errorDistance) > 0 && (Kv < 0 && errorDistance < 0);
+        return Math.abs(errorDistance) > 0 && (kV < 0 && errorDistance < 0);
     }
 
     public void createPath(Pose2d target) {
