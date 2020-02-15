@@ -72,6 +72,14 @@ public class Autonomous extends frc.robot.base.Module {
                         currentlyDone.add(currentlyAsync.remove(i));
                     }
                 }
+                // List all
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < currentlyAsync.size(); i++) {
+                    if (builder.length() > 0)
+                        builder.append(",");
+                    builder.append(currentlyAsync.get(i));
+                }
+                set("current_async", builder.toString());
             }
             // Set state
             set("state", currentlyAsync.size() == 0 && currentlyAwaiting.size() == 0 ? "done" : "running");
