@@ -45,19 +45,16 @@ public class Autonomous extends frc.robot.base.Module {
                 // Parse
                 String currentAwaiting = currentlyAwaiting.get(0);
                 if (!currentAwaiting.startsWith("//")) {
-                    String[] currentAwaitingSplit = currentAwaiting.split(" ", 2);
-                    String type = currentAwaitingSplit[0];
-                    String command = currentAwaitingSplit[1];
                     // Update set
-                    set("current_block", command);
+                    set("current_block", currentAwaiting);
                     // Determine type
-                    boolean isAsync = type.equals("a");
+                    boolean isAsync = currentAwaiting.equals("a");
                     // Run
                     if (isAsync) {
                         // Move to currently async
                         currentlyAsync.add(currentlyAwaiting.remove(0));
                     } else {
-                        if (executeCommand(command)) {
+                        if (executeCommand(currentAwaiting)) {
                             // Move to done
                             currentlyDone.add(currentlyAwaiting.remove(0));
                         }
@@ -95,16 +92,17 @@ public class Autonomous extends frc.robot.base.Module {
     }
 
     private boolean executeCommand(String string) {
+        // Divider
+        String divider = " ";
         // Run command and wait for result
-        String[] commandSplit = string.split(" ", 3);
+        // a/b master command param
         try {
-            Tuple<Boolean, String> result = bot.find(commandSplit[0]).execute(commandSplit[1], commandSplit.length > 2 ? commandSplit[2] : null);
-            // Check if null
-            if (result == null || result.getA()) {
-                // Return done
-                return true;
-            }
-            return false;
+            String[] typeSplit = string.split(divider, 2);
+            String[] masterSplit = typeSplit[1].split(divider, 2);
+            String[] commandSplit = masterSplit[1].split(divider, 2);
+            Tuple<Boolean, String> result = bot.find(masterSplit[0]).execute(commandSplit[0], commandSplit.length > 1 ? commandSplit[1] : null);
+            // Return done
+            return result == null || result.getA();
         } catch (Exception ignored) {
             // Return done
             return true;

@@ -43,7 +43,7 @@ public class PathManager extends frc.robot.base.Module {
 
     public double currentDesiredOmega;
     public double currentDesiredVelocity;
-    public double previousDesiredVelocity ;
+    public double previousDesiredVelocity;
 
     public double kV = 1;
 
@@ -91,12 +91,16 @@ public class PathManager extends frc.robot.base.Module {
         command("follow", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
-                log("Index " + index + " of Length " + trajectory.getStates().size());
-                if (index >= trajectory.getStates().size()) {
-                    return new Tuple<>(true, "Done");
+                if (trajectory != null) {
+                    log("Index " + index + " of Length " + trajectory.getStates().size());
+                    if (index >= trajectory.getStates().size()) {
+                        return new Tuple<>(true, "Done");
+                    }
+                    follow();
+                    return new Tuple<>(false, "Not done");
+                } else {
+                    return new Tuple<>(false, "No trajectory");
                 }
-                follow();
-                return new Tuple<>(false, "Not done");
             }
         });
     }
@@ -195,7 +199,7 @@ public class PathManager extends frc.robot.base.Module {
         // Calculate errors
         double errorDistance = errorX * Math.cos(Math.toRadians(theta)) + errorY * Math.sin(Math.toRadians(theta));
         // Black magic
-        return Math.abs(errorDistance) > 0 && (kV < 0 && errorDistance < 0);
+        return (kV < 0 && errorDistance < 0) || (kV > 0 && errorDistance > 0);
     }
 
     public void createPath(Pose2d target) {
