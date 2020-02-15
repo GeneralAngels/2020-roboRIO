@@ -25,7 +25,6 @@ public class KobiDrive extends DifferentialDrive<CANSparkMax> {
         right.setDirection(MotorGroup.BACKWARD);
 
         resetOdometry();
-        updateOdometry();
     }
 
 

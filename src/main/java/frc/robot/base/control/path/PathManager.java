@@ -112,11 +112,7 @@ public class PathManager extends frc.robot.base.Module {
             // Setup previous values
             previousDesiredVelocity = currentDesiredVelocity;
             // Setup odometry value
-            Odometry odometry = drive.getOdometry();
-            theta = odometry.getTheta();
-            omega = odometry.getOmega();
-            x = odometry.getX();
-            y = odometry.getY();
+            updateOdometry();
             // Setup states
             Trajectory.State current = trajectory.getStates().get(index);
             // Calculate curvature
@@ -192,6 +188,14 @@ public class PathManager extends frc.robot.base.Module {
         return new Pose2d(x, y, Rotation2d.fromDegrees(theta));
     }
 
+    private void updateOdometry(){
+        Odometry odometry = drive.getOdometry();
+        theta = odometry.getTheta();
+        omega = odometry.getOmega();
+        x = odometry.getX();
+        y = odometry.getY();
+    }
+
     public boolean reverseNeeded() {
         // Assign values
         double errorX = getPose().getTranslation().getX() - trajectory.getStates().get(index).poseMeters.getTranslation().getX();
@@ -205,6 +209,8 @@ public class PathManager extends frc.robot.base.Module {
     public void createPath(Pose2d target) {
         // Reset index
         index = 1;
+        // Update odometry
+        updateOdometry();
         // Configure trajectory
         TrajectoryConfig config = new TrajectoryConfig(2, 1);
         config.setEndVelocity(0);

@@ -105,6 +105,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         Gyroscope.reset();
         left.resetEncoder();
         right.resetEncoder();
+        updateOdometry();
     }
 
     public Odometry getOdometry() {
