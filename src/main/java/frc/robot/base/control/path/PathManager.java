@@ -2,7 +2,6 @@ package frc.robot.base.control.path;
 
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
@@ -13,15 +12,19 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class PathManager extends frc.robot.base.Module {
 
     private static final double TOLERANCE = 0.05;
+    private static final double TIME_DELTA = 0.02;
+    private static final double MINIMUM_VELOCITY = 0.5;
     private static final double DEGREE_TOLERANCE = 3;
+
+    private static final int FUTURE_CURVATURE_STATES = 2; // How many states to skip when looking for future curvatures (for linear acceleration)
 
     private DifferentialDrive drive;
 
+    private Pose2d target;
     private Trajectory trajectory;
 
     // Trajectory progress
@@ -34,24 +37,22 @@ public class PathManager extends frc.robot.base.Module {
     private double[] lastErrors = new double[3];
     private double[] currentErrors = new double[3];
 
-    private double maxV = 1.5;
-    private double maxA = 1.5;
+    private double maxVelocity = 1.5;
+    private double maxAcceleration = 1.5;
 
     public double Kv = 3;
-    public double Ktheta = 1.3 * maxV; // Note that low values (for example 0.33) means it should get to the setpoint in ~3 seconds! // 1.6*MAX_V
-    public double Kcurv = 1 * maxV; //0.45*MAX_V
+    public double Ktheta = 1.3 * maxVelocity; // Note that low values (for example 0.33) means it should get to the setpoint in ~3 seconds! // 1.6*MAX_V
+    public double Kcurv = 1 * maxVelocity; //0.45*MAX_V
     public double Komega = 0;
-    public boolean check = true;
+    public boolean checkMaximumValues = true;
     public boolean finalDirectionSwitch = true;
     public double desiredOmega;
     public double currentDesiredVelocity;
     public double previousDesiredVelocity = 0;
-    public double acc = 0;
 
     public PathManager(DifferentialDrive drive) {
         super("path");
         this.drive = drive;
-        this.createPath(new ArrayList<>(), new Pose2d(0, 0.02, Rotation2d.fromDegrees(0)));
 
         // Command registration for autonomous
 
@@ -82,7 +83,7 @@ public class PathManager extends frc.robot.base.Module {
                     double x = Double.parseDouble(split[0]);
                     double y = Double.parseDouble(split[1]);
                     double theta = Double.parseDouble(split[2]);
-                    createPath(new ArrayList<>(), new Pose2d(x, y, Rotation2d.fromDegrees(theta)));
+                    createPath(new Pose2d(x, y, Rotation2d.fromDegrees(theta)));
                     return new Tuple<>(true, "Trajectory created");
                 } else {
                     return new Tuple<>(false, "Wrong number of parameters");
@@ -118,33 +119,29 @@ public class PathManager extends frc.robot.base.Module {
         Trajectory.State current = trajectory.getStates().get(index);
         Trajectory.State end = trajectory.getStates().get(trajectory.getStates().size() - 1);
         //Setup magic
-        if (check) {
-            maxV = 0.75 / Math.abs(Math.atan2(end.poseMeters.getTranslation().getY() - start.poseMeters.getTranslation().getY(), end.poseMeters.getTranslation().getX() - start.poseMeters.getTranslation().getX()));
-            if (maxV > 1.5)
-                maxV = 1.5;
-            maxA = 0.5 / Math.abs(Math.atan2(end.poseMeters.getTranslation().getY() - start.poseMeters.getTranslation().getY(), end.poseMeters.getTranslation().getX() - start.poseMeters.getTranslation().getX()));
-            if (maxA > 1.5)
-                maxA = 1.5;
-            check = false;
+        if (checkMaximumValues) {
+
+            checkMaximumValues = false;
         }
         // Calculate curvature
         double curvature = current.curvatureRadPerMeter;
-        if (index < trajectory.getStates().size() - 2)
-            curvature = trajectory.getStates().get(index + 2).curvatureRadPerMeter;
+        if (index < trajectory.getStates().size() - FUTURE_CURVATURE_STATES) // Check future curvature
+            curvature = trajectory.getStates().get(index + FUTURE_CURVATURE_STATES).curvatureRadPerMeter; // Look for future curvature
+        // Absolute the values
         curvature = Math.abs(curvature);
+        // Calculate new errors
         double[] errors = calculateErrors(current);
         // Make sure we are not done yet
-        if (index < trajectory.getStates().size() - 1) {
+        if (index < trajectory.getStates().size()) {
             // Calculate average curvature
-            acc = maxA - (movingAverageCurvature(trajectory.getStates()) / 2.0);
-            // Calculate velocity
-            currentDesiredVelocity = Math.min(maxV - curvature * Kcurv, previousDesiredVelocity + (acc * 0.02));
+            double acceleration = maxAcceleration - (movingAverageCurvature() / 2.0); // 2.0 is an arbitrary value
+            // Calculate velocity (maxVelocity - curvature * kCurv)(V = V0 + a*t)
+            currentDesiredVelocity = Math.min(maxVelocity - (curvature * Kcurv), previousDesiredVelocity + (acceleration * TIME_DELTA));
             // Check range
-            if ((currentDesiredVelocity >= 0 && currentDesiredVelocity < 0.5) || (maxV < (curvature * Kcurv)))
-                currentDesiredVelocity = 0.5;
-            // Calculate omega
+            if ((currentDesiredVelocity >= 0 && currentDesiredVelocity < MINIMUM_VELOCITY) || (maxVelocity < (curvature * Kcurv))) // To make sure velocity isn't too low
+                currentDesiredVelocity = MINIMUM_VELOCITY;
+            // Calculate omega (PD control)
             desiredOmega = errors[2] * Ktheta - omega * Komega;
-            log("not last point");
             if (errors[0] < errors[1])
                 ++index;
         } else {
@@ -220,21 +217,31 @@ public class PathManager extends frc.robot.base.Module {
             finalDirectionSwitch = true;
     }
 
-    public void createPath(ArrayList<Translation2d> waypoints, Pose2d end) {
+    public void createPath(Pose2d target) {
         // Reset index
-        index = 0;
-        TrajectoryConfig config = new TrajectoryConfig(0.5, 1);
+        index = 1;
+        // Configure trajectory
+        TrajectoryConfig config = new TrajectoryConfig(2, 1);
         config.setEndVelocity(0);
-        Pose2d currentPose = getPose();
-        Pose2d endPose = new Pose2d(currentPose.getTranslation().getX() + end.getTranslation().getX(), currentPose.getTranslation().getY() + end.getTranslation().getY(), Rotation2d.fromDegrees(currentPose.getRotation().getDegrees() + end.getRotation().getDegrees()));
-        trajectory = TrajectoryGenerator.generateTrajectory(currentPose, waypoints, endPose, config);
+        // Poses
+        Pose2d start = getPose();
+        Pose2d end = new Pose2d(start.getTranslation().getX() + target.getTranslation().getX(), start.getTranslation().getY() + target.getTranslation().getY(), Rotation2d.fromDegrees(start.getRotation().getDegrees() + target.getRotation().getDegrees()));
+        // Calculate deltas
+        double xDelta = end.getTranslation().getX() - start.getTranslation().getX();
+        double yDelta = end.getTranslation().getY() - start.getTranslation().getY();
+        // Calculate curvature
+        double trajectoryCurvature = Math.atan2(yDelta, xDelta);
+        // Calculate the maximum acceleration and velocity
+        maxVelocity = Math.min(0.75 / Math.abs(trajectoryCurvature), 1.5);
+        maxAcceleration = Math.min(0.5 / Math.abs(trajectoryCurvature), 1.5);
+        // Generate trajectory
+        trajectory = TrajectoryGenerator.generateTrajectory(start, new ArrayList<>(), end, config);
     }
 
-    public double movingAverageCurvature(List<Trajectory.State> trajectory) {
-        int size = trajectory.size();
-        double average = (Math.abs(trajectory.get(size - 1).curvatureRadPerMeter) + Math.abs(trajectory.get(size - 2).curvatureRadPerMeter)) / 2;
-        for (int i = size - 3; i >= 0; i--) {
-            average = (average + Math.abs(trajectory.get(i).curvatureRadPerMeter)) / 2;
+    public double movingAverageCurvature() {
+        double average = 0;
+        for (int i = trajectory.getStates().size() - 1; i >= 0; i--) {
+            average = (average + Math.abs(trajectory.getStates().get(i).curvatureRadPerMeter) / 2);
         }
         return average;
     }

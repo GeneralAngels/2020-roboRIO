@@ -37,7 +37,7 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter1 = new WPI_TalonSRX(20);
         shooter2 = new WPI_TalonSRX(21);
         shooter3 = new WPI_TalonSRX(22);
-        encoder = new Encoder(6,7);
+//        encoder = new Encoder(6,7);
 
         hood = new Servo(9);
         potentiometer = new AnalogPotentiometer(0);
@@ -48,7 +48,7 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter1.configFactoryDefault();
         turret.configFactoryDefault();
 
-        // shooter1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
+        shooter1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
         turret.configSelectedFeedbackSensor(FeedbackDevice.PulseWidthEncodedPosition, 0, 30);
 
         shooter1.setSensorPhase(false); // Flip encoder polarity (+/-)
@@ -105,8 +105,8 @@ public class KobiShooter extends frc.robot.base.Module {
     }
 
     public int getShooterPosition() {
-        int position = encoder.get();
-//        int position = shooter1.getSelectedSensorPosition();
+//        int position = encoder.get();
+        int position = shooter1.getSelectedSensorPosition();
         set("shooter", String.valueOf(position));
         return position;
     }

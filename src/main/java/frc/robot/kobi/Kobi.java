@@ -72,7 +72,7 @@ public class Kobi extends Bot {
     public void teleop() {
         set("time", String.valueOf(millis()));
         shooter.updatePositions();
-        rgb.setColor(new Color(40, 40, (int) (40 * Math.abs(driver.getY()))));
+        rgb.setColor(new Color(60, 20, (int) (40 * Math.abs(driver.getY()))));
         drive.driveManual(-driver.getY(), driver.getX());
     }
 }
