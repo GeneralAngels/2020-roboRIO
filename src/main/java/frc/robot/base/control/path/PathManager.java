@@ -33,10 +33,6 @@ public class PathManager extends frc.robot.base.Module {
     // Odometry
     private double theta, omega, x, y;
 
-    // Errors
-    private double[] lastErrors = new double[3];
-    private double[] currentErrors = new double[3];
-
     private double maxVelocity = 1.5;
     private double maxAcceleration = 1.5;
 
@@ -130,7 +126,7 @@ public class PathManager extends frc.robot.base.Module {
         // Absolute the values
         curvature = Math.abs(curvature);
         // Calculate new errors
-        double[] errors = calculateErrors(current);
+        double[] errors = calculateErrors();
         // Make sure we are not done yet
         if (index < trajectory.getStates().size()) {
             // Calculate average curvature
@@ -142,7 +138,6 @@ public class PathManager extends frc.robot.base.Module {
                 currentDesiredVelocity = MINIMUM_VELOCITY;
             // Calculate omega (PD control)
             currentDesiredOmega = errors[2] * Ktheta - omega * Komega;
-            set("do", String.valueOf(currentDesiredOmega));
         } else {
             // Reverse
             toReverse(getPose(), trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters);
@@ -166,21 +161,25 @@ public class PathManager extends frc.robot.base.Module {
                 log("done");
             }
         }
-        if (index < trajectory.getStates().size() && errors[0] < errors[1])
-            ++index;
+        if (index < trajectory.getStates().size() && errors[0] < errors[1]) {
+            this.index++;
+        }
         drive.driveVector(currentDesiredVelocity, currentDesiredOmega);
     }
 
-    public double[] calculateErrors(Trajectory.State currentGoal) {
-        // Previous error
-        this.lastErrors = currentErrors;
+    public double[] calculateErrors() {
         // Assign values
-        double errorX = currentGoal.poseMeters.getTranslation().getX() - x;
-        double errorY = currentGoal.poseMeters.getTranslation().getY() - y;
+        double currentErrorX = trajectory.getStates().get(index).poseMeters.getTranslation().getX() - x;
+        double currentErrorY = trajectory.getStates().get(index).poseMeters.getTranslation().getY() - y;
+        double lastErrorX = trajectory.getStates().get(index - 1).poseMeters.getTranslation().getX() - x;
+        double lastErrorY = trajectory.getStates().get(index - 1).poseMeters.getTranslation().getY() - y;
         // Theta calculation
-        double errorTheta = (Math.atan2(errorY, errorX) - Math.toRadians(theta)) % (2 * Math.PI);
+        double errorTheta = (Math.atan2(currentErrorY, currentErrorX) - Math.toRadians(theta)) % (2 * Math.PI);
+        // Error calculation
+        double currentDistanceError = Math.sqrt(Math.pow(currentErrorX, 2) + Math.pow(currentErrorY, 2));
+        double previousDistanceError = Math.sqrt(Math.pow(lastErrorX, 2) + Math.pow(lastErrorY, 2));
         // Return tuple
-        return currentErrors = new double[]{Math.sqrt(Math.pow(errorX, 2) + Math.pow(errorY, 2)), lastErrors[0], errorTheta};
+        return new double[]{currentDistanceError, previousDistanceError, errorTheta};
     }
 
     public Pose2d getPose() {
