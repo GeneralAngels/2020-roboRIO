@@ -28,6 +28,8 @@ public class Autonomous extends frc.robot.base.Module {
                 String decoded = new String(Base64.getDecoder().decode(s));
                 // Clear
                 currentlyAwaiting.clear();
+                currentlyAsync.clear();
+                currentlyDone.clear();
                 // Add
                 currentlyAwaiting.addAll(Arrays.asList(decoded.split(",")));
                 return new Tuple<>(true, String.valueOf(crc.getValue()));
@@ -36,49 +38,55 @@ public class Autonomous extends frc.robot.base.Module {
     }
 
     public void loop() {
-        if (currentlyAsync.size() > 0) {
-            // Run all async
-            for (String string : currentlyAsync) {
-                if (executeCommand(string)) {
-                    // Move to done
-                    currentlyAsync.remove(string);
-                    currentlyDone.add(string);
+        try {
+            if (currentlyAwaiting.size() > 0) {
+                // Parse
+                String currentAwaiting = currentlyAwaiting.get(0);
+                if (!currentAwaiting.startsWith("//")) {
+                    String[] currentAwaitingSplit = currentAwaiting.split(" ", 2);
+                    String type = currentAwaitingSplit[0];
+                    String command = currentAwaitingSplit[1];
+                    // Update set
+                    set("current_block", command);
+                    // Determine type
+                    boolean isAsync = type.equals("a");
+                    // Run
+                    if (isAsync) {
+                        // Move to currently async
+                        currentlyAsync.add(currentlyAwaiting.remove(0));
+                    } else {
+                        if (executeCommand(command)) {
+                            // Move to done
+                            currentlyDone.add(currentlyAwaiting.remove(0));
+                        }
+                    }
+                } else {
+                    currentlyAwaiting.remove(0);
                 }
             }
-        }
-        if (currentlyAwaiting.size() > 0) {
-            // Parse
-            String currentAwaiting = currentlyAwaiting.get(0);
-            String[] currentAwaitingSplit = currentAwaiting.split(" ", 2);
-            String type = currentAwaitingSplit[0];
-            String command = currentAwaitingSplit[1];
-            // Update set
-            set("current_block", command);
-            // Determine type
-            boolean isAsync = type.equals("a");
-            // Run
-            if (isAsync) {
-                // Move to currently async
-                currentlyAsync.add(currentlyAwaiting.remove(0));
-            } else {
-                if (executeCommand(command)) {
-                    // Move to done
-                    currentlyDone.add(currentlyAwaiting.remove(0));
+            if (currentlyAsync.size() > 0) {
+                // Run all async
+                for (int i = 0; i < currentlyAsync.size(); i++) {
+                    if (executeCommand(currentlyAsync.get(i))) {
+                        // Move to done
+                        currentlyDone.add(currentlyAsync.remove(i));
+                    }
                 }
             }
-
+            // Set state
+            set("state", currentlyAsync.size() == 0 && currentlyAwaiting.size() == 0 ? "done" : "running");
+        } catch (Exception ignored) {
+            set("last-error", ignored.toString());
         }
-        // Set state
-        set("state", currentlyAsync.size() == 0 && currentlyAwaiting.size() == 0 ? "done" : "running");
     }
 
     public void add(String command) {
         currentlyAwaiting.add(command);
     }
 
-    private boolean executeCommand(String command) {
+    private boolean executeCommand(String string) {
         // Run command and wait for result
-        String[] commandSplit = command.split(" ", 3);
+        String[] commandSplit = string.split(" ", 3);
         try {
             Tuple<Boolean, String> result = bot.find(commandSplit[0]).execute(commandSplit[1], commandSplit.length > 2 ? commandSplit[2] : null);
             // Check if null

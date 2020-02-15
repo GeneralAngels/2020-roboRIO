@@ -70,6 +70,15 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         enslave(motorControlRightVelocity);
         enslave(motorControlLeftPosition);
         enslave(motorControlRightPosition);
+
+        // Commands
+        command("reset", new Command() {
+            @Override
+            public Tuple<Boolean, String> execute(String s) throws Exception {
+                resetOdometry();
+                return new Tuple<>(true, "Done");
+            }
+        });
     }
 
     public void printEncoders() {
@@ -91,13 +100,18 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
             distanceFromEncoders /= 2;
 
             // Set odometry
-            odometry.setX(x += distanceFromEncoders * Math.cos(Math.toRadians(theta)));
-            odometry.setY(y += distanceFromEncoders * Math.sin(Math.toRadians(theta)));
+            odometry.setX((x += distanceFromEncoders * Math.cos(Math.toRadians(theta))) / 100);
+            odometry.setY((y += distanceFromEncoders * Math.sin(Math.toRadians(theta))) / 100);
         }
 
         odometry.setTheta(theta = Gyroscope.getAngle());
         odometry.setOmega(omega = Gyroscope.getAngularVelocity());
+    }
 
+    public void resetOdometry() {
+        Gyroscope.reset();
+        left.resetEncoder();
+        right.resetEncoder();
     }
 
     public Odometry getOdometry() {
@@ -108,12 +122,14 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
     public void driveManual(double speed, double turn) {
         direct((turn + speed), (turn - speed));
+        updateOdometry();
     }
 
     public void driveVector(double velocity, double omega) {
         // Outputs
         double[] motorOutputs = calculateOutputs(Math.abs(velocity) < TOLERANCE ? 0 : velocity, Math.abs(omega) < TOLERANCE ? 0 : omega);
         direct(motorOutputs[0], motorOutputs[1]);
+        updateOdometry();
     }
 
     // Output calculations

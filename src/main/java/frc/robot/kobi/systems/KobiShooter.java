@@ -3,7 +3,9 @@ package frc.robot.kobi.systems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.interfaces.Potentiometer;
 import frc.robot.base.control.PID;
 
 public class KobiShooter extends frc.robot.base.Module {
@@ -19,7 +21,10 @@ public class KobiShooter extends frc.robot.base.Module {
     private WPI_TalonSRX shooter3;
 
     private WPI_TalonSRX turret;
+
+    // Hood
     private Servo hood;
+    private Potentiometer potentiometer;
 
     public KobiShooter() {
         super("shooter");
@@ -31,6 +36,7 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter3 = new WPI_TalonSRX(22);
 
         hood = new Servo(9);
+        potentiometer = new AnalogPotentiometer(0);
 
         shooter1.setSelectedSensorPosition(1);
         turret.setSelectedSensorPosition(1);
@@ -86,5 +92,23 @@ public class KobiShooter extends frc.robot.base.Module {
 
     public void setHoodPosition(double position) {
         hood.set(position);
+    }
+
+    public int getShooterPosition() {
+        int position = shooter1.getSelectedSensorPosition();
+        set("shooter", String.valueOf(position));
+        return position;
+    }
+
+    public int getTurretPosition() {
+        int position = turret.getSelectedSensorPosition();
+        set("turret", String.valueOf(position));
+        return position;
+    }
+
+    public double getHoodPosition() {
+        double position = potentiometer.get();
+        set("hood", String.valueOf(position));
+        return position;
     }
 }

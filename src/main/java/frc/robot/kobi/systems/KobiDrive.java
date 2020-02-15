@@ -20,6 +20,10 @@ public class KobiDrive extends DifferentialDrive<CANSparkMax> {
 
         left.setEncoder(new Encoder(3, 2));
         right.setEncoder(new Encoder(0, 1));
+
+
+        resetOdometry();
+        updateOdometry();
     }
 
 

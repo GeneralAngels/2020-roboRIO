@@ -93,7 +93,8 @@ public class PathManager extends frc.robot.base.Module {
         command("follow", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
-                if (index >= trajectory.getStates().size()) {
+                log("Index " + index + " len " + trajectory.getStates().size());
+                if (index > trajectory.getStates().size()) {
                     return new Tuple<>(true, "Done");
                 }
                 follow();
@@ -113,8 +114,7 @@ public class PathManager extends frc.robot.base.Module {
         x = odometry.getX();
         y = odometry.getY();
         // Setup states
-        log("states: " + trajectory);
-        Trajectory.State start = trajectory.getStates().get(1);
+        Trajectory.State start = trajectory.getStates().get(0);
         Trajectory.State current = trajectory.getStates().get(index);
         Trajectory.State end = trajectory.getStates().get(trajectory.getStates().size() - 1);
         //Setup magic
@@ -174,8 +174,6 @@ public class PathManager extends frc.robot.base.Module {
             ++index;
         }
         drive.driveVector(currentDesiredVelocity, desiredOmega);
-        // Update odometry
-        drive.updateOdometry();
     }
 
     public double[] calculateErrors(Trajectory.State currentGoal) {
@@ -224,16 +222,18 @@ public class PathManager extends frc.robot.base.Module {
 
     public void createPath(ArrayList<Translation2d> waypoints, Pose2d end) {
         // Reset index
-        index = 1;
-        TrajectoryConfig config = new TrajectoryConfig(4, 1);
+        index = 0;
+        TrajectoryConfig config = new TrajectoryConfig(0.5, 1);
         config.setEndVelocity(0);
-        trajectory = TrajectoryGenerator.generateTrajectory(getPose(), waypoints, end, config);
+        Pose2d currentPose = getPose();
+        Pose2d endPose = new Pose2d(currentPose.getTranslation().getX() + end.getTranslation().getX(), currentPose.getTranslation().getY() + end.getTranslation().getY(), Rotation2d.fromDegrees(currentPose.getRotation().getDegrees() + end.getRotation().getDegrees()));
+        trajectory = TrajectoryGenerator.generateTrajectory(currentPose, waypoints, endPose, config);
     }
 
     public double movingAverageCurvature(List<Trajectory.State> trajectory) {
         int size = trajectory.size();
         double average = (Math.abs(trajectory.get(size - 1).curvatureRadPerMeter) + Math.abs(trajectory.get(size - 2).curvatureRadPerMeter)) / 2;
-        for (int i = size - 3; i >= 0; --i) {
+        for (int i = size - 3; i >= 0; i--) {
             average = (average + Math.abs(trajectory.get(i).curvatureRadPerMeter)) / 2;
         }
         return average;

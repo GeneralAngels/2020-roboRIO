@@ -58,7 +58,7 @@ public class Kobi extends Bot {
         // RGB mode
         rgb.setMode(RGB.Mode.Fill);
         // Create path
-        manager.createPath(new ArrayList<>(), new Pose2d(1, 1, Rotation2d.fromDegrees(0)));
+//        manager.createPath(new ArrayList<>(), new Pose2d(1, 1, Rotation2d.fromDegrees(0)));
 
         // Create test-autonomous program
     }

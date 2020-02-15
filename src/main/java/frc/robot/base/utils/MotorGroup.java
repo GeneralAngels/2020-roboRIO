@@ -52,6 +52,11 @@ public class MotorGroup<Type extends SpeedController> extends Module {
         return encoder != null;
     }
 
+    public void resetEncoder() {
+        if (hasEncoder())
+            encoder.reset();
+    }
+
     public int getDirection() {
         return direction;
     }
