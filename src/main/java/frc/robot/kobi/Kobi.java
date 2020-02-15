@@ -2,10 +2,6 @@ package frc.robot.kobi;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
-import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.geometry.Translation2d;
-import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import frc.robot.base.Bot;
 import frc.robot.base.control.path.PathManager;
 import frc.robot.base.rgb.RGB;
@@ -15,7 +11,6 @@ import frc.robot.kobi.systems.KobiFeeder;
 import frc.robot.kobi.systems.KobiShooter;
 
 import java.awt.*;
-import java.util.ArrayList;
 
 public class Kobi extends Bot {
 
@@ -32,12 +27,15 @@ public class Kobi extends Bot {
     private PathManager manager;
 
     // PDP
-    private PowerDistributionPanel pdp;
+    private static PowerDistributionPanel pdp;
 
     public Kobi() {
 
         // Joystick
         driver = new Joystick(0);
+
+        // Init pdp
+        pdp = new PowerDistributionPanel(0);
 
         // Modules
         drive = new KobiDrive();
@@ -65,13 +63,22 @@ public class Kobi extends Bot {
 
     @Override
     public void autonomous() {
+        // Voltage
+        drive.updateVoltage(pdp.getVoltage());
+
+        // Auto
         autonomous.loop();
     }
 
     @Override
     public void teleop() {
+        // Time
         set("time", String.valueOf(millis()));
-        shooter.updatePositions();
+
+        // Voltage
+        drive.updateVoltage(pdp.getVoltage());
+
+        // Shit
         rgb.setColor(new Color(60, 20, (int) (40 * Math.abs(driver.getY()))));
         drive.driveManual(-driver.getY(), driver.getX());
     }

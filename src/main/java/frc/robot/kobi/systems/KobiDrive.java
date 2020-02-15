@@ -7,6 +7,7 @@ import com.revrobotics.SparkMax;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import frc.robot.base.drive.DifferentialDrive;
+import frc.robot.base.utils.MotorGroup;
 
 public class KobiDrive extends DifferentialDrive<CANSparkMax> {
     public KobiDrive() {
@@ -18,9 +19,10 @@ public class KobiDrive extends DifferentialDrive<CANSparkMax> {
         left.addMotor(leftMotor);
         right.addMotor(rightMotor);
 
-        left.setEncoder(new Encoder(3, 2));
         right.setEncoder(new Encoder(0, 1));
+        left.setEncoder(new Encoder(2, 3));
 
+        right.setDirection(MotorGroup.BACKWARD);
 
         resetOdometry();
         updateOdometry();

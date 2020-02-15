@@ -1,16 +1,9 @@
 package frc.robot.base.drive;
 
-import com.ctre.phoenix.sensors.PigeonIMU;
 import edu.wpi.first.wpilibj.SpeedController;
-import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import frc.robot.base.Module;
 import frc.robot.base.control.PID;
-import frc.robot.base.control.path.PathManager;
 import frc.robot.base.utils.MotorGroup;
-
-import java.util.ArrayList;
 
 import static java.lang.Thread.sleep;
 
@@ -22,8 +15,9 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     private static final double WHEEL_RADIUS = 0.0762; // TODO 2020 update
 
     private static final double TICKS_PER_REVOLUTION = 2048;
-    private static final double METERS_PER_REVOLUTION = (2 * Math.PI) * (4 * 2.45);
     private static final double ENCODER_TO_RADIAN = (2 * Math.PI) / TICKS_PER_REVOLUTION;
+    private static final double ENCODER_TO_METER = ENCODER_TO_RADIAN * WHEEL_RADIUS;
+
 
     private double gyroscopeOffset = 0;
 
@@ -86,26 +80,25 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     }
 
     public void updateOdometry() {
+
+        odometry.setTheta(theta = Gyroscope.getAngle());
+        odometry.setOmega(omega = Gyroscope.getAngularVelocity());
+
         if (left.hasEncoder() && right.hasEncoder()) {
             // Set lasts
             lastEncoders = currentEncoders;
             // Set currents
             currentEncoders = new double[]{left.getEncoder().getRaw(), right.getEncoder().getRaw()};
             // Calculate meters
-            double leftMeters = ((currentEncoders[0] - lastEncoders[0]) / TICKS_PER_REVOLUTION) * METERS_PER_REVOLUTION;
-            double rightMeters = ((currentEncoders[1] - lastEncoders[1]) / TICKS_PER_REVOLUTION) * METERS_PER_REVOLUTION;
+            double leftMeters = (currentEncoders[0] - lastEncoders[0]) * ENCODER_TO_METER;
+            double rightMeters = (currentEncoders[1] - lastEncoders[1]) * ENCODER_TO_METER;
             // Calculate distance
-            double distanceFromEncoders = (leftMeters + rightMeters);
-            // Divide
-            distanceFromEncoders /= 2;
+            double distanceFromEncoders = (leftMeters + rightMeters) / 2;
 
             // Set odometry
-            odometry.setX((x += distanceFromEncoders * Math.cos(Math.toRadians(theta))) / 100);
-            odometry.setY((y += distanceFromEncoders * Math.sin(Math.toRadians(theta))) / 100);
+            odometry.setX((x += distanceFromEncoders * Math.cos(Math.toRadians(theta))));
+            odometry.setY((y += distanceFromEncoders * Math.sin(Math.toRadians(theta))));
         }
-
-        odometry.setTheta(theta = Gyroscope.getAngle());
-        odometry.setOmega(omega = Gyroscope.getAngularVelocity());
     }
 
     public void resetOdometry() {
@@ -118,10 +111,15 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         return odometry;
     }
 
+    public void updateVoltage(double voltage) {
+        if (voltage > 0)
+            this.currentVoltage = voltage;
+    }
+
     // Drive output setters
 
     public void driveManual(double speed, double turn) {
-        direct((turn + speed), (turn - speed));
+        direct((speed + turn), (speed - turn));
         updateOdometry();
     }
 

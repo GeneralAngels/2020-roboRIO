@@ -46,7 +46,7 @@ public class PathManager extends frc.robot.base.Module {
     public double Komega = 0;
     public boolean checkMaximumValues = true;
     public boolean finalDirectionSwitch = true;
-    public double desiredOmega;
+    public double currentDesiredOmega;
     public double currentDesiredVelocity;
     public double previousDesiredVelocity = 0;
 
@@ -141,36 +141,34 @@ public class PathManager extends frc.robot.base.Module {
             if ((currentDesiredVelocity >= 0 && currentDesiredVelocity < MINIMUM_VELOCITY) || (maxVelocity < (curvature * Kcurv))) // To make sure velocity isn't too low
                 currentDesiredVelocity = MINIMUM_VELOCITY;
             // Calculate omega (PD control)
-            desiredOmega = errors[2] * Ktheta - omega * Komega;
-            if (errors[0] < errors[1])
-                ++index;
+            currentDesiredOmega = errors[2] * Ktheta - omega * Komega;
+            set("do", String.valueOf(currentDesiredOmega));
         } else {
             // Reverse
             toReverse(getPose(), trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters);
             // Calculate desired sh*t
             currentDesiredVelocity = errors[0] * Kv;
-            desiredOmega = (current.poseMeters.getRotation().getRadians() - Math.toRadians(Gyroscope.getAngle())) * Ktheta - omega * Komega;
+            currentDesiredOmega = (current.poseMeters.getRotation().getRadians() - Math.toRadians(Gyroscope.getAngle())) * Ktheta - omega * Komega;
             // Check if done
             if (!isDone(getPose(), trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters)) {
                 if (errors[0] > TOLERANCE) {
-                    desiredOmega *= 1.3;
+                    currentDesiredOmega *= 1.3;
                     log("close");
                 } else {
                     currentDesiredVelocity = 0;
-                    desiredOmega *= 1.8;
+                    currentDesiredOmega *= 1.8;
                     log("almost");
                 }
                 set("last point: ", "true");
             } else {
                 currentDesiredVelocity = 0;
-                desiredOmega = 0;
+                currentDesiredOmega = 0;
                 log("done");
             }
         }
-        if (index < trajectory.getStates().size() - 1 && errors[0] < errors[1]) {
+        if (index < trajectory.getStates().size() && errors[0] < errors[1])
             ++index;
-        }
-        drive.driveVector(currentDesiredVelocity, desiredOmega);
+        drive.driveVector(currentDesiredVelocity, currentDesiredOmega);
     }
 
     public double[] calculateErrors(Trajectory.State currentGoal) {
@@ -182,7 +180,7 @@ public class PathManager extends frc.robot.base.Module {
         // Theta calculation
         double errorTheta = (Math.atan2(errorY, errorX) - Math.toRadians(theta)) % (2 * Math.PI);
         // Return tuple
-        return currentErrors = new double[]{Math.sqrt(Math.pow(errorX, 2) + Math.pow(errorY, 2)), lastErrors[1], errorTheta};
+        return currentErrors = new double[]{Math.sqrt(Math.pow(errorX, 2) + Math.pow(errorY, 2)), lastErrors[0], errorTheta};
     }
 
     public Pose2d getPose() {
@@ -241,7 +239,7 @@ public class PathManager extends frc.robot.base.Module {
     public double movingAverageCurvature() {
         double average = 0;
         for (int i = trajectory.getStates().size() - 1; i >= 0; i--) {
-            average = (average + Math.abs(trajectory.getStates().get(i).curvatureRadPerMeter) / 2);
+            average = (average + Math.abs(trajectory.getStates().get(i).curvatureRadPerMeter)) / 2;
         }
         return average;
     }
