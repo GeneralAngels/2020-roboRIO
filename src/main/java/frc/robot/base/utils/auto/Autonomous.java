@@ -29,7 +29,7 @@ public class Autonomous extends frc.robot.base.Module {
                 // Clear
                 currentlyAwaiting.clear();
                 // Add
-                currentlyAwaiting.addAll(Arrays.asList(decoded.split("\n")));
+                currentlyAwaiting.addAll(Arrays.asList(decoded.split(",")));
                 return new Tuple<>(true, String.valueOf(crc.getValue()));
             }
         });
@@ -78,9 +78,9 @@ public class Autonomous extends frc.robot.base.Module {
 
     private boolean executeCommand(String command) {
         // Run command and wait for result
-        String[] commandSplit = command.split(" ", 2);
+        String[] commandSplit = command.split(" ", 3);
         try {
-            Tuple<Boolean, String> result = bot.execute(commandSplit[0], commandSplit[1]);
+            Tuple<Boolean, String> result = bot.find(commandSplit[0]).execute(commandSplit[1], commandSplit.length > 2 ? commandSplit[2] : null);
             // Check if null
             if (result == null || result.getA()) {
                 // Return done
