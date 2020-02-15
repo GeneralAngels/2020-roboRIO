@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.interfaces.Potentiometer;
 import frc.robot.base.control.PID;
@@ -16,9 +17,11 @@ public class KobiShooter extends frc.robot.base.Module {
 
     private static final double TALON_RATE = 100.0 / 1000.0; // 100ms/1s
 
+    // Shooter
     private WPI_TalonSRX shooter1;
     private WPI_TalonSRX shooter2;
     private WPI_TalonSRX shooter3;
+    private Encoder encoder;
 
     private WPI_TalonSRX turret;
 
@@ -34,6 +37,7 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter1 = new WPI_TalonSRX(20);
         shooter2 = new WPI_TalonSRX(21);
         shooter3 = new WPI_TalonSRX(22);
+        encoder = new Encoder(6,7);
 
         hood = new Servo(9);
         potentiometer = new AnalogPotentiometer(0);
@@ -44,7 +48,7 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter1.configFactoryDefault();
         turret.configFactoryDefault();
 
-        shooter1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
+        // shooter1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
         turret.configSelectedFeedbackSensor(FeedbackDevice.PulseWidthEncodedPosition, 0, 30);
 
         shooter1.setSensorPhase(false); // Flip encoder polarity (+/-)
@@ -79,6 +83,12 @@ public class KobiShooter extends frc.robot.base.Module {
         });
     }
 
+    public void updatePositions() {
+        getShooterPosition();
+        getTurretPosition();
+        getHoodPosition();
+    }
+
     public void setShooterVelocity(double velocity) {
         // Velocity is M/S
         double input = (velocity * ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS);
@@ -95,7 +105,8 @@ public class KobiShooter extends frc.robot.base.Module {
     }
 
     public int getShooterPosition() {
-        int position = shooter1.getSelectedSensorPosition();
+        int position = encoder.get();
+//        int position = shooter1.getSelectedSensorPosition();
         set("shooter", String.valueOf(position));
         return position;
     }
