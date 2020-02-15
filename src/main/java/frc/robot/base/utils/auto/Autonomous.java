@@ -32,6 +32,8 @@ public class Autonomous extends frc.robot.base.Module {
                 currentlyDone.clear();
                 // Add
                 currentlyAwaiting.addAll(Arrays.asList(decoded.split(",")));
+                // Set state
+                set("state", "loaded");
                 return new Tuple<>(true, String.valueOf(crc.getValue()));
             }
         });
