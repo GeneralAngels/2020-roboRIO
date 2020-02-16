@@ -46,7 +46,7 @@ public class KobiShooter extends frc.robot.base.Module {
     // Turret things
     private static final double TURRET_ENCODER_TICKS = 4096; // TODO find
     private static final double TURRET_THRESHOLD_TICKS = 10;
-    private static final double TURRET_GEAR = 24; // TODO find
+    private static final double TURRET_GEAR = 462.2; // Verified by Libi (16/02/2020, Nadav, Old = 182.6/17.5)
 
     private PID turretPositionPID;
     private WPI_TalonSRX turret;
