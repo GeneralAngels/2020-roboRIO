@@ -11,8 +11,12 @@ import frc.robot.base.control.PID;
 
 public class KobiShooter extends frc.robot.base.Module {
 
-    private static final double ENCODER_TICKS = 4096;
-    private static final double SHOOTER_WHEEL_RADIUS = 0.0762; // M
+    private static final double SHOOTER_ENCODER_TICKS = 4096;
+    private static final double SHOOTER_WHEEL_RADIUS = 0.0762;
+
+    private static final double TURRET_ENCODER_TICKS = 4096;
+    private static final double TURRET_THRESHOLD_TICKS = 10;
+    private static final double TURRET_GEAR = 24;
 
     private static final double TALON_RATE = 100.0 / 1000.0; // 100ms/1s
 
@@ -44,7 +48,9 @@ public class KobiShooter extends frc.robot.base.Module {
     private Encoder encoder;
 
     // Turret things
+    private PID turretPositionPID;
     private WPI_TalonSRX turret;
+    private int turretTargetPosition = 0;
 
     public KobiShooter() {
         super("shooter");
@@ -55,6 +61,7 @@ public class KobiShooter extends frc.robot.base.Module {
         potentiometer = new AnalogPotentiometer(0);
 
         // Turret things
+        turretPositionPID = new PID("turret_position_pid", 0, 0, 0, 0.001);
         turret = new WPI_TalonSRX(19);
         turret.setSelectedSensorPosition(1);
         turret.configFactoryDefault();
@@ -112,9 +119,20 @@ public class KobiShooter extends frc.robot.base.Module {
 
     public void setShooterVelocity(double velocity) {
         // Velocity is M/S
-        double input = (velocity * ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS);
+        double input = (velocity * SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS);
         // Set is Tick/100ms
         shooter1.set(ControlMode.Velocity, input);
+    }
+
+    // Reset to reset the setpoint
+    public boolean setTurretPosition(double delta, boolean reset) {
+        // Reset setpoint
+        if (reset)
+            turretTargetPosition = getTurretPosition() + (int) (TURRET_ENCODER_TICKS * TURRET_GEAR * (delta / 360));
+        // Calculate PID
+        turret.set(turretPositionPID.PIDPosition(getTurretPosition(), turretTargetPosition));
+        // Check threshold
+        return Math.abs(turretTargetPosition - getTurretPosition()) < TURRET_THRESHOLD_TICKS;
     }
 
     public void setTurretVelocity(double speed) {
