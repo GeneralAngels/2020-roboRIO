@@ -173,13 +173,11 @@ public class PathManager extends frc.robot.base.Module {
         // Assign values
         double currentErrorX = trajectory.getStates().get(index).poseMeters.getTranslation().getX() - x;
         double currentErrorY = trajectory.getStates().get(index).poseMeters.getTranslation().getY() - y;
-        double lastErrorX = trajectory.getStates().get(index - 1).poseMeters.getTranslation().getX() - x;
-        double lastErrorY = trajectory.getStates().get(index - 1).poseMeters.getTranslation().getY() - y;
         // Theta calculation
         double errorTheta = (Math.atan2(currentErrorY, currentErrorX) - Math.toRadians(theta)) % (2 * Math.PI);
         // Error calculation
-        double currentDistanceError = Math.sqrt(Math.pow(currentErrorX, 2) + Math.pow(currentErrorY, 2));
-        double previousDistanceError = Math.sqrt(Math.pow(lastErrorX, 2) + Math.pow(lastErrorY, 2));
+        double currentDistanceError = Math.abs(distance(getPose(), trajectory.getStates().get(index).poseMeters));
+        double previousDistanceError = Math.abs(distance(getPose(), trajectory.getStates().get(index - 1).poseMeters));
         // Return tuple
         return new double[]{currentDistanceError, previousDistanceError, errorTheta};
     }
@@ -188,7 +186,7 @@ public class PathManager extends frc.robot.base.Module {
         return new Pose2d(x, y, Rotation2d.fromDegrees(theta));
     }
 
-    private void updateOdometry(){
+    private void updateOdometry() {
         Odometry odometry = drive.getOdometry();
         theta = odometry.getTheta();
         omega = odometry.getOmega();
@@ -197,13 +195,28 @@ public class PathManager extends frc.robot.base.Module {
     }
 
     public boolean reverseNeeded() {
-        // Assign values
-        double errorX = getPose().getTranslation().getX() - trajectory.getStates().get(index).poseMeters.getTranslation().getX();
-        double errorY = getPose().getTranslation().getY() - trajectory.getStates().get(index).poseMeters.getTranslation().getY();
         // Calculate errors
-        double errorDistance = errorX * Math.cos(Math.toRadians(theta)) + errorY * Math.sin(Math.toRadians(theta));
+        double errorDistance = distance(getPose(), trajectory.getStates().get(index).poseMeters);
+        ;
         // Black magic
         return (kV < 0 && errorDistance < 0) || (kV > 0 && errorDistance > 0);
+    }
+
+    private double[] deltas(Pose2d first, Pose2d last){
+        return null;
+    }
+
+    private double angle(Pose2d first, Pose2d last){
+        return 0;
+    }
+
+    private double distance(Pose2d first, Pose2d last) {
+        // Assign values
+        double errorX = first.getTranslation().getX() - last.getTranslation().getX();
+        double errorY = first.getTranslation().getY() - last.getTranslation().getY();
+        // Calculate errors
+        // Return distance
+        return errorX * Math.cos(Math.toRadians(theta)) + errorY * Math.sin(Math.toRadians(theta));
     }
 
     public void createPath(Pose2d target) {

@@ -80,6 +80,6 @@ public class Kobi extends Bot {
 
         // Shit
         rgb.setColor(new Color(60, 20, (int) (40 * Math.abs(driver.getY()))));
-        drive.driveManual(-driver.getY(), driver.getX());
+        drive.driveManual(-driver.getY()/2, driver.getX()/2);
     }
 }
