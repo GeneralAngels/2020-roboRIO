@@ -20,7 +20,7 @@ public class PathManager extends frc.robot.base.Module {
     private static final double MINIMUM_VELOCITY = 0.5;
 
     private static final double DISTANCE_TOLERANCE = 0.05;
-    private static final double DEGREE_TOLERANCE = 3;
+    private static final double DEGREE_TOLERANCE = 1;
 
     private static final int FUTURE_CURVATURE_STATES = 2; // How many states to skip when looking for future curvatures (for linear acceleration)
 
@@ -186,7 +186,7 @@ public class PathManager extends frc.robot.base.Module {
                         currentDesiredVelocity = 0;
                     }
                     if (errors[2] > DEGREE_TOLERANCE) {
-                        currentDesiredOmega *= 1.3;
+                        currentDesiredOmega *= 1.6;
                     } else {
                         currentDesiredOmega = 0;
                     }
