@@ -120,6 +120,17 @@ public class Kobi extends Bot {
 //            feeder.feedStop();
 //        }
 //        shooter.setHoodPosition(35);
+        if (xbox.getBButton()) {
+            feeder.rollIn();
+        } else {
+            feeder.rollStop();
+        }
+        if (xbox.getXButton()) {
+            log("Shooter " + shooter.setHoodPosition(55));
+        }
+//        if (Math.abs(value) < 0.05)
+//            value = 0;
+//        shooter.test(value);
         shooter.updatePositions();
 //        log("AA " + shooter.getHoodPosition());
     }

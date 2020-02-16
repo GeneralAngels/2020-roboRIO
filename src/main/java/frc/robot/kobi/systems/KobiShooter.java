@@ -25,13 +25,11 @@ public class KobiShooter extends frc.robot.base.Module {
     private static final double HOOD_ANGLE_DELTA = (HOOD_MAXIMUM_ANGLE - HOOD_MINIMUM_ANGLE);
     private static final double HOOD_COEFFICIENT = (HOOD_ANGLE_DELTA / HOOD_POTENTIOMETER_DELTA);
 
-    private PID hoodPositionPID;
-
     private Servo hood;
     private Potentiometer potentiometer;
 
     private static double calculateAngle(double potentiometerPosition) {
-        return HOOD_MAXIMUM_ANGLE - HOOD_COEFFICIENT * potentiometerPosition;
+        return HOOD_MAXIMUM_ANGLE - HOOD_COEFFICIENT * (potentiometerPosition - HOOD_MINIMUM_POTENTIOMETER);
     }
 
     // Shooter things
@@ -56,9 +54,8 @@ public class KobiShooter extends frc.robot.base.Module {
         super("shooter");
 
         // Hood things
-        hoodPositionPID = new PID("hood_position_pid", 0, 0, 0, 0.001);
-        hood = new Servo(9);
         potentiometer = new AnalogPotentiometer(0);
+        hood = new Servo(6);
 
         // Turret things
         turretPositionPID = new PID("turret_position_pid", 0, 0, 0, 0.001);
@@ -137,13 +134,21 @@ public class KobiShooter extends frc.robot.base.Module {
 
     // Sets the position using PID TODO check this!!! 16/02/2020
     public boolean setHoodPosition(double angle) {
-        if (angle > HOOD_MINIMUM_ANGLE && angle < HOOD_MAXIMUM_ANGLE) {
+        if (angle >= HOOD_MINIMUM_ANGLE && angle <= HOOD_MAXIMUM_ANGLE) {
             double measurement = potentiometer.get();
             double currentAngle = calculateAngle(measurement);
-            hood.set(hoodPositionPID.PIDPosition(currentAngle, angle));
-            return Math.abs(angle - currentAngle) < HOOD_THRESHOLD_DEGREES;
+            double speed = 0;
+            if (!(Math.abs(angle - currentAngle) < HOOD_THRESHOLD_DEGREES)) {
+                speed = angle - currentAngle < 0 ? 1 : -1;
+            }
+            hood.set((speed + 1) / 2);
+            return speed == 0;
         }
         return false;
+    }
+
+    public void test(double a) {
+        hood.set((a + 1) / 2);
     }
 
     public void setShooterVelocity(double velocity) {
