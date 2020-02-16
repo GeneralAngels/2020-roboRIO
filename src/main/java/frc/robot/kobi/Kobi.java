@@ -1,7 +1,9 @@
 package frc.robot.kobi;
 
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
+import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.base.Bot;
 import frc.robot.base.control.path.PathManager;
 import frc.robot.base.rgb.RGB;
@@ -14,8 +16,34 @@ import java.awt.*;
 
 public class Kobi extends Bot {
 
+    /**
+     * Pinout as of 16/02/2020
+     * DIO:
+     * 0, 1 - Left Encoder
+     * 2, 3 - Right Encoder
+     * 4, 5 - Maximum Slide LimS/W
+     * 6, 7 - Minimum Slide LimS/W
+     * 8, 9 - Turret LimS/W
+     *
+     * PWM:
+     * 0, 1, 2 - Left Victors
+     * 3, 4, 5 - Right Victors
+     * 6 - Hood Servo
+     *
+     * AIO:
+     * 0 - Hood Potentiometer
+     *
+     * CAN:
+     *
+     * Talon Encoders:
+     * Slide - has encoder
+     * Turret - has encoder
+     * Shooter - has encoder
+     */
+
     // Joystick
     private Joystick driver;
+    private XboxController xbox;
 
     // Modules
     private KobiDrive drive;
@@ -32,7 +60,8 @@ public class Kobi extends Bot {
     public Kobi() {
 
         // Joystick
-        driver = new Joystick(0);
+//        driver = new Joystick(0);
+        xbox = new XboxController(0);
 
         // Init pdp
         pdp = new PowerDistributionPanel(0);
@@ -76,16 +105,10 @@ public class Kobi extends Bot {
         set("time", String.valueOf(millis()));
 
         // Voltage
-//        drive.updateVoltage(pdp.getVoltage());
+        drive.updateVoltage(pdp.getVoltage());
         // Shit
 //        rgb.setColor(new Color(60, 20, (int) (40 * Math.abs(driver.getY()))));
-//        drive.driveManual(-driver.getY()/2, driver.getX()/2);
-        if (driver.getRawButton(3) || driver.getTrigger()) {
-            feeder.feedIn();
-        } else if (driver.getRawButton(2)) {
-            feeder.feedOut();
-        } else {
-            feeder.feedStop();
-        }
+        double value = -xbox.getY(GenericHID.Hand.kRight);
+        shooter.setShooterVelocity(value * 5);
     }
 }
