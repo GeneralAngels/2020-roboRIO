@@ -24,17 +24,21 @@ public class Kobi extends Bot {
      * 4, 5 - Maximum Slide LimS/W
      * 6, 7 - Minimum Slide LimS/W
      * 8, 9 - Turret LimS/W
-     *
+     * <p>
      * PWM:
      * 0, 1, 2 - Left Victors
      * 3, 4, 5 - Right Victors
      * 6 - Hood Servo
-     *
+     * <p>
      * AIO:
      * 0 - Hood Potentiometer
-     *
+     * <p>
      * CAN:
-     *
+     * Shooter 1,2,3 - 20, 21, 22
+     * Turret - 19
+     * Feeder - 18
+     * Roller - 17
+     * <p>
      * Talon Encoders:
      * Slide - has encoder
      * Turret - has encoder
@@ -109,6 +113,14 @@ public class Kobi extends Bot {
         // Shit
 //        rgb.setColor(new Color(60, 20, (int) (40 * Math.abs(driver.getY()))));
         double value = -xbox.getY(GenericHID.Hand.kRight);
-        shooter.setShooterVelocity(value * 5);
+//        if (xbox.getAButton()){
+//            feeder.feedIn();
+//            shooter.setShooterVelocity(value);
+//        }else{
+//            feeder.feedStop();
+//        }
+//        shooter.setHoodPosition(35);
+        shooter.updatePositions();
+//        log("AA " + shooter.getHoodPosition());
     }
 }

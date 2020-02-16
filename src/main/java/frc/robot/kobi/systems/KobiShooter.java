@@ -16,8 +16,8 @@ public class KobiShooter extends frc.robot.base.Module {
     // Hood constants & things
     private static final double HOOD_THRESHOLD_DEGREES = 1;
 
-    private static final double HOOD_MAXIMUM_POTENTIOMETER = 0.38; // TODO!!!!
-    private static final double HOOD_MINIMUM_POTENTIOMETER = 0.22; // TODO!!!!
+    private static final double HOOD_MAXIMUM_POTENTIOMETER = 0.40; // Verified by Nadav
+    private static final double HOOD_MINIMUM_POTENTIOMETER = 0.30; // Verified by Nadav
     private static final double HOOD_POTENTIOMETER_DELTA = (HOOD_MAXIMUM_POTENTIOMETER - HOOD_MINIMUM_POTENTIOMETER);
 
     private static final double HOOD_MAXIMUM_ANGLE = 64; // Verified by Libi (16/02/2020, Nadav)
@@ -71,6 +71,7 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter1 = new WPI_TalonSRX(20);
         shooter2 = new WPI_TalonSRX(21);
         shooter3 = new WPI_TalonSRX(22);
+
         shooter1.setSelectedSensorPosition(1);
         shooter1.configFactoryDefault();
         shooter1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
@@ -83,9 +84,10 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter1.config_kI(0, 0.00003, 30);
         shooter1.config_kD(0, 0, 30);
         shooter1.config_kF(0, 0.04, 30);
-        shooter3.setInverted(true);
-        shooter2.follow(shooter1);
-        shooter3.follow(shooter1);
+
+        shooter1.setInverted(true);
+        shooter2.setInverted(true);
+        shooter3.setInverted(false);
 
         command("camera", new Command() {
 
@@ -144,11 +146,19 @@ public class KobiShooter extends frc.robot.base.Module {
         return false;
     }
 
+    public void setShooterVelocityTemporary(double velocityTemporary) {
+        shooter1.set(velocityTemporary);
+        shooter2.set(velocityTemporary);
+        shooter3.set(velocityTemporary);
+    }
+
     public void setShooterVelocity(double velocity) {
         // Velocity is M/S
-        double input = (velocity * SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS);
+        // double input = (velocity * SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS);
         // Set is Tick/100ms
-        shooter1.set(ControlMode.Velocity, input);
+        shooter1.set(velocity);
+        shooter2.set(velocity);
+        shooter3.set(velocity);
     }
 
     // Reset to reset the setpoint
