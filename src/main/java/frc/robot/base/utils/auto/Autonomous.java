@@ -44,7 +44,7 @@ public class Autonomous extends frc.robot.base.Module {
             if (currentlyAwaiting.size() > 0) {
                 // Parse
                 String currentAwaiting = currentlyAwaiting.get(0);
-                if (!currentAwaiting.startsWith("//")) {
+                if (currentAwaiting.length() > 0 && !currentAwaiting.startsWith("//")) {
                     // Update set
                     set("current_block", currentAwaiting);
                     // Determine type
