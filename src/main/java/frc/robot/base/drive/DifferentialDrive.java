@@ -79,7 +79,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         log("left: " + left.getEncoder().getRaw() + "right: " + right.getEncoder().getRaw());
     }
 
-    public void updateOdometry() {
+    public Odometry updateOdometry() {
 
         odometry.setTheta(theta = Gyroscope.getAngle());
         odometry.setOmega(omega = Gyroscope.getAngularVelocity());
@@ -99,12 +99,24 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
             odometry.setX((x += distanceFromEncoders * Math.cos(Math.toRadians(theta))));
             odometry.setY((y += distanceFromEncoders * Math.sin(Math.toRadians(theta))));
         }
+
+        return odometry;
     }
 
     public void resetOdometry() {
+        // Reset gyro
         Gyroscope.reset();
+        // Reset encoders
         left.resetEncoder();
         right.resetEncoder();
+        // Reset variables
+        this.x = 0;
+        this.y = 0;
+        this.theta = 0;
+        this.omega = 0;
+        this.lastEncoders = new double[2];
+        this.currentEncoders = new double[2];
+        // Update odometry
         updateOdometry();
     }
 
