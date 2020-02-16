@@ -13,13 +13,13 @@ public class Shuby extends Bot {
 
     public Shuby() {
         drive = new ShubyDrive();
-        shooter = new KobiShooter();
         joystick1 = new Joystick(0);
-        joystick2 = new Joystick(1);
+//        joystick2 = new Joystick(1);
     }
 
     @Override
     public void teleop() {
-        drive.direct(-joystick1.getY(), joystick2.getY());
+//        drive.direct(-joystick1.getY(), joystick2.getY());
+        drive.driveManual(-joystick1.getY(), joystick1.getX());
     }
 }

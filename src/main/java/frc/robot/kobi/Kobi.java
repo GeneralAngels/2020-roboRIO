@@ -76,10 +76,16 @@ public class Kobi extends Bot {
         set("time", String.valueOf(millis()));
 
         // Voltage
-        drive.updateVoltage(pdp.getVoltage());
-
+//        drive.updateVoltage(pdp.getVoltage());
         // Shit
-        rgb.setColor(new Color(60, 20, (int) (40 * Math.abs(driver.getY()))));
-        drive.driveManual(-driver.getY()/2, driver.getX()/2);
+//        rgb.setColor(new Color(60, 20, (int) (40 * Math.abs(driver.getY()))));
+//        drive.driveManual(-driver.getY()/2, driver.getX()/2);
+        if (driver.getRawButton(3) || driver.getTrigger()) {
+            feeder.feedIn();
+        } else if (driver.getRawButton(2)) {
+            feeder.feedOut();
+        } else {
+            feeder.feedStop();
+        }
     }
 }

@@ -1,6 +1,8 @@
 package frc.robot.kobi.systems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class KobiFeeder extends frc.robot.base.Module {
@@ -10,7 +12,7 @@ public class KobiFeeder extends frc.robot.base.Module {
     private DigitalInput maximumSwitch1, maximumSwitch2, minimumSwitch1, minimumSwitch2;
 
     // Feeder
-    private WPI_TalonSRX feeder;
+    private CANSparkMax feeder;
 
     // Collector (Roller-Gripper)
     private WPI_TalonSRX collector1, collector2;
@@ -31,7 +33,7 @@ public class KobiFeeder extends frc.robot.base.Module {
         collector2 = new WPI_TalonSRX(17);
 
         // Feeder
-        feeder = new WPI_TalonSRX(18);
+        feeder = new CANSparkMax(18, CANSparkMaxLowLevel.MotorType.kBrushless);
 
         command("collector", new Command() {
             @Override
@@ -85,11 +87,15 @@ public class KobiFeeder extends frc.robot.base.Module {
     }
 
     public void feedIn() {
-        feeder.set(0.2);
+        feeder.set(-0.3);
     }
 
     public void feedOut() {
-        feeder.set(-0.2);
+        feeder.set(0.3);
+    }
+
+    public void feedStop() {
+        feeder.set(0);
     }
 
     public boolean slideIn() {

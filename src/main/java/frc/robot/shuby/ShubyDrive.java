@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.VictorSP;
 import frc.robot.base.drive.DifferentialDrive;
+import frc.robot.base.utils.MotorGroup;
 
 public class ShubyDrive extends DifferentialDrive<VictorSP> {
 
@@ -14,6 +15,7 @@ public class ShubyDrive extends DifferentialDrive<VictorSP> {
         right.addMotor(new VictorSP(3));
         right.addMotor(new VictorSP(4));
         right.addMotor(new VictorSP(5));
+        right.setDirection(MotorGroup.BACKWARD);
     }
 
 }

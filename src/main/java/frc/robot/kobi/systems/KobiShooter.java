@@ -11,43 +11,43 @@ import frc.robot.base.control.PID;
 
 public class KobiShooter extends frc.robot.base.Module {
 
-    private static final double SHOOTER_ENCODER_TICKS = 4096;
-    private static final double SHOOTER_WHEEL_RADIUS = 0.0762;
-
-    private static final double TURRET_ENCODER_TICKS = 4096;
-    private static final double TURRET_THRESHOLD_TICKS = 10;
-    private static final double TURRET_GEAR = 24;
-
     private static final double TALON_RATE = 100.0 / 1000.0; // 100ms/1s
 
     // Hood constants & things
+    private static final double HOOD_THRESHOLD_DEGREES = 1;
+
+    private static final double HOOD_MAXIMUM_POTENTIOMETER = 0.38; // TODO!!!!
+    private static final double HOOD_MINIMUM_POTENTIOMETER = 0.22; // TODO!!!!
+    private static final double HOOD_POTENTIOMETER_DELTA = (HOOD_MAXIMUM_POTENTIOMETER - HOOD_MINIMUM_POTENTIOMETER);
+
+    private static final double HOOD_MAXIMUM_ANGLE = 64; // Verified by Libi (16/02/2020, Nadav)
+    private static final double HOOD_MINIMUM_ANGLE = 35; // Verified by Libi (16/02/2020, Nadav)
+    private static final double HOOD_ANGLE_DELTA = (HOOD_MAXIMUM_ANGLE - HOOD_MINIMUM_ANGLE);
+    private static final double HOOD_COEFFICIENT = (HOOD_ANGLE_DELTA / HOOD_POTENTIOMETER_DELTA);
 
     private PID hoodPositionPID;
 
     private Servo hood;
     private Potentiometer potentiometer;
 
-    private static final double MAXIMUM_POTENTIOMETER = 0.38; // TODO!!!!
-    private static final double MINIMUM_POTENTIOMETER = 0.22; // TODO!!!!
-    private static final double POTENTIOMETER_DELTA = (MAXIMUM_POTENTIOMETER - MINIMUM_POTENTIOMETER);
-
-    private static final double MAXIMUM_ANGLE = 60; // TODO!!!!
-    private static final double MINIMUM_ANGLE = 30; // TODO!!!!
-    private static final double ANGLE_DELTA = (MAXIMUM_ANGLE - MINIMUM_ANGLE);
-
-    private static final double HOOD_COEFFICIENT = (ANGLE_DELTA / POTENTIOMETER_DELTA); // Negative because of negative degree grow on hood
-
     private static double calculateAngle(double potentiometerPosition) {
-        return MAXIMUM_ANGLE - HOOD_COEFFICIENT * potentiometerPosition;
+        return HOOD_MAXIMUM_ANGLE - HOOD_COEFFICIENT * potentiometerPosition;
     }
 
     // Shooter things
+    private static final double SHOOTER_ENCODER_TICKS = 4096;
+    private static final double SHOOTER_WHEEL_RADIUS = 0.0762;
+
     private WPI_TalonSRX shooter1;
     private WPI_TalonSRX shooter2;
     private WPI_TalonSRX shooter3;
     private Encoder encoder;
 
     // Turret things
+    private static final double TURRET_ENCODER_TICKS = 4096; // TODO find
+    private static final double TURRET_THRESHOLD_TICKS = 10;
+    private static final double TURRET_GEAR = 24; // TODO find
+
     private PID turretPositionPID;
     private WPI_TalonSRX turret;
     private int turretTargetPosition = 0;
@@ -108,13 +108,14 @@ public class KobiShooter extends frc.robot.base.Module {
     }
 
     // Sets the position using PID TODO check this!!! 16/02/2020
-    public void setHoodPosition(double angle) {
-        if (angle > MINIMUM_ANGLE && angle < MAXIMUM_ANGLE) {
+    public boolean setHoodPosition(double angle) {
+        if (angle > HOOD_MINIMUM_ANGLE && angle < HOOD_MAXIMUM_ANGLE) {
             double measurement = potentiometer.get();
             double currentAngle = calculateAngle(measurement);
-            double pid_output = hoodPositionPID.PIDPosition(currentAngle, angle);
-            hood.set(pid_output);
+            hood.set(hoodPositionPID.PIDPosition(currentAngle, angle));
+            return Math.abs(angle - currentAngle) < HOOD_THRESHOLD_DEGREES;
         }
+        return false;
     }
 
     public void setShooterVelocity(double velocity) {
@@ -140,7 +141,6 @@ public class KobiShooter extends frc.robot.base.Module {
     }
 
     public int getShooterPosition() {
-//        int position = encoder.get();
         int position = shooter1.getSelectedSensorPosition();
         set("shooter", String.valueOf(position));
         return position;
