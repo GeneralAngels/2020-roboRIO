@@ -17,7 +17,6 @@ public class KobiFeeder extends frc.robot.base.Module {
     // Collector (Roller-Gripper)
     private WPI_TalonSRX collector1, collector2;
 
-
     public KobiFeeder() {
         super("feeder");
 
@@ -54,24 +53,45 @@ public class KobiFeeder extends frc.robot.base.Module {
             public Tuple<Boolean, String> execute(String s) throws Exception {
                 if (s.equals("in")) {
                     feedIn();
-                    return new Tuple<>(true, "Feeding");
                 } else if (s.equals("out")) {
                     feedOut();
-                    return new Tuple<>(true, "Feeding");
+                } else {
+                    feedStop();
                 }
-                return new Tuple<>(false, "Wrong parameter");
+                return new Tuple<>(true, "Speed set");
             }
         });
 
         command("slide", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
+                boolean result = false;
                 if (s.equals("in")) {
-                    return new Tuple<>(slideIn(), "Sliding");
+                    result = slideIn();
                 } else if (s.equals("out")) {
-                    return new Tuple<>(slideOut(), "Sliding");
+                    result = slideOut();
+                } else {
+                    result = slideStop();
                 }
-                return new Tuple<>(false, "Wrong parameter");
+                if (result) {
+                    return new Tuple<>(true, "Speed set");
+                } else {
+                    return new Tuple<>(false, "Limit-switch error");
+                }
+            }
+        });
+
+        command("roll", new Command() {
+            @Override
+            public Tuple<Boolean, String> execute(String s) throws Exception {
+                if (s.equals("in")) {
+                    rollIn();
+                } else if (s.equals("out")) {
+                    rollOut();
+                } else {
+                    rollStop();
+                }
+                return new Tuple<>(true, "Speed set");
             }
         });
     }
@@ -84,6 +104,11 @@ public class KobiFeeder extends frc.robot.base.Module {
     public void rollOut() {
         collector1.set(-0.2);
         collector2.set(-0.2);
+    }
+
+    public void rollStop() {
+        collector1.set(0);
+        collector2.set(0);
     }
 
     public void feedIn() {
@@ -108,7 +133,7 @@ public class KobiFeeder extends frc.robot.base.Module {
         }
     }
 
-    private boolean slideOut() {
+    public boolean slideOut() {
         if (maximumSwitch1.get() || maximumSwitch1.get()) {
             slider.set(0);
             return true;
@@ -116,5 +141,10 @@ public class KobiFeeder extends frc.robot.base.Module {
             slider.set(0.2);
             return false;
         }
+    }
+
+    public boolean slideStop() {
+        slider.set(0);
+        return true;
     }
 }

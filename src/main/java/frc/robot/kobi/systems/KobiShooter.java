@@ -44,7 +44,7 @@ public class KobiShooter extends frc.robot.base.Module {
     private Encoder encoder;
 
     // Turret things
-    private static final double TURRET_ENCODER_TICKS = 4096; // TODO find
+    private static final double TURRET_ENCODER_TICKS = 2048; // Verified by Idan
     private static final double TURRET_THRESHOLD_TICKS = 10;
     private static final double TURRET_GEAR = 462.2; // Verified by Libi (16/02/2020, Nadav, Old = 182.6/17.5)
 
@@ -87,16 +87,42 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter2.follow(shooter1);
         shooter3.follow(shooter1);
 
-        command("turret", new Command() {
+        command("camera", new Command() {
 
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
-                String[] split = s.split(" ");
-                boolean inFrame = Boolean.parseBoolean(split[0]);
-                double speed = Double.parseDouble(split[1]);
+                double speed = Double.parseDouble(s);
                 // Set position
                 setTurretVelocity(speed);
-                return new Tuple<>(true, "Moving turret");
+                return new Tuple<>(true, "Moving");
+            }
+        });
+
+        command("turret", new Command() {
+
+            private boolean reset = true;
+
+            @Override
+            public Tuple<Boolean, String> execute(String s) throws Exception {
+                double delta = Double.parseDouble(s);
+                reset = setTurretPosition(delta, reset);
+                return new Tuple<>(reset, "Moving");
+            }
+        });
+
+        command("hood", new Command() {
+            @Override
+            public Tuple<Boolean, String> execute(String s) throws Exception {
+                return new Tuple<>(setHoodPosition(Double.parseDouble(s)), "Moving");
+            }
+        });
+
+        command("shooter", new Command() {
+            @Override
+            public Tuple<Boolean, String> execute(String s) throws Exception {
+                double speed = Double.parseDouble(s); // m/s
+                setShooterVelocity(speed);
+                return new Tuple<>(true, "Speed set");
             }
         });
     }
