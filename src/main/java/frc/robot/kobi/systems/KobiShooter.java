@@ -31,10 +31,10 @@ public class KobiShooter extends frc.robot.base.Module {
     private static final double MINIMUM_ANGLE = 30; // TODO!!!!
     private static final double ANGLE_DELTA = (MAXIMUM_ANGLE - MINIMUM_ANGLE);
 
-    private static final double HOOD_COEFFICIENT = -(ANGLE_DELTA / POTENTIOMETER_DELTA); // Negative because of negative degree grow on hood
+    private static final double HOOD_COEFFICIENT = (ANGLE_DELTA / POTENTIOMETER_DELTA); // Negative because of negative degree grow on hood
 
     private static double calculateAngle(double potentiometerPosition) {
-        return MINIMUM_ANGLE + HOOD_COEFFICIENT * potentiometerPosition;
+        return MAXIMUM_ANGLE - HOOD_COEFFICIENT * potentiometerPosition;
     }
 
     // Shooter things
