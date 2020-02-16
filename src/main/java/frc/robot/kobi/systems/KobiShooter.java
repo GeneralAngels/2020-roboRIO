@@ -146,12 +146,6 @@ public class KobiShooter extends frc.robot.base.Module {
         return false;
     }
 
-    public void setShooterVelocityTemporary(double velocityTemporary) {
-        shooter1.set(velocityTemporary);
-        shooter2.set(velocityTemporary);
-        shooter3.set(velocityTemporary);
-    }
-
     public void setShooterVelocity(double velocity) {
         // Velocity is M/S
         // double input = (velocity * SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS);
