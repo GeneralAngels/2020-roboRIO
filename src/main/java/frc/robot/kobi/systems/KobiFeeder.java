@@ -100,10 +100,6 @@ public class KobiFeeder extends frc.robot.base.Module {
         }
     }
 
-    public void test(double v){
-        feeder.set(v);
-    }
-
     public void feed(Direction direction) {
         if (direction == Direction.Stop) {
             feeder.set(0);
