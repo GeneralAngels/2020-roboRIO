@@ -121,17 +121,20 @@ public class Kobi extends Bot {
 //        }
 //        shooter.setHoodPosition(35);
         if (xbox.getBButton()) {
-            feeder.rollIn();
-        } else {
-            feeder.rollStop();
+            feeder.feed(fromJoystick(value));
         }
         if (xbox.getXButton()) {
             log("Shooter " + shooter.setHoodPosition(55));
         }
-//        if (Math.abs(value) < 0.05)
-//            value = 0;
-//        shooter.test(value);
         shooter.updatePositions();
-//        log("AA " + shooter.getHoodPosition());
+    }
+
+    private KobiFeeder.Direction fromJoystick(double value) {
+        if (Math.abs(value) < 0.05)
+            return KobiFeeder.Direction.Stop;
+        if (value < 0)
+            return KobiFeeder.Direction.In;
+        else
+            return KobiFeeder.Direction.Out;
     }
 }

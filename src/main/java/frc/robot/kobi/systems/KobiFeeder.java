@@ -22,10 +22,11 @@ public class KobiFeeder extends frc.robot.base.Module {
 
         // Slider
         slider = new WPI_TalonSRX(16);
-        minimumSwitch1 = new DigitalInput(9);
-        minimumSwitch2 = new DigitalInput(8);
-        maximumSwitch1 = new DigitalInput(7);
-        maximumSwitch2 = new DigitalInput(6);
+        maximumSwitch1 = new DigitalInput(4);
+        maximumSwitch2 = new DigitalInput(5);
+        minimumSwitch1 = new DigitalInput(6);
+        minimumSwitch2 = new DigitalInput(7);
+
 
         // Collector
         roller = new WPI_TalonSRX(17);
@@ -33,30 +34,18 @@ public class KobiFeeder extends frc.robot.base.Module {
         // Feeder
         feeder = new CANSparkMax(18, CANSparkMaxLowLevel.MotorType.kBrushless);
 
-        command("collector", new Command() {
-            @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
-                if (s.equals("in")) {
-                    rollIn();
-                    return new Tuple<>(true, "Collecting");
-                } else if (s.equals("out")) {
-                    rollOut();
-                    return new Tuple<>(true, "Collecting");
-                }
-                return new Tuple<>(false, "Wrong parameter");
-            }
-        });
-
         command("feeder", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
+                Direction direction;
                 if (s.equals("in")) {
-                    feedIn();
+                    direction = Direction.In;
                 } else if (s.equals("out")) {
-                    feedOut();
+                    direction = Direction.Out;
                 } else {
-                    feedStop();
+                    direction = Direction.Out;
                 }
+                feed(direction);
                 return new Tuple<>(true, "Speed set");
             }
         });
@@ -64,15 +53,15 @@ public class KobiFeeder extends frc.robot.base.Module {
         command("slide", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
-                boolean result = false;
+                Direction direction;
                 if (s.equals("in")) {
-                    result = slideIn();
+                    direction = Direction.In;
                 } else if (s.equals("out")) {
-                    result = slideOut();
+                    direction = Direction.Out;
                 } else {
-                    result = slideStop();
+                    direction = Direction.Out;
                 }
-                if (result) {
+                if (slide(direction)) {
                     return new Tuple<>(true, "Speed set");
                 } else {
                     return new Tuple<>(false, "Limit-switch error");
@@ -83,64 +72,72 @@ public class KobiFeeder extends frc.robot.base.Module {
         command("roll", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
+                Direction direction;
                 if (s.equals("in")) {
-                    rollIn();
+                    direction = Direction.In;
                 } else if (s.equals("out")) {
-                    rollOut();
+                    direction = Direction.Out;
                 } else {
-                    rollStop();
+                    direction = Direction.Out;
                 }
+                roll(direction);
                 return new Tuple<>(true, "Speed set");
             }
         });
     }
 
-    public void rollIn() {
-        roller.set(0.2);
-    }
-
-    public void rollOut() {
-        roller.set(-0.2);
-    }
-
-    public void rollStop() {
-        roller.set(0);
-    }
-
-    public void feedIn() {
-        feeder.set(-0.5);
-    }
-
-    public void feedOut() {
-        feeder.set(0.5);
-    }
-
-    public void feedStop() {
-        feeder.set(0);
-    }
-
-    public boolean slideIn() {
-        if (minimumSwitch1.get() || minimumSwitch2.get()) {
-            slider.set(0);
-            return true;
+    public void roll(Direction direction) {
+        if (direction == Direction.Stop) {
+            roller.set(0);
         } else {
-            slider.set(-0.2);
-            return false;
+            if (direction == Direction.In) {
+                roller.set(0.2);
+            } else {
+                roller.set(-0.2);
+            }
         }
     }
 
-    public boolean slideOut() {
-        if (maximumSwitch1.get() || maximumSwitch1.get()) {
-            slider.set(0);
-            return true;
+    public void feed(Direction direction) {
+        if (direction == Direction.Stop) {
+            feeder.set(0);
         } else {
-            slider.set(0.2);
-            return false;
+            if (direction == Direction.In) {
+                feeder.set(-0.5);
+            } else {
+                feeder.set(0.5);
+            }
         }
     }
 
-    public boolean slideStop() {
-        slider.set(0);
-        return true;
+    public boolean slide(Direction direction) {
+        if (direction == Direction.Stop) {
+            slider.set(0);
+            return true;
+        } else {
+            if (direction == Direction.In) {
+                if (minimumSwitch1.get() || minimumSwitch2.get()) {
+                    slider.set(0);
+                    return true;
+                } else {
+                    slider.set(-0.2);
+                    return false;
+                }
+            } else {
+                if (maximumSwitch1.get() || maximumSwitch2.get()) {
+                    slider.set(0);
+                    return true;
+                } else {
+                    slider.set(0.2);
+                    return false;
+                }
+            }
+        }
+    }
+
+    public enum Direction {
+        In,
+        Out,
+        Stop
     }
 }

@@ -48,7 +48,7 @@ public class KobiShooter extends frc.robot.base.Module {
 
     private PID turretPositionPID;
     private WPI_TalonSRX turret;
-    private int turretTargetPosition = 0;
+    private int turretAnchorPosition = 0;
 
     public KobiShooter() {
         super("shooter");
@@ -86,6 +86,10 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter2.setInverted(true);
         shooter3.setInverted(false);
 
+        // TODO setup followers
+        shooter2.follow(shooter1);
+        shooter3.follow(shooter1);
+
         command("camera", new Command() {
 
             @Override
@@ -104,7 +108,12 @@ public class KobiShooter extends frc.robot.base.Module {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
                 double delta = Double.parseDouble(s);
-                reset = setTurretPosition(delta, reset);
+                if (reset){
+                    resetTurretPosition();
+                    reset = false;
+                }else{
+                    reset = setTurretPosition(delta);
+                }
                 return new Tuple<>(reset, "Moving");
             }
         });
@@ -132,7 +141,6 @@ public class KobiShooter extends frc.robot.base.Module {
         getHoodPosition();
     }
 
-    // Sets the position using PID TODO check this!!! 16/02/2020
     public boolean setHoodPosition(double angle) {
         if (angle >= HOOD_MINIMUM_ANGLE && angle <= HOOD_MAXIMUM_ANGLE) {
             double measurement = potentiometer.get();
@@ -147,28 +155,27 @@ public class KobiShooter extends frc.robot.base.Module {
         return false;
     }
 
-    public void test(double a) {
-        hood.set((a + 1) / 2);
-    }
-
     public void setShooterVelocity(double velocity) {
         // Velocity is M/S
-        // double input = (velocity * SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS);
+        double input = (velocity * SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS);
         // Set is Tick/100ms
-        shooter1.set(velocity);
-        shooter2.set(velocity);
-        shooter3.set(velocity);
+        shooter1.set(ControlMode.Velocity, input);
+        // No control
+        // shooter1.set(velocity);
+        // shooter2.set(velocity);
+        // shooter3.set(velocity);
+    }
+
+    public void resetTurretPosition() {
+        turretAnchorPosition = getTurretPosition();
     }
 
     // Reset to reset the setpoint
-    public boolean setTurretPosition(double delta, boolean reset) {
-        // Reset setpoint
-        if (reset)
-            turretTargetPosition = getTurretPosition() + (int) (TURRET_ENCODER_TICKS * TURRET_GEAR * (delta / 360));
+    public boolean setTurretPosition(double delta) {
         // Calculate PID
-        turret.set(turretPositionPID.PIDPosition(getTurretPosition(), turretTargetPosition));
+        turret.set(turretPositionPID.PIDPosition(getTurretPosition(), turretAnchorPosition + (int) (TURRET_ENCODER_TICKS * TURRET_GEAR * (delta / 360))));
         // Check threshold
-        return Math.abs(turretTargetPosition - getTurretPosition()) < TURRET_THRESHOLD_TICKS;
+        return Math.abs(turretAnchorPosition - getTurretPosition()) < TURRET_THRESHOLD_TICKS;
     }
 
     public void setTurretVelocity(double speed) {
