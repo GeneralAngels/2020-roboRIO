@@ -1,5 +1,7 @@
 package frc.robot.kobi;
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
@@ -61,6 +63,20 @@ public class Kobi extends Bot {
     // PDP
     private static PowerDistributionPanel pdp;
 
+    public static void setupMotor(WPI_TalonSRX talon, FeedbackDevice feedbackDevice, double kP, double kI, double kD, double kF) {
+        talon.setSelectedSensorPosition(0);
+        talon.configFactoryDefault();
+        talon.configSelectedFeedbackSensor(feedbackDevice, 0, 30);
+        talon.configNominalOutputForward(0, 30);
+        talon.configNominalOutputReverse(0, 30);
+        talon.configPeakOutputForward(1, 30);
+        talon.configPeakOutputReverse(-1, 30);
+        talon.config_kP(0, kP, 30);
+        talon.config_kI(0, kI, 30);
+        talon.config_kD(0, kD, 30);
+        talon.config_kF(0, kF, 30);
+    }
+
     public Kobi() {
 
         // Joystick
@@ -121,14 +137,16 @@ public class Kobi extends Bot {
 //        }
 //        shooter.setHoodPosition(35);
         if (xbox.getBButton()) {
-            shooter.setTurretPosition(10);
-//            shooter.slide(fromJoystick(value));
+//            shooter.setTurretPosition(10);
+//            feeder.feed(fromJoystick(value));
+//            shooter.setShooterVelocity(5 * value);
+            feeder.slide(fromJoystick(value));
         }
-        if (xbox.getYButton()){
+        if (xbox.getYButton()) {
             shooter.resetTurretPosition();
         }
         if (xbox.getXButton()) {
-            log("Shooter " + shooter.setHoodPosition(55));
+            log("Shooter " + shooter.setHoodPosition(45));
         }
         shooter.updatePositions();
     }

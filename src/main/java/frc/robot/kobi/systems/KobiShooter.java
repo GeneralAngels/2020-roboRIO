@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.interfaces.Potentiometer;
 import frc.robot.base.control.PID;
+import frc.robot.kobi.Kobi;
 
 public class KobiShooter extends frc.robot.base.Module {
 
@@ -57,14 +58,14 @@ public class KobiShooter extends frc.robot.base.Module {
 
         // Turret things
         turret = new WPI_TalonSRX(19);
-        setupMotor(turret, FeedbackDevice.PulseWidthEncodedPosition, 0, 0, 0, 0.05);
+        Kobi.setupMotor(turret, FeedbackDevice.PulseWidthEncodedPosition, 0, 0, 0, 0.05);
 
         // Shooter things
         shooter1 = new WPI_TalonSRX(20);
         shooter2 = new WPI_TalonSRX(21);
         shooter3 = new WPI_TalonSRX(22);
 
-        setupMotor(shooter1, FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0.00003, 0, 0.04);
+        Kobi.setupMotor(shooter1, FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0.00003, 0, 0.04);
         shooter1.setSensorPhase(false); // Flip encoder polarity (+/-)
 
         shooter1.setInverted(true);
@@ -72,8 +73,8 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter3.setInverted(false);
 
         // TODO setup followers
-        shooter2.follow(shooter1);
-        shooter3.follow(shooter1);
+//        shooter2.follow(shooter1);
+//        shooter3.follow(shooter1);
 
         // Commands
 
@@ -122,20 +123,6 @@ public class KobiShooter extends frc.robot.base.Module {
         });
     }
 
-    private void setupMotor(WPI_TalonSRX talon, FeedbackDevice feedbackDevice, double kP, double kI, double kD, double kF) {
-        talon.setSelectedSensorPosition(0);
-        talon.configFactoryDefault();
-        talon.configSelectedFeedbackSensor(feedbackDevice, 0, 30);
-        talon.configNominalOutputForward(0, 30);
-        talon.configNominalOutputReverse(0, 30);
-        talon.configPeakOutputForward(1, 30);
-        talon.configPeakOutputReverse(-1, 30);
-        talon.config_kP(0, kP, 30);
-        talon.config_kI(0, kI, 30);
-        talon.config_kD(0, kD, 30);
-        talon.config_kF(0, kF, 30);
-    }
-
     public void updatePositions() {
         getShooterPosition();
         getTurretPosition();
@@ -161,10 +148,11 @@ public class KobiShooter extends frc.robot.base.Module {
         double input = (velocity * SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS);
         // Set is Tick/100ms
         shooter1.set(ControlMode.Velocity, input);
+//        log("A: " + shooter1.get() + " B: " + shooter2.get() + " C: " + shooter3.get());
         // No control
-        // shooter1.set(velocity);
-        // shooter2.set(velocity);
-        // shooter3.set(velocity);
+//         shooter1.set(velocity);
+//         shooter2.set(velocity);
+//         shooter3.set(velocity);
     }
 
     public void resetTurretPosition() {

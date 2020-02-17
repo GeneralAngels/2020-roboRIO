@@ -1,9 +1,11 @@
 package frc.robot.kobi.systems;
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.DigitalInput;
+import frc.robot.kobi.Kobi;
 
 public class KobiFeeder extends frc.robot.base.Module {
 
@@ -27,9 +29,9 @@ public class KobiFeeder extends frc.robot.base.Module {
         minimumSwitch1 = new DigitalInput(6);
         minimumSwitch2 = new DigitalInput(7);
 
-
         // Collector
         roller = new WPI_TalonSRX(17);
+        Kobi.setupMotor(roller, FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0, 0, 0.01);
 
         // Feeder
         feeder = new CANSparkMax(18, CANSparkMaxLowLevel.MotorType.kBrushless);
