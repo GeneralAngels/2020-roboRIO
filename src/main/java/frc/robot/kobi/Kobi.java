@@ -129,25 +129,23 @@ public class Kobi extends Bot {
         // Shit
 //        rgb.setColor(new Color(60, 20, (int) (40 * Math.abs(driver.getY()))));
         double value = -xbox.getY(GenericHID.Hand.kRight);
-//        if (xbox.getAButton()){
-//            feeder.feedIn();
-//            shooter.setShooterVelocity(value);
-//        }else{
-//            feeder.feedStop();
-//        }
-//        shooter.setHoodPosition(35);
-        if (xbox.getBButton()) {
-//            shooter.setTurretPosition(10);
-//            feeder.feed(fromJoystick(value));
 //            shooter.setShooterVelocity(5 * value);
-            feeder.slide(fromJoystick(value));
+        if (xbox.getAButton()) {
+            feeder.feed(KobiFeeder.Direction.In);
+        } else if (xbox.getXButton()){
+            feeder.feed(KobiFeeder.Direction.Out);
+        }else{
+            feeder.feed(KobiFeeder.Direction.Stop);
         }
         if (xbox.getYButton()) {
-            shooter.resetTurretPosition();
+            feeder.roll(KobiFeeder.Direction.In);
+        }else if (xbox.getBButton()){
+            feeder.roll(KobiFeeder.Direction.Out);
+        }else {
+            feeder.roll(KobiFeeder.Direction.Stop);
         }
-        if (xbox.getXButton()) {
-            log("Shooter " + shooter.setHoodPosition(45));
-        }
+
+
         shooter.updatePositions();
     }
 

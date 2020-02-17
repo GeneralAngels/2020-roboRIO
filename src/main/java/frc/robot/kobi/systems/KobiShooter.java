@@ -42,9 +42,9 @@ public class KobiShooter extends frc.robot.base.Module {
     private WPI_TalonSRX shooter3;
 
     // Turret things
-    private static final double TURRET_ENCODER_TICKS = 2048; // Verified by Idan
+    private static final double TURRET_ENCODER_TICKS = 1024; // Verified by Idan
     private static final double TURRET_THRESHOLD_TICKS = 10;
-    private static final double TURRET_GEAR = 462.2; // Verified by Libi (16/02/2020, Nadav, Old = 182.6/17.5)
+    private static final double TURRET_GEAR = 240.0 / 22.0; // Verified by Libi (16/02/2020, Nadav, Old = 182.6/17.5)
 
     private WPI_TalonSRX turret;
     private int turretAnchorPosition = 0;
@@ -58,7 +58,8 @@ public class KobiShooter extends frc.robot.base.Module {
 
         // Turret things
         turret = new WPI_TalonSRX(19);
-        Kobi.setupMotor(turret, FeedbackDevice.PulseWidthEncodedPosition, 0, 0, 0, 0.05);
+        Kobi.setupMotor(turret, FeedbackDevice.PulseWidthEncodedPosition, 0, 0, 0, 0.5);
+        turret.setSensorPhase(true); // Flip encoder polarity (+/-)
 
         // Shooter things
         shooter1 = new WPI_TalonSRX(20);
@@ -147,12 +148,12 @@ public class KobiShooter extends frc.robot.base.Module {
         // Velocity is M/S
         double input = (velocity * SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS);
         // Set is Tick/100ms
-        shooter1.set(ControlMode.Velocity, input);
+//        shooter1.set(ControlMode.Velocity, input);
 //        log("A: " + shooter1.get() + " B: " + shooter2.get() + " C: " + shooter3.get());
         // No control
-//         shooter1.set(velocity);
-//         shooter2.set(velocity);
-//         shooter3.set(velocity);
+        shooter1.set(velocity);
+        shooter2.set(velocity);
+        shooter3.set(velocity);
     }
 
     public void resetTurretPosition() {
@@ -162,6 +163,7 @@ public class KobiShooter extends frc.robot.base.Module {
     // Reset to reset the setpoint
     public boolean setTurretPosition(double delta) {
         // Calculate PID
+        log(getTurretPosition() + "/" + (turretAnchorPosition + (int) (TURRET_ENCODER_TICKS * TURRET_GEAR * (delta / 360))));
         turret.set(ControlMode.Position, turretAnchorPosition + (int) (TURRET_ENCODER_TICKS * TURRET_GEAR * (delta / 360)));
         // Check threshold
         return Math.abs(turretAnchorPosition - getTurretPosition()) < TURRET_THRESHOLD_TICKS;

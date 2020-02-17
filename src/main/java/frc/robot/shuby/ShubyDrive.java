@@ -9,10 +9,10 @@ import frc.robot.base.utils.MotorGroup;
 public class ShubyDrive extends DifferentialDrive<VictorSP> {
 
     public ShubyDrive() {
-        left.addMotor(new VictorSP(0));
+//        left.addMotor(new VictorSP(0));
         left.addMotor(new VictorSP(1));
         left.addMotor(new VictorSP(2));
-        right.addMotor(new VictorSP(3));
+//        right.addMotor(new VictorSP(3));
         right.addMotor(new VictorSP(4));
         right.addMotor(new VictorSP(5));
         right.setDirection(MotorGroup.BACKWARD);
