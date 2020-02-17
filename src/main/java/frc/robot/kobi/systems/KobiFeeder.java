@@ -91,9 +91,9 @@ public class KobiFeeder extends frc.robot.base.Module {
             roller.set(0);
         } else {
             if (direction == Direction.In) {
-                roller.set(0.2);
+                roller.set(0.5);
             } else {
-                roller.set(-0.2);
+                roller.set(-0.5);
             }
         }
     }

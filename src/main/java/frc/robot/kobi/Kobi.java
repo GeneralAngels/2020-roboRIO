@@ -121,7 +121,11 @@ public class Kobi extends Bot {
 //        }
 //        shooter.setHoodPosition(35);
         if (xbox.getBButton()) {
-            feeder.feed(fromJoystick(value));
+            shooter.setTurretPosition(10);
+//            shooter.slide(fromJoystick(value));
+        }
+        if (xbox.getYButton()){
+            shooter.resetTurretPosition();
         }
         if (xbox.getXButton()) {
             log("Shooter " + shooter.setHoodPosition(55));

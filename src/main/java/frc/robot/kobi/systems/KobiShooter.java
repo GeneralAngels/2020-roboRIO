@@ -39,14 +39,12 @@ public class KobiShooter extends frc.robot.base.Module {
     private WPI_TalonSRX shooter1;
     private WPI_TalonSRX shooter2;
     private WPI_TalonSRX shooter3;
-    private Encoder encoder;
 
     // Turret things
     private static final double TURRET_ENCODER_TICKS = 2048; // Verified by Idan
     private static final double TURRET_THRESHOLD_TICKS = 10;
     private static final double TURRET_GEAR = 462.2; // Verified by Libi (16/02/2020, Nadav, Old = 182.6/17.5)
 
-    private PID turretPositionPID;
     private WPI_TalonSRX turret;
     private int turretAnchorPosition = 0;
 
@@ -58,29 +56,16 @@ public class KobiShooter extends frc.robot.base.Module {
         hood = new Servo(6);
 
         // Turret things
-        turretPositionPID = new PID("turret_position_pid", 0, 0, 0, 0.001);
         turret = new WPI_TalonSRX(19);
-        turret.setSelectedSensorPosition(1);
-        turret.configFactoryDefault();
-        turret.configSelectedFeedbackSensor(FeedbackDevice.PulseWidthEncodedPosition, 0, 30);
+        setupMotor(turret, FeedbackDevice.PulseWidthEncodedPosition, 0, 0, 0, 0.05);
 
         // Shooter things
         shooter1 = new WPI_TalonSRX(20);
         shooter2 = new WPI_TalonSRX(21);
         shooter3 = new WPI_TalonSRX(22);
 
-        shooter1.setSelectedSensorPosition(1);
-        shooter1.configFactoryDefault();
-        shooter1.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
+        setupMotor(shooter1, FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0.00003, 0, 0.04);
         shooter1.setSensorPhase(false); // Flip encoder polarity (+/-)
-        shooter1.configNominalOutputForward(0, 30);
-        shooter1.configNominalOutputReverse(0, 30);
-        shooter1.configPeakOutputForward(1, 30);
-        shooter1.configPeakOutputReverse(-1, 30);
-        shooter1.config_kP(0, 0, 30);
-        shooter1.config_kI(0, 0.00003, 30);
-        shooter1.config_kD(0, 0, 30);
-        shooter1.config_kF(0, 0.04, 30);
 
         shooter1.setInverted(true);
         shooter2.setInverted(true);
@@ -89,6 +74,8 @@ public class KobiShooter extends frc.robot.base.Module {
         // TODO setup followers
         shooter2.follow(shooter1);
         shooter3.follow(shooter1);
+
+        // Commands
 
         command("camera", new Command() {
 
@@ -108,10 +95,10 @@ public class KobiShooter extends frc.robot.base.Module {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
                 double delta = Double.parseDouble(s);
-                if (reset){
+                if (reset) {
                     resetTurretPosition();
                     reset = false;
-                }else{
+                } else {
                     reset = setTurretPosition(delta);
                 }
                 return new Tuple<>(reset, "Moving");
@@ -133,6 +120,20 @@ public class KobiShooter extends frc.robot.base.Module {
                 return new Tuple<>(true, "Speed set");
             }
         });
+    }
+
+    private void setupMotor(WPI_TalonSRX talon, FeedbackDevice feedbackDevice, double kP, double kI, double kD, double kF) {
+        talon.setSelectedSensorPosition(0);
+        talon.configFactoryDefault();
+        talon.configSelectedFeedbackSensor(feedbackDevice, 0, 30);
+        talon.configNominalOutputForward(0, 30);
+        talon.configNominalOutputReverse(0, 30);
+        talon.configPeakOutputForward(1, 30);
+        talon.configPeakOutputReverse(-1, 30);
+        talon.config_kP(0, kP, 30);
+        talon.config_kI(0, kI, 30);
+        talon.config_kD(0, kD, 30);
+        talon.config_kF(0, kF, 30);
     }
 
     public void updatePositions() {
@@ -173,7 +174,7 @@ public class KobiShooter extends frc.robot.base.Module {
     // Reset to reset the setpoint
     public boolean setTurretPosition(double delta) {
         // Calculate PID
-        turret.set(turretPositionPID.PIDPosition(getTurretPosition(), turretAnchorPosition + (int) (TURRET_ENCODER_TICKS * TURRET_GEAR * (delta / 360))));
+        turret.set(ControlMode.Position, turretAnchorPosition + (int) (TURRET_ENCODER_TICKS * TURRET_GEAR * (delta / 360)));
         // Check threshold
         return Math.abs(turretAnchorPosition - getTurretPosition()) < TURRET_THRESHOLD_TICKS;
     }
