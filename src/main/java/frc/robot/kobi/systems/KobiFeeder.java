@@ -118,19 +118,19 @@ public class KobiFeeder extends frc.robot.base.Module {
             return true;
         } else {
             if (direction == Direction.In) {
-                if (minimumSwitch1.get() || minimumSwitch2.get()) {
-                    slider.set(0);
-                    return true;
-                } else {
-                    slider.set(-0.2);
-                    return false;
-                }
-            } else {
-                if (maximumSwitch1.get() || maximumSwitch2.get()) {
+                if (!minimumSwitch1.get() || !minimumSwitch2.get()) {
                     slider.set(0);
                     return true;
                 } else {
                     slider.set(0.2);
+                    return false;
+                }
+            } else {
+                if (!maximumSwitch1.get() || !maximumSwitch2.get()) {
+                    slider.set(0);
+                    return true;
+                } else {
+                    slider.set(-0.2);
                     return false;
                 }
             }
