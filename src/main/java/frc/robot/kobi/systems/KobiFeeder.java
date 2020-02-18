@@ -114,7 +114,7 @@ public class KobiFeeder extends frc.robot.base.Module {
         }
     }
 
-    public void ls_test(){
+    public void limitSwitchTest(){
         set("min_sw", String.valueOf(closeSwitch.get()));
         set("max_sw", String.valueOf(openSwitch.get()));
     }

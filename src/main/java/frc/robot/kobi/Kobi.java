@@ -14,8 +14,6 @@ import frc.robot.kobi.systems.KobiDrive;
 import frc.robot.kobi.systems.KobiFeeder;
 import frc.robot.kobi.systems.KobiShooter;
 
-import java.awt.*;
-
 public class Kobi extends Bot {
 
     /**
@@ -132,7 +130,7 @@ public class Kobi extends Bot {
         if (Math.abs(value) < 0.05)
             value = 0;
 
-        feeder.ls_test();
+        feeder.limitSwitchTest();
 
         set("xval", String.valueOf(xbox.getX(GenericHID.Hand.kLeft)));
 
