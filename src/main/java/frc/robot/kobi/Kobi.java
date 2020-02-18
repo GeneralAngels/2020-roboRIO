@@ -128,6 +128,14 @@ public class Kobi extends Bot {
         // Shit
 //        rgb.setColor(new Color(60, 20, (int) (40 * Math.abs(driver.getY()))));
         double value = -xbox.getY(GenericHID.Hand.kRight);
+
+        if (Math.abs(value) < 0.05)
+            value = 0;
+
+        feeder.ls_test();
+
+        set("xval", String.valueOf(xbox.getX(GenericHID.Hand.kLeft)));
+
         shooter.setShooterVelocity(value * 16);
 
         // Shanti
@@ -148,10 +156,12 @@ public class Kobi extends Bot {
             feeder.roll(KobiFeeder.Direction.Stop);
         }
 
-        if (xbox.getStartButton()){
-            shooter.setHoodPosition(63);
-        }else if (xbox.getBackButton()){
-            shooter.setHoodPosition(36);
+        if (xbox.getStartButton()) {
+            shooter.resetTurretPosition();
+            //shooter.setHoodPosition(63);
+        } else if (xbox.getBackButton()) {
+            log("S: " + shooter.setTurretPosition(10));
+            //shooter.setHoodPosition(36);
         }
 
         shooter.setTurretVelocity(xbox.getX(GenericHID.Hand.kLeft));

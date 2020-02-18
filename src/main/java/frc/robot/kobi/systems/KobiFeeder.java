@@ -11,7 +11,7 @@ public class KobiFeeder extends frc.robot.base.Module {
 
     // Slider
     private WPI_TalonSRX slider;
-    private DigitalInput maximumSwitch, minimumSwitch;
+    private DigitalInput openSwitch, closeSwitch;
 
     // Feeder
     private CANSparkMax feeder;
@@ -24,8 +24,8 @@ public class KobiFeeder extends frc.robot.base.Module {
 
         // Slider
         slider = new WPI_TalonSRX(16);
-        maximumSwitch = new DigitalInput(4);
-        minimumSwitch = new DigitalInput(5);
+        closeSwitch = new DigitalInput(4);
+        openSwitch = new DigitalInput(5);
 
         // Collector
         roller = new WPI_TalonSRX(17);
@@ -114,13 +114,18 @@ public class KobiFeeder extends frc.robot.base.Module {
         }
     }
 
+    public void ls_test(){
+        set("min_sw", String.valueOf(closeSwitch.get()));
+        set("max_sw", String.valueOf(openSwitch.get()));
+    }
+
     public boolean slide(Direction direction) {
         if (direction == Direction.Stop) {
             slider.set(0);
             return true;
         } else {
             if (direction == Direction.In) {
-                if (!minimumSwitch.get()) {
+                if (!closeSwitch.get()) {
                     slider.set(0);
                     return true;
                 } else {
@@ -128,7 +133,7 @@ public class KobiFeeder extends frc.robot.base.Module {
                     return false;
                 }
             } else {
-                if (!maximumSwitch.get()) {
+                if (!openSwitch.get()) {
                     slider.set(0);
                     return true;
                 } else {

@@ -4,10 +4,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.interfaces.Potentiometer;
-import frc.robot.base.control.PID;
 import frc.robot.kobi.Kobi;
 
 public class KobiShooter extends frc.robot.base.Module {
@@ -42,12 +40,13 @@ public class KobiShooter extends frc.robot.base.Module {
     private WPI_TalonSRX shooter3;
 
     // Turret things
-    private static final double TURRET_ENCODER_TICKS = 1024; // Verified by Idan todo
+    private static final double TURRET_ENCODER_TICKS = 4096; // Verified by Idan todo
     private static final double TURRET_THRESHOLD_TICKS = 10;
     private static final double TURRET_GEAR = 240.0 / 22.0; // Verified by Libi (16/02/2020, Nadav, Old = 182.6/17.5)
+    private static final double TURRET_TICKS_PER_MOTOR_REVOLUTION = TURRET_ENCODER_TICKS / TURRET_GEAR;
 
     private WPI_TalonSRX turret;
-    private int turretAnchorPosition = 0;
+    private int turretOffsetPosition = 0;
 
     public KobiShooter() {
         super("shooter");
@@ -58,7 +57,7 @@ public class KobiShooter extends frc.robot.base.Module {
 
         // Turret things
         turret = new WPI_TalonSRX(19);
-        Kobi.setupMotor(turret, FeedbackDevice.PulseWidthEncodedPosition, 0, 0, 0, 0);
+        Kobi.setupMotor(turret, FeedbackDevice.PulseWidthEncodedPosition, 2, 0, 0, 0);
         turret.setSensorPhase(true); // Flip encoder polarity (+/-)
 
         // Shooter things
@@ -149,25 +148,25 @@ public class KobiShooter extends frc.robot.base.Module {
         double input = velocity * ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS));
         // Set is Tick/100ms
         shooter1.set(ControlMode.Velocity, input);
-        log("A: " + shooter1.getMotorOutputPercent() + " B: " + shooter2.getMotorOutputPercent() + " C: " + shooter3.getMotorOutputPercent());
-        // No control
-//        shooter1.set(velocity);
-//        shooter2.set(velocity);
-//        shooter3.set(velocity);
-        set("velocity", String.valueOf(shooter1.getSelectedSensorVelocity() / ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS))));
+        // log("A: " + shooter1.getMotorOutputPercent() + " B: " + shooter2.getMotorOutputPercent() + " C: " + shooter3.getMotorOutputPercent());
+        set("flywheel", String.valueOf(shooter1.getSelectedSensorVelocity() / ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS))));
     }
 
     public void resetTurretPosition() {
-        turretAnchorPosition = getTurretPosition();
+        turretOffsetPosition = getTurretPosition();
     }
 
     // Reset to reset the setpoint
     public boolean setTurretPosition(double delta) {
         // Calculate PID
-        log(getTurretPosition() + "/" + (turretAnchorPosition + (int) (TURRET_ENCODER_TICKS * TURRET_GEAR * (delta / 360))));
-        turret.set(ControlMode.Position, turretAnchorPosition + (int) (TURRET_ENCODER_TICKS * TURRET_GEAR * (delta / 360)));
+        int target = turretOffsetPosition + (int) (TURRET_ENCODER_TICKS * (delta / 360));
+        turret.set(ControlMode.Position, target);
+        set("percent", String.valueOf(turret.getMotorOutputPercent()));
+        set("voltage", String.valueOf(turret.getMotorOutputVoltage()));
+        set("velocity", String.valueOf(turret.getSelectedSensorVelocity()));
+        set("error", String.valueOf(turret.getClosedLoopError()));
         // Check threshold
-        return Math.abs(turretAnchorPosition - getTurretPosition()) < TURRET_THRESHOLD_TICKS;
+        return Math.abs(target - getTurretPosition()) < TURRET_THRESHOLD_TICKS;
     }
 
     public void setTurretVelocity(double speed) {
