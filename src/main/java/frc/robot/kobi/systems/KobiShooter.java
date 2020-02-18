@@ -57,7 +57,7 @@ public class KobiShooter extends frc.robot.base.Module {
 
         // Turret things
         turret = new WPI_TalonSRX(19);
-        Kobi.setupMotor(turret, FeedbackDevice.PulseWidthEncodedPosition, 2, 0, 0, 0);
+        Kobi.setupMotor(turret, FeedbackDevice.PulseWidthEncodedPosition, 0, 0, 0, 0.2);
         turret.setSensorPhase(true); // Flip encoder polarity (+/-)
 
         // Shooter things
@@ -157,16 +157,17 @@ public class KobiShooter extends frc.robot.base.Module {
     }
 
     // Reset to reset the setpoint
-    public boolean setTurretPosition(double delta) {
+    public boolean setTurretPosition(double angle) {
         // Calculate PID
-        int target = turretOffsetPosition + (int) (TURRET_ENCODER_TICKS * (delta / 360));
-        turret.set(ControlMode.Position, target);
-        set("percent", String.valueOf(turret.getMotorOutputPercent()));
-        set("voltage", String.valueOf(turret.getMotorOutputVoltage()));
-        set("velocity", String.valueOf(turret.getSelectedSensorVelocity()));
-        set("error", String.valueOf(turret.getClosedLoopError()));
-        // Check threshold
-        return Math.abs(target - getTurretPosition()) < TURRET_THRESHOLD_TICKS;
+        if (angle != 0) {
+            double target = turretOffsetPosition + (int) (TURRET_ENCODER_TICKS * (angle / 360));
+            double velocity = (target - getTurretPosition() - turretOffsetPosition) / TALON_RATE;
+            set("vsign", String.valueOf(velocity));
+            turret.set(ControlMode.Velocity, velocity);
+            // Check threshold
+            return Math.abs(target - getTurretPosition()) < TURRET_THRESHOLD_TICKS;
+        }
+        return true;
     }
 
     public void setTurretVelocity(double speed) {
