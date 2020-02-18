@@ -18,7 +18,7 @@ public final class Main {
 
         @Override
         public void robotInit() {
-            bobot = new Kobi();
+            bobot = new Shuby();
             bobot.init();
         }
 

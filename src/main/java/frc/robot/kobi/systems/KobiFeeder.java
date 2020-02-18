@@ -91,9 +91,9 @@ public class KobiFeeder extends frc.robot.base.Module {
             roller.set(0);
         } else {
             if (direction == Direction.In) {
-                roller.set(0.75);
+                roller.set(0.5);
             } else {
-                roller.set(-0.75);
+                roller.set(-0.5);
             }
         }
     }
@@ -107,9 +107,9 @@ public class KobiFeeder extends frc.robot.base.Module {
             feeder.set(0);
         } else {
             if (direction == Direction.In) {
-                feeder.set(-0.5);
+                feeder.set(-1);
             } else {
-                feeder.set(0.5);
+                feeder.set(1);
             }
         }
     }
@@ -125,21 +125,21 @@ public class KobiFeeder extends frc.robot.base.Module {
             return true;
         } else {
             if (direction == Direction.In) {
-                if (!closeSwitch.get()) {
-                    slider.set(0);
-                    return true;
-                } else {
+//                if (!closeSwitch.get()) {
+//                    slider.set(0);
+//                    return true;
+//                } else {
                     slider.set(0.2);
                     return false;
-                }
+//                }
             } else {
-                if (!openSwitch.get()) {
-                    slider.set(0);
-                    return true;
-                } else {
+//                if (!openSwitch.get()) {
+//                    slider.set(0);
+//                    return true;
+//                } else {
                     slider.set(-0.2);
                     return false;
-                }
+//                }
             }
         }
     }

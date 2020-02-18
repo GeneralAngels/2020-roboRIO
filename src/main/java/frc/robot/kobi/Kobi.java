@@ -37,6 +37,8 @@ public class Kobi extends Bot {
      * Turret - 19
      * Feeder - 18
      * Roller - 17
+     * 50, 51, ~52~ - Left Sparks
+     * 53, 54, ~55~ - Right Sparks
      * <p>
      * Talon Encoders:
      * Slide - has encoder
@@ -125,16 +127,19 @@ public class Kobi extends Bot {
         drive.updateVoltage(pdp.getVoltage());
         // Shit
 //        rgb.setColor(new Color(60, 20, (int) (40 * Math.abs(driver.getY()))));
-        double value = -xbox.getY(GenericHID.Hand.kRight);
+        double value = xbox.getY(GenericHID.Hand.kRight);
+        double value2 = xbox.getY(GenericHID.Hand.kLeft);
 
         if (Math.abs(value) < 0.05)
             value = 0;
+        if (Math.abs(value2) < 0.05)
+            value2 = 0;
+
 
         feeder.limitSwitchTest();
 
-        set("xval", String.valueOf(xbox.getX(GenericHID.Hand.kLeft)));
 
-        shooter.setShooterVelocity(value * 16);
+        shooter.setShooterVelocity(value * 25);
 
         // Shanti
         if (xbox.getAButton()) {
@@ -155,15 +160,15 @@ public class Kobi extends Bot {
         }
 
         if (xbox.getStartButton()) {
-            shooter.resetTurretPosition();
-            //shooter.setHoodPosition(63);
+            //shooter.resetTurretPosition();
+//            shooter.setHoodPosition(63);
         } else if (xbox.getBackButton()) {
-            log("S: " + shooter.setTurretPosition(10));
-            //shooter.setHoodPosition(36);
+            //log("S: " + shooter.setTurretPosition(10));
+//            shooter.setHoodPosition(36);
         }
 
-        shooter.setTurretVelocity(xbox.getX(GenericHID.Hand.kLeft));
-
+//        shooter.setTurretVelocity(xbox.getX(GenericHID.Hand.kLeft));
+        feeder.slide(fromJoystick(value2));
 //        feeder
 
         shooter.updatePositions();

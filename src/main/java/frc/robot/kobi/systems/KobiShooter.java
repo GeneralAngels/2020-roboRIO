@@ -66,16 +66,16 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter3 = new WPI_TalonSRX(22);
 
         Kobi.setupMotor(shooter1, FeedbackDevice.CTRE_MagEncoder_Relative, 0.7, 0.0001, 1, 0.07); // OMG magic
-        shooter1.setSensorPhase(true); // Flip encoder polarity (+/-)
+        shooter1.setSensorPhase(false); // Flip encoder polarity (+/-)
 
         shooter1.setInverted(true);
-        shooter2.setInverted(true);
-        shooter3.setInverted(false);
+        shooter2.setInverted(false);
+        shooter3.setInverted(true);
 
         // Setup followers
         shooter2.follow(shooter1);
         shooter3.follow(shooter1);
-//
+
         // Commands
 
         command("camera", new Command() {
@@ -148,8 +148,7 @@ public class KobiShooter extends frc.robot.base.Module {
         double input = velocity * ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS));
         // Set is Tick/100ms
         shooter1.set(ControlMode.Velocity, input);
-        // log("A: " + shooter1.getMotorOutputPercent() + " B: " + shooter2.getMotorOutputPercent() + " C: " + shooter3.getMotorOutputPercent());
-        set("flywheel", String.valueOf(shooter1.getSelectedSensorVelocity() / ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS))));
+//        log("A: " + shooter1.getMotorOutputPercent() + " B: " + shooter2.getMotorOutputPercent() + " C: " + shooter3.getMotorOutputPercent());
     }
 
     public void resetTurretPosition() {
