@@ -23,9 +23,8 @@ public class Kobi extends Bot {
      * DIO:
      * 0, 1 - Left Encoder
      * 2, 3 - Right Encoder
-     * 4, 5 - Maximum Slide LimS/W
-     * 6, 7 - Minimum Slide LimS/W
-     * 8, 9 - Turret LimS/W
+     * 4, 5 - Min/Max LimS/W
+     * 6, 7 - Turret LimS/W
      * <p>
      * PWM:
      * 0, 1, 2 - Left Victors
@@ -129,22 +128,35 @@ public class Kobi extends Bot {
         // Shit
 //        rgb.setColor(new Color(60, 20, (int) (40 * Math.abs(driver.getY()))));
         double value = -xbox.getY(GenericHID.Hand.kRight);
-//            shooter.setShooterVelocity(5 * value);
+        shooter.setShooterVelocity(value * 16);
+
+        // Shanti
         if (xbox.getAButton()) {
             feeder.feed(KobiFeeder.Direction.In);
-        } else if (xbox.getXButton()){
+        } else if (xbox.getXButton()) {
             feeder.feed(KobiFeeder.Direction.Out);
-        }else{
+        } else {
             feeder.feed(KobiFeeder.Direction.Stop);
         }
+
+        // Roller
         if (xbox.getYButton()) {
             feeder.roll(KobiFeeder.Direction.In);
-        }else if (xbox.getBButton()){
+        } else if (xbox.getBButton()) {
             feeder.roll(KobiFeeder.Direction.Out);
-        }else {
+        } else {
             feeder.roll(KobiFeeder.Direction.Stop);
         }
 
+        if (xbox.getStartButton()){
+            shooter.setHoodPosition(63);
+        }else if (xbox.getBackButton()){
+            shooter.setHoodPosition(36);
+        }
+
+        shooter.setTurretVelocity(xbox.getX(GenericHID.Hand.kLeft));
+
+//        feeder
 
         shooter.updatePositions();
     }

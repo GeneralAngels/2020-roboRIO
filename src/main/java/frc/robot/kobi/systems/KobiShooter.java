@@ -34,7 +34,7 @@ public class KobiShooter extends frc.robot.base.Module {
     }
 
     // Shooter things
-    private static final double SHOOTER_ENCODER_TICKS = 4096;
+    private static final double SHOOTER_ENCODER_TICKS = 2048;
     private static final double SHOOTER_WHEEL_RADIUS = 0.0762;
 
     private WPI_TalonSRX shooter1;
@@ -58,7 +58,7 @@ public class KobiShooter extends frc.robot.base.Module {
 
         // Turret things
         turret = new WPI_TalonSRX(19);
-        Kobi.setupMotor(turret, FeedbackDevice.PulseWidthEncodedPosition, 0, 0, 0, 0.5);
+        Kobi.setupMotor(turret, FeedbackDevice.PulseWidthEncodedPosition, 0, 0, 0, 0);
         turret.setSensorPhase(true); // Flip encoder polarity (+/-)
 
         // Shooter things
@@ -66,17 +66,17 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter2 = new WPI_TalonSRX(21);
         shooter3 = new WPI_TalonSRX(22);
 
-        Kobi.setupMotor(shooter1, FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0.00003, 0, 0.04);
-        shooter1.setSensorPhase(false); // Flip encoder polarity (+/-)
+        Kobi.setupMotor(shooter1, FeedbackDevice.CTRE_MagEncoder_Relative, 0.7, 0.0001, 1, 0.07); // OMG magic
+        shooter1.setSensorPhase(true); // Flip encoder polarity (+/-)
 
         shooter1.setInverted(true);
         shooter2.setInverted(true);
         shooter3.setInverted(false);
 
-        // TODO setup followers
-//        shooter2.follow(shooter1);
-//        shooter3.follow(shooter1);
-
+        // Setup followers
+        shooter2.follow(shooter1);
+        shooter3.follow(shooter1);
+//
         // Commands
 
         command("camera", new Command() {
@@ -146,14 +146,15 @@ public class KobiShooter extends frc.robot.base.Module {
 
     public void setShooterVelocity(double velocity) {
         // Velocity is M/S
-        double input = (velocity * SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS);
+        double input = velocity * ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS));
         // Set is Tick/100ms
-//        shooter1.set(ControlMode.Velocity, input);
-//        log("A: " + shooter1.get() + " B: " + shooter2.get() + " C: " + shooter3.get());
+        shooter1.set(ControlMode.Velocity, input);
+        log("A: " + shooter1.getMotorOutputPercent() + " B: " + shooter2.getMotorOutputPercent() + " C: " + shooter3.getMotorOutputPercent());
         // No control
-        shooter1.set(velocity);
-        shooter2.set(velocity);
-        shooter3.set(velocity);
+//        shooter1.set(velocity);
+//        shooter2.set(velocity);
+//        shooter3.set(velocity);
+        set("velocity", String.valueOf(shooter1.getSelectedSensorVelocity() / ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS))));
     }
 
     public void resetTurretPosition() {
