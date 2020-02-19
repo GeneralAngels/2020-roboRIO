@@ -165,7 +165,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
 //        set("left velocity", toString().valueOf(motorControlLeftVelocity.getDerivative()));
 //        set("right velocity", toString().valueOf(motorControlRightVelocity.getDerivative()));
-        log("leftVelocity: "+(motorControlLeftVelocity.getDerivative()*ENCODER_TO_METER)+" rightVelocity: "+(motorControlRightVelocity.getDerivative()*ENCODER_TO_METER));
+//        log("leftVelocity: "+(motorControlLeftVelocity.getDerivative()*ENCODER_TO_METER)+" rightVelocity: "+(motorControlRightVelocity.getDerivative()*ENCODER_TO_METER));
 
         // Return tuple
         return new double[]{motorOutputLeft, motorOutputRight};

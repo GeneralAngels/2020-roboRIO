@@ -137,7 +137,6 @@ public class Kobi extends Bot {
         feeder.limitSwitchTest();
 
 
-        shooter.setShooterVelocity(value);
 
         // Shanti
         if (xbox.getAButton()) {
@@ -152,8 +151,10 @@ public class Kobi extends Bot {
         if (xbox.getYButton()) {
             feeder.roll(KobiFeeder.Direction.In);
         } else if (xbox.getBButton()) {
+            shooter.resetTurretPosition();
             feeder.roll(KobiFeeder.Direction.Out);
         } else {
+//            shooter.setTurretVelocity(xbox.getX(GenericHID.Hand.kLeft));
             feeder.roll(KobiFeeder.Direction.Stop);
         }
 
@@ -162,6 +163,7 @@ public class Kobi extends Bot {
         } else if (xbox.getBackButton()) {
             drive.driveManual(-xbox.getY(GenericHID.Hand.kRight), xbox.getX(GenericHID.Hand.kRight));
         } else {
+            shooter.setShooterVelocity(value * 50);
             drive.driveVector(0, 0);
         }
 //        shooter.setTurretVelocity(xbox.getX(GenericHID.Hand.kLeft));
