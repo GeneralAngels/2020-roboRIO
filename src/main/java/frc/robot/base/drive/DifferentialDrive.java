@@ -11,8 +11,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
     private static final double TOLERANCE = 0.05;
 
-    private static final double WHEEL_DISTANCE = 0.7112; // TODO 2020 update
-    private static final double WHEEL_RADIUS = 0.0762; // TODO 2020 update
+    private static final double WHEEL_DISTANCE = 0.66;
+    private static final double WHEEL_RADIUS = 0.0762;
 
     private static final double TICKS_PER_REVOLUTION = 2048;
     private static final double ENCODER_TO_RADIAN = (2 * Math.PI) / TICKS_PER_REVOLUTION;
@@ -26,6 +26,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     private double y = 0;
     private double theta = 0;
     private double omega = 0;
+    private double leftMetersPrev = 0;
+    private double rightMetersPrev = 0;
 
     // Encoders
     private double[] lastEncoders = new double[2];
@@ -44,11 +46,12 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
     public DifferentialDrive() {
         super("drive");
+
         left = new MotorGroup<>("left");
         right = new MotorGroup<>("right");
 
-        motorControlLeftVelocity = new PID("pid_left_velocity", 0, 0.03, 0, 0.24);
-        motorControlRightVelocity = new PID("pid_right_velocity", 0, 0.03, 0, 0.24);
+        motorControlLeftVelocity = new PID("pid_left_velocity", 0, 0.03, 0, 1);
+        motorControlRightVelocity = new PID("pid_right_velocity", 0, 0.03, 0, 1);
         motorControlLeftPosition = new PID("pid_left_position", 3, 0.1, 0.2, 0);
         motorControlRightPosition = new PID("pid_right_position", 3, 0.1, 0.2, 0);
 
@@ -98,6 +101,9 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
             // Set odometry
             odometry.setX((x += distanceFromEncoders * Math.cos(Math.toRadians(theta))));
             odometry.setY((y += distanceFromEncoders * Math.sin(Math.toRadians(theta))));
+
+            // Set distance
+            odometry.setDistance(distanceFromEncoders);
         }
 
         return odometry;
@@ -147,12 +153,20 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
     public double[] calculateOutputs(double speed, double turn) {
         double[] wheelSetPoints = robotToWheels(speed, turn);
+        // Update delta
+        motorControlLeftVelocity.updateDelta();
+        motorControlRightVelocity.updateDelta();
         // Calculate
         double motorOutputLeft = motorControlLeftVelocity.PIDVelocity(left.getEncoder().getRaw() * ENCODER_TO_RADIAN, wheelSetPoints[0]);
         double motorOutputRight = motorControlRightVelocity.PIDVelocity(right.getEncoder().getRaw() * ENCODER_TO_RADIAN, wheelSetPoints[1]);
         // Divide
         motorOutputLeft /= currentVoltage;
         motorOutputRight /= currentVoltage;
+
+//        set("left velocity", toString().valueOf(motorControlLeftVelocity.getDerivative()));
+//        set("right velocity", toString().valueOf(motorControlRightVelocity.getDerivative()));
+        log("leftVelocity: "+(motorControlLeftVelocity.getDerivative()*ENCODER_TO_METER)+" rightVelocity: "+(motorControlRightVelocity.getDerivative()*ENCODER_TO_METER));
+
         // Return tuple
         return new double[]{motorOutputLeft, motorOutputRight};
     }

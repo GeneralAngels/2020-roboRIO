@@ -56,4 +56,6 @@ public class Odometry extends Module {
     public double getOmega() {
         return Double.parseDouble(get("omega"));
     }
+
+    public double getDistance(){ return Double.parseDouble(get("distance")); }
 }

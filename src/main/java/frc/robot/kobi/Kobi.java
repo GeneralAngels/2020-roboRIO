@@ -25,8 +25,8 @@ public class Kobi extends Bot {
      * 6, 7 - Turret LimS/W
      * <p>
      * PWM:
-     * 0, 1, 2 - Left Victors
-     * 3, 4, 5 - Right Victors
+     * 0, 1 - Left Victors
+     * 2, 3 - Right Victors
      * 6 - Hood Servo
      * <p>
      * AIO:
@@ -79,7 +79,7 @@ public class Kobi extends Bot {
     public Kobi() {
 
         // Joystick
-//        driver = new Joystick(0);
+        driver = new Joystick(1);
         xbox = new XboxController(0);
 
         // Init pdp
@@ -123,23 +123,21 @@ public class Kobi extends Bot {
         // Time
         set("time", String.valueOf(millis()));
 
+
         // Voltage
         drive.updateVoltage(pdp.getVoltage());
         // Shit
 //        rgb.setColor(new Color(60, 20, (int) (40 * Math.abs(driver.getY()))));
         double value = xbox.getY(GenericHID.Hand.kRight);
-        double value2 = xbox.getY(GenericHID.Hand.kLeft);
 
         if (Math.abs(value) < 0.05)
             value = 0;
-        if (Math.abs(value2) < 0.05)
-            value2 = 0;
 
 
         feeder.limitSwitchTest();
 
 
-        shooter.setShooterVelocity(value * 25);
+        shooter.setShooterVelocity(value);
 
         // Shanti
         if (xbox.getAButton()) {
@@ -160,16 +158,14 @@ public class Kobi extends Bot {
         }
 
         if (xbox.getStartButton()) {
-            //shooter.resetTurretPosition();
-//            shooter.setHoodPosition(63);
+            drive.driveVector(0.2, 0);
         } else if (xbox.getBackButton()) {
-            //log("S: " + shooter.setTurretPosition(10));
-//            shooter.setHoodPosition(36);
+            drive.driveManual(-xbox.getY(GenericHID.Hand.kRight), xbox.getX(GenericHID.Hand.kRight));
+        } else {
+            drive.driveVector(0, 0);
         }
-
 //        shooter.setTurretVelocity(xbox.getX(GenericHID.Hand.kLeft));
-        feeder.slide(fromJoystick(value2));
-//        feeder
+//        feeder.slide(fromJoystick(value2));
 
         shooter.updatePositions();
     }
