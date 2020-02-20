@@ -148,6 +148,7 @@ public class Kobi extends Bot {
         autoToggle.update(operator.getXButton());
         // Make sure robot is not in auto
         if (!isAutonomous) {
+
             // Move slider & feeder
             if (operator.getPOV() != -1) {
                 // Block other roller input
@@ -179,6 +180,7 @@ public class Kobi extends Bot {
                 // Stop feeder
                 feeder.slide(KobiFeeder.Direction.Stop);
             }
+
             // Feeder & shooter
             double shoot = deadband(operator.getY(GenericHID.Hand.kRight));
             // Set velocity
@@ -189,10 +191,12 @@ public class Kobi extends Bot {
             } else {
                 feeder.feed(fromJoystick(operator.getTriggerAxis(GenericHID.Hand.kLeft) - operator.getTriggerAxis(GenericHID.Hand.kRight))); // Feed from triggers
             }
+
             // Turret
-            double left = -deadband(operator.getX(GenericHID.Hand.kLeft)); //
+            double left = -deadband(operator.getX(GenericHID.Hand.kLeft)); // Turret signal
             // Set turret speed
             shooter.setTurretVelocity(left / 5);
+
             // Hood position
             if (operator.getAButton()) {
                 shooter.setHoodPosition(KobiShooter.HOOD_MINIMUM_ANGLE);
@@ -203,7 +207,9 @@ public class Kobi extends Bot {
             }
         }
         // Read joysticks
+        // Convert to V/o for PID
         double[] wheelsToRobot = drive.wheelsToRobot(-driverLeft.getY(), -driverRight.getY());
+        // Send to drive
         drive.driveVector(wheelsToRobot[0], wheelsToRobot[1]);
     }
 
