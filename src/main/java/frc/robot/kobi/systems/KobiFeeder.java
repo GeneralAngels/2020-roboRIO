@@ -126,7 +126,8 @@ public class KobiFeeder extends frc.robot.base.Module {
         } else {
             if (direction == Direction.In) {
                // if (!closeSwitch.get()) { //microswitch isn't working
-                if(false){
+                // Todo m/s l/s
+                if(closeSwitch.get()){
                     slider.set(0);
                     return true;
                 } else {
@@ -134,7 +135,7 @@ public class KobiFeeder extends frc.robot.base.Module {
                     return false;
                 }
             } else {
-                if (!openSwitch.get()) {
+                if (openSwitch.get()) {
                     slider.set(0);
                     return true;
                 } else {

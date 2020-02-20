@@ -191,7 +191,6 @@ public class Kobi extends Bot {
 
         shooter.updatePositions();
     }
-
     private KobiFeeder.Direction fromJoystick(double value) {
         if (Math.abs(value) < 0.05)
             return KobiFeeder.Direction.Stop;
