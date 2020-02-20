@@ -184,10 +184,13 @@ public class Kobi extends Bot {
             // Set velocity
             shooter.setShooterVelocity(30 * shoot);
             // Set feeder
-            double feed = operator.getTriggerAxis(GenericHID.Hand.kLeft) - operator.getTriggerAxis(GenericHID.Hand.kRight);
-            feeder.feed(fromJoystick(feed)); // In when shooter is out
+            if (operator.getStickButton(GenericHID.Hand.kRight)) {
+                feeder.feed(fromJoystick(-shoot)); // Feed when joystick button is pressed
+            } else {
+                feeder.feed(fromJoystick(operator.getTriggerAxis(GenericHID.Hand.kLeft) - operator.getTriggerAxis(GenericHID.Hand.kRight))); // Feed from triggers
+            }
             // Turret
-            double left = -deadband(operator.getX(GenericHID.Hand.kLeft));
+            double left = -deadband(operator.getX(GenericHID.Hand.kLeft)); //
             // Set turret speed
             shooter.setTurretVelocity(left / 5);
             // Hood position
