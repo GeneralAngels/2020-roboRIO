@@ -125,21 +125,22 @@ public class KobiFeeder extends frc.robot.base.Module {
             return true;
         } else {
             if (direction == Direction.In) {
-//                if (!closeSwitch.get()) {
-//                    slider.set(0);
-//                    return true;
-//                } else {
+               // if (!closeSwitch.get()) { //microswitch isn't working
+                if(false){
+                    slider.set(0);
+                    return true;
+                } else {
                     slider.set(0.2);
                     return false;
-//                }
+                }
             } else {
-//                if (!openSwitch.get()) {
-//                    slider.set(0);
-//                    return true;
-//                } else {
+                if (!openSwitch.get()) {
+                    slider.set(0);
+                    return true;
+                } else {
                     slider.set(-0.2);
                     return false;
-//                }
+                }
             }
         }
     }

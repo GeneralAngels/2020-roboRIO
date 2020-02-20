@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import frc.robot.base.Bot;
 import frc.robot.base.control.path.PathManager;
 import frc.robot.base.rgb.RGB;
@@ -104,7 +106,7 @@ public class Kobi extends Bot {
         // RGB mode
         rgb.setMode(RGB.Mode.Fill);
         // Create path
-//        manager.createPath(new ArrayList<>(), new Pose2d(1, 1, Rotation2d.fromDegrees(0)));
+        // manager.createTrajectory(new Pose2d(1, 1, Rotation2d.fromDegrees(45)));
 
         // Create test-autonomous program
     }
@@ -115,14 +117,14 @@ public class Kobi extends Bot {
         drive.updateVoltage(pdp.getVoltage());
 
         // Auto
-        autonomous.loop();
+        //autonomous.loop();
+        manager.followTrajectory();
     }
 
     @Override
     public void teleop() {
         // Time
         set("time", String.valueOf(millis()));
-
 
         // Voltage
         drive.updateVoltage(pdp.getVoltage());
@@ -136,34 +138,52 @@ public class Kobi extends Bot {
 
         feeder.limitSwitchTest();
 
-
-
-        // Shanti
-        if (xbox.getAButton()) {
+        if (xbox.getAButton())
+            feeder.slide(KobiFeeder.Direction.In);
+        else if(xbox.getXButton())
+            feeder.slide(KobiFeeder.Direction.Out);
+        else
+            feeder.slide(KobiFeeder.Direction.Stop);
+        if(xbox.getYButton())
             feeder.feed(KobiFeeder.Direction.In);
-        } else if (xbox.getXButton()) {
-            feeder.feed(KobiFeeder.Direction.Out);
-        } else {
+        else
             feeder.feed(KobiFeeder.Direction.Stop);
-        }
-
-        // Roller
-        if (xbox.getYButton()) {
+        if(xbox.getBButton())
             feeder.roll(KobiFeeder.Direction.In);
-        } else if (xbox.getBButton()) {
-            shooter.resetTurretPosition();
-            feeder.roll(KobiFeeder.Direction.Out);
-        } else {
-//            shooter.setTurretVelocity(xbox.getX(GenericHID.Hand.kLeft));
+        else
             feeder.roll(KobiFeeder.Direction.Stop);
-        }
+
+//        // Shanti
+//        if (xbox.getAButton()) {
+//            //feeder.feed(KobiFeeder.Direction.In);
+//            log(""+feeder.slide(KobiFeeder.Direction.In));
+//        } else if (xbox.getXButton()) {
+////            feeder.feed(KobiFeeder.Direction.Out);
+//            feeder.slide(KobiFeeder.Direction.Out);
+//
+//        } else {
+////            feeder.feed(KobiFeeder.Direction.Stop);
+//            feeder.slide(KobiFeeder.Direction.Stop);
+//        }
+//
+//        // Roller
+//        if (xbox.getYButton()) {
+//            feeder.roll(KobiFeeder.Direction.In);
+//        } else if (xbox.getBButton()) {
+//            shooter.resetTurretPosition();
+//            feeder.roll(KobiFeeder.Direction.Out);
+//        } else {
+////            shooter.setTurretVelocity(xbox.getX(GenericHID.Hand.kLeft));
+//            feeder.roll(KobiFeeder.Direction.Stop);
+//        }
 
         if (xbox.getStartButton()) {
-            drive.driveVector(0.2, 0);
+            drive.driveVector(1, 0);
         } else if (xbox.getBackButton()) {
             drive.driveManual(-xbox.getY(GenericHID.Hand.kRight), xbox.getX(GenericHID.Hand.kRight));
+            log("minimumVoltage: "+(-xbox.getY(GenericHID.Hand.kRight)));
         } else {
-            shooter.setShooterVelocity(value * 50);
+            shooter.setShooterVelocity(value * 16);
             drive.driveVector(0, 0);
         }
 //        shooter.setTurretVelocity(xbox.getX(GenericHID.Hand.kLeft));

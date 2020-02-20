@@ -20,6 +20,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
 
     private double gyroscopeOffset = 0;
+    private double deadband = 0.826; // =0.07*11.8 //11.8 current voltage, 0.07 minimum voltage (in order to move the robot)
 
     // Odometry
     private double x = 0;
@@ -50,8 +51,10 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         left = new MotorGroup<>("left");
         right = new MotorGroup<>("right");
 
-        motorControlLeftVelocity = new PID("pid_left_velocity", 0, 0.03, 0, 1);
-        motorControlRightVelocity = new PID("pid_right_velocity", 0, 0.03, 0, 1);
+//        motorControlLeftVelocity = new PID("pid_left_velocity", 0, 0.09, 0, 0.25);
+//        motorControlRightVelocity = new PID("pid_right_velocity", 0, 0.09, 0, 0.25);
+        motorControlLeftVelocity = new PID("pid_left_velocity", 0, 0.05, 0, 0.22);
+        motorControlRightVelocity = new PID("pid_right_velocity", 0, 0.05, 0, 0.22);
         motorControlLeftPosition = new PID("pid_left_position", 3, 0.1, 0.2, 0);
         motorControlRightPosition = new PID("pid_right_position", 3, 0.1, 0.2, 0);
 
@@ -145,6 +148,12 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public void driveVector(double velocity, double omega) {
         // Outputs
         double[] motorOutputs = calculateOutputs(Math.abs(velocity) < TOLERANCE ? 0 : velocity, Math.abs(omega) < TOLERANCE ? 0 : omega);
+        // voltage tolerance
+        if (Math.abs(motorOutputs[0]) < 0.07)
+            motorOutputs[0] = 0;
+        if (Math.abs(motorOutputs[1]) < 0.07)
+            motorOutputs[1] = 0;
+
         direct(motorOutputs[0], motorOutputs[1]);
         updateOdometry();
     }
@@ -159,13 +168,16 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         // Calculate
         double motorOutputLeft = motorControlLeftVelocity.PIDVelocity(left.getEncoder().getRaw() * ENCODER_TO_RADIAN, wheelSetPoints[0]);
         double motorOutputRight = motorControlRightVelocity.PIDVelocity(right.getEncoder().getRaw() * ENCODER_TO_RADIAN, wheelSetPoints[1]);
+        //Add friction voltage
+        motorOutputLeft += (deadband * (motorOutputLeft / Math.abs(motorOutputLeft)));
+        motorOutputRight += (deadband * (motorOutputRight / Math.abs(motorOutputRight)));
         // Divide
         motorOutputLeft /= currentVoltage;
         motorOutputRight /= currentVoltage;
 
-//        set("left velocity", toString().valueOf(motorControlLeftVelocity.getDerivative()));
-//        set("right velocity", toString().valueOf(motorControlRightVelocity.getDerivative()));
-//        log("leftVelocity: "+(motorControlLeftVelocity.getDerivative()*ENCODER_TO_METER)+" rightVelocity: "+(motorControlRightVelocity.getDerivative()*ENCODER_TO_METER));
+        set("lv", String.valueOf((motorControlLeftVelocity.getDerivative() * WHEEL_RADIUS)));
+        set("rv", String.valueOf((motorControlRightVelocity.getDerivative() * WHEEL_RADIUS)));
+        set("tv", String.valueOf((motorControlLeftVelocity.getDerivative() * WHEEL_RADIUS + motorControlRightVelocity.getDerivative() * WHEEL_RADIUS) / 2));
 
         // Return tuple
         return new double[]{motorOutputLeft, motorOutputRight};
