@@ -19,7 +19,7 @@ public class KobiFeeder extends frc.robot.base.Module {
     // Collector (Roller-Gripper)
     private WPI_TalonSRX roller;
 
-    public KobiFeeder() {
+    public KobiFeeder(Kobi kobi) {
         super("feeder");
 
         // Slider
@@ -37,34 +37,42 @@ public class KobiFeeder extends frc.robot.base.Module {
         command("feeder", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
-                Direction direction;
-                if (s.equals("in")) {
-                    direction = Direction.In;
-                } else if (s.equals("out")) {
-                    direction = Direction.Out;
+                if (kobi.isAutonomous()) {
+                    Direction direction;
+                    if (s.equals("in")) {
+                        direction = Direction.In;
+                    } else if (s.equals("out")) {
+                        direction = Direction.Out;
+                    } else {
+                        direction = Direction.Out;
+                    }
+                    feed(direction);
+                    return new Tuple<>(true, "Speed set");
                 } else {
-                    direction = Direction.Out;
+                    return new Tuple<>(false, "Not autonomous");
                 }
-                feed(direction);
-                return new Tuple<>(true, "Speed set");
             }
         });
 
         command("slide", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
-                Direction direction;
-                if (s.equals("in")) {
-                    direction = Direction.In;
-                } else if (s.equals("out")) {
-                    direction = Direction.Out;
+                if (kobi.isAutonomous()) {
+                    Direction direction;
+                    if (s.equals("in")) {
+                        direction = Direction.In;
+                    } else if (s.equals("out")) {
+                        direction = Direction.Out;
+                    } else {
+                        direction = Direction.Out;
+                    }
+                    if (slide(direction)) {
+                        return new Tuple<>(true, "Speed set");
+                    } else {
+                        return new Tuple<>(false, "Limit-switch error");
+                    }
                 } else {
-                    direction = Direction.Out;
-                }
-                if (slide(direction)) {
-                    return new Tuple<>(true, "Speed set");
-                } else {
-                    return new Tuple<>(false, "Limit-switch error");
+                    return new Tuple<>(false, "Not autonomous");
                 }
             }
         });
@@ -72,16 +80,20 @@ public class KobiFeeder extends frc.robot.base.Module {
         command("roll", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
-                Direction direction;
-                if (s.equals("in")) {
-                    direction = Direction.In;
-                } else if (s.equals("out")) {
-                    direction = Direction.Out;
+                if (kobi.isAutonomous()) {
+                    Direction direction;
+                    if (s.equals("in")) {
+                        direction = Direction.In;
+                    } else if (s.equals("out")) {
+                        direction = Direction.Out;
+                    } else {
+                        direction = Direction.Out;
+                    }
+                    roll(direction);
+                    return new Tuple<>(true, "Speed set");
                 } else {
-                    direction = Direction.Out;
+                    return new Tuple<>(false, "Not autonomous");
                 }
-                roll(direction);
-                return new Tuple<>(true, "Speed set");
             }
         });
     }
@@ -98,7 +110,7 @@ public class KobiFeeder extends frc.robot.base.Module {
         }
     }
 
-    public void test(double v){
+    public void test(double v) {
         feeder.set(v);
     }
 
@@ -114,7 +126,7 @@ public class KobiFeeder extends frc.robot.base.Module {
         }
     }
 
-    public void limitSwitchTest(){
+    public void limitSwitchTest() {
         set("min_sw", String.valueOf(closeSwitch.get()));
         set("max_sw", String.valueOf(openSwitch.get()));
     }
@@ -125,9 +137,9 @@ public class KobiFeeder extends frc.robot.base.Module {
             return true;
         } else {
             if (direction == Direction.In) {
-               // if (!closeSwitch.get()) { //microswitch isn't working
+                // if (!closeSwitch.get()) { //microswitch isn't working
                 // Todo m/s l/s
-                if(closeSwitch.get()){
+                if (closeSwitch.get()) {
                     slider.set(0);
                     return true;
                 } else {

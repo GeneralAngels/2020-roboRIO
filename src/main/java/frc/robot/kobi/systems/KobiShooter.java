@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.interfaces.Potentiometer;
+import frc.robot.base.Bot;
 import frc.robot.kobi.Kobi;
 
 public class KobiShooter extends frc.robot.base.Module {
@@ -19,8 +20,8 @@ public class KobiShooter extends frc.robot.base.Module {
     private static final double HOOD_MINIMUM_POTENTIOMETER = 0.30; // Verified by Nadav
     private static final double HOOD_POTENTIOMETER_DELTA = (HOOD_MAXIMUM_POTENTIOMETER - HOOD_MINIMUM_POTENTIOMETER);
 
-    private static final double HOOD_MAXIMUM_ANGLE = 64; // Verified by Libi (16/02/2020, Nadav)
-    private static final double HOOD_MINIMUM_ANGLE = 35; // Verified by Libi (16/02/2020, Nadav)
+    public static final double HOOD_MAXIMUM_ANGLE = 64; // Verified by Libi (16/02/2020, Nadav)
+    public static final double HOOD_MINIMUM_ANGLE = 35; // Verified by Libi (16/02/2020, Nadav)
     private static final double HOOD_ANGLE_DELTA = (HOOD_MAXIMUM_ANGLE - HOOD_MINIMUM_ANGLE);
     private static final double HOOD_COEFFICIENT = (HOOD_ANGLE_DELTA / HOOD_POTENTIOMETER_DELTA);
 
@@ -47,7 +48,7 @@ public class KobiShooter extends frc.robot.base.Module {
     private WPI_TalonSRX turret;
     private int turretOffsetPosition = 0;
 
-    public KobiShooter() {
+    public KobiShooter(Kobi kobi) {
         super("shooter");
 
         // Hood things
@@ -82,10 +83,14 @@ public class KobiShooter extends frc.robot.base.Module {
 
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
-                double speed = Double.parseDouble(s);
-                // Set position
-                setTurretVelocity(speed);
-                return new Tuple<>(true, "Moving");
+                if (kobi.isAutonomous()) {
+                    double speed = Double.parseDouble(s);
+                    // Set position
+                    setTurretVelocity(speed);
+                    return new Tuple<>(true, "Moving");
+                } else {
+                    return new Tuple<>(false, "Not autonomous");
+                }
             }
         });
 
@@ -95,32 +100,44 @@ public class KobiShooter extends frc.robot.base.Module {
 
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
-                double delta = Double.parseDouble(s);
-                if (reset) {
-                    resetTurretPosition();
-                    reset = false;
+                if (kobi.isAutonomous()) {
+                    double delta = Double.parseDouble(s);
+                    if (reset) {
+                        resetTurretPosition();
+                        reset = false;
+                    } else {
+                        reset = setTurretPosition(delta);
+                    }
+                    if (reset)
+                        setTurretVelocity(0);
+                    return new Tuple<>(reset, "Moving");
                 } else {
-                    reset = setTurretPosition(delta);
+                    return new Tuple<>(false, "Not autonomous");
                 }
-                if (reset)
-                    setTurretVelocity(0);
-                return new Tuple<>(reset, "Moving");
             }
         });
 
         command("hood", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
-                return new Tuple<>(setHoodPosition(Double.parseDouble(s)), "Moving");
+                if (kobi.isAutonomous()) {
+                    return new Tuple<>(setHoodPosition(Double.parseDouble(s)), "Moving");
+                } else {
+                    return new Tuple<>(false, "Not autonomous");
+                }
             }
         });
 
         command("shooter", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
-                double speed = Double.parseDouble(s); // m/s
-                setShooterVelocity(speed);
-                return new Tuple<>(true, "Speed set");
+                if (kobi.isAutonomous()) {
+                    double speed = Double.parseDouble(s); // m/s
+                    setShooterVelocity(speed);
+                    return new Tuple<>(true, "Speed set");
+                } else {
+                    return new Tuple<>(false, "Not autonomous");
+                }
             }
         });
     }

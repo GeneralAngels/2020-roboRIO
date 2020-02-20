@@ -6,15 +6,15 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import frc.robot.base.Bot;
 import frc.robot.base.control.path.PathManager;
 import frc.robot.base.rgb.RGB;
+import frc.robot.base.utils.Toggle;
 import frc.robot.base.utils.auto.Autonomous;
 import frc.robot.kobi.systems.KobiDrive;
 import frc.robot.kobi.systems.KobiFeeder;
 import frc.robot.kobi.systems.KobiShooter;
+import org.opencv.core.Mat;
 
 public class Kobi extends Bot {
 
@@ -49,8 +49,9 @@ public class Kobi extends Bot {
      */
 
     // Joystick
-    private Joystick driver;
-    private XboxController xbox;
+    private Joystick driverLeft;
+    private Joystick driverRight;
+    private XboxController operator;
 
     // Modules
     private KobiDrive drive;
@@ -61,8 +62,14 @@ public class Kobi extends Bot {
     private Autonomous autonomous;
     private PathManager manager;
 
+    // Auto trigger
+    private Toggle autoToggle;
+
+    // Robot mode
+    private boolean isAutonomous = false;
+
     // PDP
-    private static PowerDistributionPanel pdp;
+    private static PowerDistributionPanel pdp = new PowerDistributionPanel(0);
 
     public static void setupMotor(WPI_TalonSRX talon, FeedbackDevice feedbackDevice, double kP, double kI, double kD, double kF) {
         talon.setSelectedSensorPosition(0);
@@ -79,21 +86,18 @@ public class Kobi extends Bot {
     }
 
     public Kobi() {
-
         // Joystick
-        driver = new Joystick(1);
-        xbox = new XboxController(0);
-
-        // Init pdp
-        pdp = new PowerDistributionPanel(0);
+        driverLeft = new Joystick(0);
+        driverRight = new Joystick(2);
+        operator = new XboxController(2);
 
         // Modules
-        drive = new KobiDrive();
-        shooter = new KobiShooter();
-        feeder = new KobiFeeder();
-        manager = new PathManager(drive);
-        autonomous = new Autonomous(this);
         rgb = new RGB();
+        drive = new KobiDrive();
+        manager = new PathManager(drive);
+        shooter = new KobiShooter(this);
+        feeder = new KobiFeeder(this);
+        autonomous = new Autonomous(this);
         // Ah yes, enslaved modules
         enslave(autonomous);
         enslave(manager);
@@ -105,10 +109,14 @@ public class Kobi extends Bot {
         drive.updateOdometry();
         // RGB mode
         rgb.setMode(RGB.Mode.Fill);
-        // Create path
-        // manager.createTrajectory(new Pose2d(1, 1, Rotation2d.fromDegrees(45)));
 
-        // Create test-autonomous program
+        // Initialize autoToggle
+        autoToggle = new Toggle("auto", new Toggle.OnStateChanged() {
+            @Override
+            public void onStateChanged(boolean state) {
+                isAutonomous = !isAutonomous;
+            }
+        });
     }
 
     @Override
@@ -117,8 +125,7 @@ public class Kobi extends Bot {
         drive.updateVoltage(pdp.getVoltage());
 
         // Auto
-        //autonomous.loop();
-        manager.followTrajectory();
+        autonomous.loop();
     }
 
     @Override
@@ -128,69 +135,79 @@ public class Kobi extends Bot {
 
         // Voltage
         drive.updateVoltage(pdp.getVoltage());
+
         // Shit
-//        rgb.setColor(new Color(60, 20, (int) (40 * Math.abs(driver.getY()))));
-        double value = xbox.getY(GenericHID.Hand.kRight);
+        handleControllers();
 
-        if (Math.abs(value) < 0.05)
-            value = 0;
-
-
-        feeder.limitSwitchTest();
-
-        if (xbox.getAButton())
-            feeder.slide(KobiFeeder.Direction.In);
-        else if(xbox.getXButton())
-            feeder.slide(KobiFeeder.Direction.Out);
-        else
-            feeder.slide(KobiFeeder.Direction.Stop);
-        if(xbox.getYButton())
-            feeder.feed(KobiFeeder.Direction.In);
-        else
-            feeder.feed(KobiFeeder.Direction.Stop);
-        if(xbox.getBButton())
-            feeder.roll(KobiFeeder.Direction.In);
-        else
-            feeder.roll(KobiFeeder.Direction.Stop);
-
-//        // Shanti
-//        if (xbox.getAButton()) {
-//            //feeder.feed(KobiFeeder.Direction.In);
-//            log(""+feeder.slide(KobiFeeder.Direction.In));
-//        } else if (xbox.getXButton()) {
-////            feeder.feed(KobiFeeder.Direction.Out);
-//            feeder.slide(KobiFeeder.Direction.Out);
-//
-//        } else {
-////            feeder.feed(KobiFeeder.Direction.Stop);
-//            feeder.slide(KobiFeeder.Direction.Stop);
-//        }
-//
-//        // Roller
-//        if (xbox.getYButton()) {
-//            feeder.roll(KobiFeeder.Direction.In);
-//        } else if (xbox.getBButton()) {
-//            shooter.resetTurretPosition();
-//            feeder.roll(KobiFeeder.Direction.Out);
-//        } else {
-////            shooter.setTurretVelocity(xbox.getX(GenericHID.Hand.kLeft));
-//            feeder.roll(KobiFeeder.Direction.Stop);
-//        }
-
-        if (xbox.getStartButton()) {
-            drive.driveVector(1, 0);
-        } else if (xbox.getBackButton()) {
-            drive.driveManual(-xbox.getY(GenericHID.Hand.kRight), xbox.getX(GenericHID.Hand.kRight));
-            log("minimumVoltage: "+(-xbox.getY(GenericHID.Hand.kRight)));
-        } else {
-            shooter.setShooterVelocity(value * 16);
-            drive.driveVector(0, 0);
-        }
-//        shooter.setTurretVelocity(xbox.getX(GenericHID.Hand.kLeft));
-//        feeder.slide(fromJoystick(value2));
-
+        // Update shooter positions
         shooter.updatePositions();
     }
+
+    private void handleControllers() {
+        // Handle operator
+        autoToggle.update(operator.getXButton());
+        // Make sure robot is not in auto
+        if (!isAutonomous) {
+            // Move slider & feeder
+            if (operator.getPOV() != -1) {
+                // Block other roller input
+                if (operator.getPOV() == 90 || operator.getPOV() == 270) {
+                    // Roll in
+                    feeder.roll(KobiFeeder.Direction.In);
+                    // Check slider direction
+                    if (operator.getPOV() == 90) {
+                        feeder.slide(KobiFeeder.Direction.In);
+                    } else if (operator.getPOV() == 270) {
+                        feeder.slide(KobiFeeder.Direction.Out);
+                    }
+                } else {
+                    // Stop feeder
+                    feeder.slide(KobiFeeder.Direction.Stop);
+                }
+            } else {
+                // Allow roller input
+                if (operator.getBumper(GenericHID.Hand.kRight)) {
+                    // Roll in
+                    feeder.roll(KobiFeeder.Direction.In);
+                } else if (operator.getBumper(GenericHID.Hand.kLeft)) {
+                    // Roll out
+                    feeder.roll(KobiFeeder.Direction.Out);
+                } else {
+                    // Roll stop
+                    feeder.roll(KobiFeeder.Direction.Stop);
+                }
+                // Stop feeder
+                feeder.slide(KobiFeeder.Direction.Stop);
+            }
+            // Feeder & shooter
+            double shoot = deadband(operator.getY(GenericHID.Hand.kRight));
+            // Set velocity
+            shooter.setShooterVelocity(30 * shoot);
+            // Set feeder
+            double feed = operator.getTriggerAxis(GenericHID.Hand.kLeft) - operator.getTriggerAxis(GenericHID.Hand.kRight);
+            feeder.feed(fromJoystick(feed)); // In when shooter is out
+            // Turret
+            double left = -deadband(operator.getX(GenericHID.Hand.kLeft));
+            // Set turret speed
+            shooter.setTurretVelocity(left / 5);
+            // Hood position
+            if (operator.getAButton()) {
+                shooter.setHoodPosition(KobiShooter.HOOD_MINIMUM_ANGLE);
+            } else if (operator.getBButton()) {
+                shooter.setHoodPosition(45);
+            } else {
+                shooter.setHoodPosition(KobiShooter.HOOD_MAXIMUM_ANGLE);
+            }
+        }
+        // Read joysticks
+        double[] wheelsToRobot = drive.wheelsToRobot(-driverLeft.getY(), -driverRight.getY());
+        drive.driveVector(wheelsToRobot[0], wheelsToRobot[1]);
+    }
+
+    public boolean isAutonomous() {
+        return isAutonomous;
+    }
+
     private KobiFeeder.Direction fromJoystick(double value) {
         if (Math.abs(value) < 0.05)
             return KobiFeeder.Direction.Stop;
@@ -198,5 +215,12 @@ public class Kobi extends Bot {
             return KobiFeeder.Direction.In;
         else
             return KobiFeeder.Direction.Out;
+    }
+
+    private double deadband(double value) {
+        if (Math.abs(value) < 0.05) {
+            return 0;
+        }
+        return value;
     }
 }
