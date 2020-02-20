@@ -9,6 +9,8 @@ import frc.robot.kobi.Kobi;
 
 public class KobiFeeder extends frc.robot.base.Module {
 
+    private static final boolean USE_MICROSWITCHES = false;
+
     // Slider
     private WPI_TalonSRX slider;
     private DigitalInput openSwitch, closeSwitch;
@@ -139,7 +141,7 @@ public class KobiFeeder extends frc.robot.base.Module {
             if (direction == Direction.In) {
                 // if (!closeSwitch.get()) { //microswitch isn't working
                 // Todo m/s l/s
-                if (closeSwitch.get()) {
+                if (closeSwitch.get() && USE_MICROSWITCHES) {
                     slider.set(0);
                     return true;
                 } else {
@@ -147,7 +149,7 @@ public class KobiFeeder extends frc.robot.base.Module {
                     return false;
                 }
             } else {
-                if (openSwitch.get()) {
+                if (openSwitch.get() && USE_MICROSWITCHES) {
                     slider.set(0);
                     return true;
                 } else {

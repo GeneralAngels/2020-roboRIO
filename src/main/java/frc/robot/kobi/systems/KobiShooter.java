@@ -35,7 +35,7 @@ public class KobiShooter extends frc.robot.base.Module {
     // Shooter things
     private static final double SHOOTER_ENCODER_TICKS = 2048;
     private static final double SHOOTER_WHEEL_RADIUS = 0.0762;
-    private static final double SHOOTER_VELOCITY_THRESHOLD = 1;
+    private static final double SHOOTER_VELOCITY_THRESHOLD = 2;
 
     private WPI_TalonSRX shooter1;
     private WPI_TalonSRX shooter2;
@@ -169,7 +169,7 @@ public class KobiShooter extends frc.robot.base.Module {
         // Set is Tick/100ms
         shooter1.set(ControlMode.Velocity, input);
 //        log("A: " + shooter1.getMotorOutputPercent() + " B: " + shooter2.getMotorOutputPercent() + " C: " + shooter3.getMotorOutputPercent());
-        double currentVelocity = shooter1.getSelectedSensorVelocity() * ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS));
+        double currentVelocity = shooter1.getSelectedSensorVelocity() / ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS));
         // Check threshold
         return Math.abs(targetVelocity - currentVelocity) < SHOOTER_VELOCITY_THRESHOLD;
     }
