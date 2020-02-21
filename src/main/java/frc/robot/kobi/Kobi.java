@@ -16,6 +16,8 @@ import frc.robot.kobi.systems.KobiFeeder;
 import frc.robot.kobi.systems.KobiShooter;
 import org.opencv.core.Mat;
 
+import java.awt.*;
+
 public class Kobi extends Bot {
 
     /**
@@ -29,7 +31,7 @@ public class Kobi extends Bot {
      * PWM:
      * 0, 1 - Left Victors
      * 2, 3 - Right Victors
-     * 6 - Hood Servo
+     * 4 - Hood Servo
      * <p>
      * AIO:
      * 0 - Hood Potentiometer
@@ -124,6 +126,9 @@ public class Kobi extends Bot {
         // Voltage
         drive.updateVoltage(pdp.getVoltage());
 
+        // Time
+        set("time", String.valueOf(millis()));
+
         // Auto
         autonomous.loop();
     }
@@ -136,8 +141,13 @@ public class Kobi extends Bot {
         // Voltage
         drive.updateVoltage(pdp.getVoltage());
 
+        feeder.limitSwitchTest();
+
         // Shit
-        handleControllers();
+//         handleControllers();
+
+//        shooter.setShooterVelocity(30 * -deadband(operator.getY(GenericHID.Hand.kLeft)));
+        drive.driveManual(-operator.getY(GenericHID.Hand.kRight)/2, operator.getX(GenericHID.Hand.kRight)/2);
 
         // Update shooter positions
         shooter.updatePositions();
@@ -182,7 +192,7 @@ public class Kobi extends Bot {
             }
 
             // Feeder & shooter
-            double shoot = deadband(operator.getY(GenericHID.Hand.kRight));
+            double shoot = deadband(-operator.getY(GenericHID.Hand.kRight));
             // Set velocity
             boolean doneAccelerating = shooter.setShooterVelocity(30 * shoot);
             // Set feeder
@@ -194,11 +204,13 @@ public class Kobi extends Bot {
                     feeder.feed(fromJoystick(operator.getTriggerAxis(GenericHID.Hand.kLeft) - operator.getTriggerAxis(GenericHID.Hand.kRight))); // Feed from triggers
                 }
             } else {
+                // Feeder
+                feeder.feed(fromJoystick(operator.getTriggerAxis(GenericHID.Hand.kLeft) - operator.getTriggerAxis(GenericHID.Hand.kRight))); // Feed from triggers
                 // If wheel is at speed, start shooting, else - use triggers
                 if (doneAccelerating && Math.abs(deadband(shoot)) > 0) {
-                    feeder.feed(KobiFeeder.Direction.In);
+                    rgb.setColor(Color.GREEN);
                 } else {
-                    feeder.feed(fromJoystick(operator.getTriggerAxis(GenericHID.Hand.kLeft) - operator.getTriggerAxis(GenericHID.Hand.kRight))); // Feed from triggers
+                    rgb.setColor(Color.RED);
                 }
             }
 
@@ -215,12 +227,14 @@ public class Kobi extends Bot {
             shooter.setTurretVelocity(-left / 5);
 
             // Hood position
-            if (operator.getAButton()) {
-                shooter.setHoodPosition(KobiShooter.HOOD_MINIMUM_ANGLE);
-            } else if (operator.getBButton()) {
-                shooter.setHoodPosition(45);
-            } else {
-                shooter.setHoodPosition(KobiShooter.HOOD_MAXIMUM_ANGLE);
+            if (false) {
+                if (operator.getAButton()) {
+                    shooter.setHoodPosition(KobiShooter.HOOD_SAFE_MINIMUM_ANGLE);
+                } else if (operator.getBButton()) {
+                    shooter.setHoodPosition(45);
+                } else {
+                    shooter.setHoodPosition(KobiShooter.HOOD_SAFE_MAXIMUM_ANGLE);
+                }
             }
         }
         // Read joysticks

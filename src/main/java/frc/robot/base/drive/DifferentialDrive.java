@@ -87,7 +87,12 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
     public Odometry updateOdometry() {
 
-        odometry.setTheta(theta = Gyroscope.getAngle());
+        theta = Gyroscope.getAngle();
+        if(theta > 180)
+            theta -= 360;
+        if(theta < -180)
+            theta += 360;
+        odometry.setTheta(theta);
         odometry.setOmega(omega = Gyroscope.getAngularVelocity());
 
         if (left.hasEncoder() && right.hasEncoder()) {
@@ -174,11 +179,6 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         // Divide
         motorOutputLeft /= currentVoltage;
         motorOutputRight /= currentVoltage;
-
-        set("lv", String.valueOf((motorControlLeftVelocity.getDerivative() * WHEEL_RADIUS)));
-        set("rv", String.valueOf((motorControlRightVelocity.getDerivative() * WHEEL_RADIUS)));
-        set("tv", String.valueOf((motorControlLeftVelocity.getDerivative() * WHEEL_RADIUS + motorControlRightVelocity.getDerivative() * WHEEL_RADIUS) / 2));
-
         // Return tuple
         return new double[]{motorOutputLeft, motorOutputRight};
     }

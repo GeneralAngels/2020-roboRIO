@@ -2,19 +2,21 @@ package frc.robot.kobi.systems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.interfaces.Potentiometer;
 import frc.robot.base.Bot;
 import frc.robot.kobi.Kobi;
+import org.opencv.core.Mat;
 
 public class KobiShooter extends frc.robot.base.Module {
 
     private static final double TALON_RATE = 100.0 / 1000.0; // 100ms/1s
 
     // Hood constants & things
-    private static final double HOOD_THRESHOLD_DEGREES = 1;
+    private static final double HOOD_THRESHOLD_DEGREES = 3;
 
     private static final double HOOD_MAXIMUM_POTENTIOMETER = 0.40; // Verified by Nadav
     private static final double HOOD_MINIMUM_POTENTIOMETER = 0.30; // Verified by Nadav
@@ -22,6 +24,9 @@ public class KobiShooter extends frc.robot.base.Module {
 
     public static final double HOOD_MAXIMUM_ANGLE = 64; // Verified by Libi (16/02/2020, Nadav)
     public static final double HOOD_MINIMUM_ANGLE = 35; // Verified by Libi (16/02/2020, Nadav)
+    public static final double HOOD_SAFE_MAXIMUM_ANGLE = HOOD_MAXIMUM_ANGLE - 1; // Verified by Libi (16/02/2020, Nadav)
+    public static final double HOOD_SAFE_MINIMUM_ANGLE = HOOD_MINIMUM_ANGLE + 1; // Verified by Libi (16/02/2020, Nadav)
+
     private static final double HOOD_ANGLE_DELTA = (HOOD_MAXIMUM_ANGLE - HOOD_MINIMUM_ANGLE);
     private static final double HOOD_COEFFICIENT = (HOOD_ANGLE_DELTA / HOOD_POTENTIOMETER_DELTA);
 
@@ -54,7 +59,7 @@ public class KobiShooter extends frc.robot.base.Module {
 
         // Hood things
         potentiometer = new AnalogPotentiometer(0);
-        hood = new Servo(6);
+        hood = new Servo(4);
 
         // Turret things
         turret = new WPI_TalonSRX(19);
@@ -70,9 +75,13 @@ public class KobiShooter extends frc.robot.base.Module {
         Kobi.setupMotor(shooter1, FeedbackDevice.CTRE_MagEncoder_Relative, 0.7, 0.0001, 1, 0.07); // OMG magic
         shooter1.setSensorPhase(false); // Flip encoder polarity (+/-)
 
-        shooter1.setInverted(true);
-        shooter2.setInverted(false);
-        shooter3.setInverted(true);
+        shooter1.setNeutralMode(NeutralMode.Coast);
+        shooter2.setNeutralMode(NeutralMode.Coast);
+        shooter3.setNeutralMode(NeutralMode.Coast);
+
+        shooter1.setInverted(false);
+        shooter2.setInverted(true);
+        shooter3.setInverted(false);
 
         // Setup followers
         shooter2.follow(shooter1);
@@ -150,12 +159,13 @@ public class KobiShooter extends frc.robot.base.Module {
     }
 
     public boolean setHoodPosition(double angle) {
-        if (angle >= HOOD_MINIMUM_ANGLE && angle <= HOOD_MAXIMUM_ANGLE) {
+        if (angle >= HOOD_SAFE_MINIMUM_ANGLE && angle <= HOOD_SAFE_MAXIMUM_ANGLE) {
             double measurement = potentiometer.get();
             double currentAngle = calculateAngle(measurement);
+            double error = deadband(angle - currentAngle, HOOD_THRESHOLD_DEGREES);
             double speed = 0;
-            if (!(Math.abs(angle - currentAngle) < HOOD_THRESHOLD_DEGREES)) {
-                speed = angle - currentAngle < 0 ? 1 : -1;
+            if (error != 0) {
+                speed = error < 0 ? 1 : -1;
             }
             hood.set((speed + 1) / 2);
             return speed == 0;
@@ -164,14 +174,19 @@ public class KobiShooter extends frc.robot.base.Module {
     }
 
     public boolean setShooterVelocity(double targetVelocity) {
-        // Velocity is M/S
-        double input = targetVelocity * ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS));
-        // Set is Tick/100ms
-        shooter1.set(ControlMode.Velocity, input);
+        if (targetVelocity != 0) {
+            // Velocity is M/S
+            double input = targetVelocity * ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS));
+            // Set is Tick/100ms
+            shooter1.set(ControlMode.Velocity, input);
 //        log("A: " + shooter1.getMotorOutputPercent() + " B: " + shooter2.getMotorOutputPercent() + " C: " + shooter3.getMotorOutputPercent());
-        double currentVelocity = shooter1.getSelectedSensorVelocity() / ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS));
-        // Check threshold
-        return Math.abs(targetVelocity - currentVelocity) < SHOOTER_VELOCITY_THRESHOLD;
+            double currentVelocity = shooter1.getSelectedSensorVelocity() / ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS));
+            // Check threshold
+            return Math.abs(targetVelocity - currentVelocity) < SHOOTER_VELOCITY_THRESHOLD;
+        } else {
+            shooter1.set(ControlMode.PercentOutput, 0);
+            return true;
+        }
     }
 
     public void resetTurretPosition() {
@@ -211,5 +226,11 @@ public class KobiShooter extends frc.robot.base.Module {
         double position = potentiometer.get();
         set("hood", String.valueOf(position));
         return position;
+    }
+
+    private double deadband(double value, double threshold) {
+        if (Math.abs(value) < threshold)
+            return 0;
+        return value;
     }
 }
