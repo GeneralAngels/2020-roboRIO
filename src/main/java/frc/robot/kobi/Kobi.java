@@ -97,8 +97,8 @@ public class Kobi extends Bot {
         rgb = new RGB();
         drive = new KobiDrive();
         manager = new PathManager(drive);
-        shooter = new KobiShooter(this);
-        feeder = new KobiFeeder(this);
+        feeder = new KobiFeeder();
+        shooter = new KobiShooter();
         autonomous = new Autonomous(this);
         // Ah yes, enslaved modules
         enslave(autonomous);
@@ -144,10 +144,10 @@ public class Kobi extends Bot {
         feeder.limitSwitchTest();
 
         // Shit
-//         handleControllers();
+        handleControllers();
 
 //        shooter.setShooterVelocity(30 * -deadband(operator.getY(GenericHID.Hand.kLeft)));
-        drive.driveManual(-operator.getY(GenericHID.Hand.kRight)/2, operator.getX(GenericHID.Hand.kRight)/2);
+//        drive.driveManual(-operator.getY(GenericHID.Hand.kRight)/2, operator.getX(GenericHID.Hand.kRight)/2);
 
         // Update shooter positions
         shooter.updatePositions();
@@ -158,62 +158,16 @@ public class Kobi extends Bot {
         autoToggle.update(operator.getXButton());
         // Make sure robot is not in auto
         if (!isAutonomous) {
-
-            // Move slider & feeder
-            if (operator.getPOV() != -1) {
-                // Block other roller input
-                if (operator.getPOV() == 0 || operator.getPOV() == 180) {
-                    // Roll in
-                    feeder.roll(KobiFeeder.Direction.In);
-                    // Check slider direction
-                    if (operator.getPOV() == 0) {
-                        feeder.slide(KobiFeeder.Direction.Out);
-                    } else if (operator.getPOV() == 180) {
-                        feeder.slide(KobiFeeder.Direction.In);
-                    }
-                } else {
-                    // Stop feeder
-                    feeder.slide(KobiFeeder.Direction.Stop);
-                }
-            } else {
-                // Allow roller input
-                if (operator.getBumper(GenericHID.Hand.kRight)) {
-                    // Roll in
-                    feeder.roll(KobiFeeder.Direction.In);
-                } else if (operator.getBumper(GenericHID.Hand.kLeft)) {
-                    // Roll out
-                    feeder.roll(KobiFeeder.Direction.Out);
-                } else {
-                    // Roll stop
-                    feeder.roll(KobiFeeder.Direction.Stop);
-                }
-                // Stop feeder
-                feeder.slide(KobiFeeder.Direction.Stop);
-            }
-
             // Feeder & shooter
             double shoot = deadband(-operator.getY(GenericHID.Hand.kRight));
             // Set velocity
             boolean doneAccelerating = shooter.setShooterVelocity(30 * shoot);
-            // Set feeder
-            // Old
-            if (false) {
-                if (operator.getStickButton(GenericHID.Hand.kRight)) {
-                    feeder.feed(fromJoystick(-shoot)); // Feed when joystick button is pressed
-                } else {
-                    feeder.feed(fromJoystick(operator.getTriggerAxis(GenericHID.Hand.kLeft) - operator.getTriggerAxis(GenericHID.Hand.kRight))); // Feed from triggers
-                }
+            // If wheel is at speed, start shooting, else - use triggers
+            if (doneAccelerating && Math.abs(deadband(shoot)) > 0) {
+                rgb.setColor(Color.GREEN);
             } else {
-                // Feeder
-                feeder.feed(fromJoystick(operator.getTriggerAxis(GenericHID.Hand.kLeft) - operator.getTriggerAxis(GenericHID.Hand.kRight))); // Feed from triggers
-                // If wheel is at speed, start shooting, else - use triggers
-                if (doneAccelerating && Math.abs(deadband(shoot)) > 0) {
-                    rgb.setColor(Color.GREEN);
-                } else {
-                    rgb.setColor(Color.RED);
-                }
+                rgb.setColor(Color.RED);
             }
-
             // Turret
             double left = 0; // Turret signal
             // Read buttons
@@ -227,7 +181,7 @@ public class Kobi extends Bot {
             shooter.setTurretVelocity(-left / 5);
 
             // Hood position
-            if (false) {
+            if (true) {
                 if (operator.getAButton()) {
                     shooter.setHoodPosition(KobiShooter.HOOD_SAFE_MINIMUM_ANGLE);
                 } else if (operator.getBButton()) {
@@ -237,6 +191,39 @@ public class Kobi extends Bot {
                 }
             }
         }
+        // Move slider & feeder
+        if (operator.getPOV() != -1) {
+            // Block other roller input
+            if (operator.getPOV() == 0 || operator.getPOV() == 180) {
+                // Roll in
+                feeder.roll(KobiFeeder.Direction.In);
+                // Check slider direction
+                if (operator.getPOV() == 0) {
+                    feeder.slide(KobiFeeder.Direction.Out);
+                } else if (operator.getPOV() == 180) {
+                    feeder.slide(KobiFeeder.Direction.In);
+                }
+            } else {
+                // Stop feeder
+                feeder.slide(KobiFeeder.Direction.Stop);
+            }
+        } else {
+            // Allow roller input
+            if (operator.getBumper(GenericHID.Hand.kRight)) {
+                // Roll in
+                feeder.roll(KobiFeeder.Direction.In);
+            } else if (operator.getBumper(GenericHID.Hand.kLeft)) {
+                // Roll out
+                feeder.roll(KobiFeeder.Direction.Out);
+            } else {
+                // Roll stop
+                feeder.roll(KobiFeeder.Direction.Stop);
+            }
+            // Stop feeder
+            feeder.slide(KobiFeeder.Direction.Stop);
+        }
+        // Feeder
+        feeder.feed(fromJoystick(operator.getTriggerAxis(GenericHID.Hand.kLeft) - operator.getTriggerAxis(GenericHID.Hand.kRight))); // Feed from triggers
         // Read joysticks
         // Convert to V/o for PID
 //        double[] wheelsToRobot = drive.wheelsToRobot(-driverLeft.getY(), -driverRight.getY());
