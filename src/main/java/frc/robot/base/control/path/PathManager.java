@@ -20,6 +20,7 @@ public class PathManager extends frc.robot.base.Module {
 
     private static final double DISTANCE_TOLERANCE = 0.05;
     private static final double RADIAN_TOLERANCE = 3 * Math.PI / 180;
+    private static final double DEGREE_TOLERANCE = 5;
 
     private static final int FUTURE_CURVATURE_STATES = 2; // How many states to skip when looking for future curvatures (for linear acceleration)
 
@@ -127,10 +128,10 @@ public class PathManager extends frc.robot.base.Module {
         // Calculate curvature
         double trajectoryCurvature = curvature(end, start);
         // Calculate the maximum acceleration and velocity
-        maxVelocity = Math.min(2.5 / Math.abs(trajectoryCurvature), maxVelocity);
-        maxAcceleration = Math.min(2 / Math.abs(trajectoryCurvature), maxAcceleration);
+        maxVelocity = Math.min(2 / Math.abs(trajectoryCurvature), maxVelocity);
+        maxAcceleration = Math.min(1.5 / Math.abs(trajectoryCurvature), maxAcceleration);
         // Reset some more things
-        kTheta = 2.2 * maxVelocity;
+        kTheta = 1.5 * maxVelocity;
         kCurvature = 0.8 * maxVelocity;
         // Generate trajectory
         trajectory = TrajectoryGenerator.generateTrajectory(start, new ArrayList<>(), end, config);
@@ -157,8 +158,16 @@ public class PathManager extends frc.robot.base.Module {
             double[] errors = calculateErrors();
             // Is last point yet?
             boolean isLast = !(index < trajectory.getStates().size() - 1);
+            // Calculate kTheta
+            kTheta = Math.abs(kTheta);
             // Make sure we are not done yet
             if (!isLast) {
+//                double deltaTheta = current.poseMeters.getRotation().getDegrees() - theta;
+//                if ((deltaTheta > 0) == (kTheta > 0) && Math.abs(deltaTheta) > DEGREE_TOLERANCE) {
+//                    kTheta *= -1;
+//                    set("ktheta", String.valueOf(kTheta));
+//                }
+//                set("dtheta", String.valueOf(deltaTheta));
                 // Calculate average curvature
                 double acceleration = maxAcceleration - (movingAverageCurvature() / 2.0); // 2.0 is an arbitrary value
                 // Sets
@@ -191,7 +200,7 @@ public class PathManager extends frc.robot.base.Module {
                         currentDesiredVelocity = 0;
                     }
                     if (Math.abs(lastErrors[2]) > RADIAN_TOLERANCE) {
-                        currentDesiredOmega *= 8;
+                        currentDesiredOmega *= 6;
                     } else {
                         currentDesiredOmega = 0;
                     }
@@ -214,8 +223,8 @@ public class PathManager extends frc.robot.base.Module {
         // Theta calculation
         double errorTheta = (curvature(getPose(), trajectory.getStates().get(index).poseMeters) - Math.toRadians(theta)) % (2 * Math.PI);
         // Error calculation
-        double currentDistanceError = Math.abs(distance(getPose(), trajectory.getStates().get(index).poseMeters));
-        double previousDistanceError = Math.abs(distance(getPose(), trajectory.getStates().get(index - 1).poseMeters));
+        double currentDistanceError = absoluteDistance(getPose(), trajectory.getStates().get(index).poseMeters);
+        double previousDistanceError = absoluteDistance(getPose(), trajectory.getStates().get(index - 1).poseMeters);
         // Return tuple
         return new double[]{currentDistanceError, previousDistanceError, errorTheta};
     }
@@ -226,8 +235,8 @@ public class PathManager extends frc.robot.base.Module {
         // Get deltas
         double[] deltas = deltas(getPose(), lastPose);
         // Calculate errors
-        double relativeErrorPosition = distance(getPose(), lastPose);
-        double absoluteErrorPosition = Math.sqrt(Math.pow(deltas[0], 2) + Math.pow(deltas[1], 2));
+        double relativeErrorPosition = relativeDistance(getPose(), lastPose);
+        double absoluteErrorPosition = absoluteDistance(getPose(), lastPose);
         // Calculate angle error
         double errorTheta = Math.toRadians(trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters.getRotation().getDegrees() - theta);
         // Return tuple
@@ -253,7 +262,14 @@ public class PathManager extends frc.robot.base.Module {
         return Math.atan2(deltas[1], deltas[0]);
     }
 
-    private double distance(Pose2d first, Pose2d last) {
+    private double absoluteDistance(Pose2d first, Pose2d last) {
+        // Assign values
+        double[] errors = deltas(first, last);
+        // Calculate and return
+        return Math.sqrt(errors[0] * errors[0] + errors[1] * errors[1]);
+    }
+
+    private double relativeDistance(Pose2d first, Pose2d last) {
         // Assign values
         double[] errors = deltas(first, last);
         // Radian degrees of first (instead of theta)
@@ -264,7 +280,7 @@ public class PathManager extends frc.robot.base.Module {
 
     private void calculateVelocityCoefficient() {
         // Calculate errors
-        double errorDistance = distance(getPose(), trajectory.getStates().get(index).poseMeters);
+        double errorDistance = relativeDistance(getPose(), trajectory.getStates().get(index).poseMeters);
         kVelocity = Math.abs(kVelocity);
         if (errorDistance < 0) {
             kVelocity *= -1;

@@ -115,14 +115,15 @@ public class KobiShooter extends frc.robot.base.Module {
                 }
                 if (reset)
                     setTurretVelocity(0);
-                return new Tuple<>(reset, "Moving");
+                return new Tuple<>(reset, reset ? "Done" : "Moving");
             }
         });
 
         command("hood", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
-                return new Tuple<>(setHoodPosition(Double.parseDouble(s)), "Moving");
+                boolean done = setHoodPosition(Double.parseDouble(s));
+                return new Tuple<>(done, done ? "Done" : "Moving");
             }
         });
 
@@ -130,8 +131,8 @@ public class KobiShooter extends frc.robot.base.Module {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
                 double speed = Double.parseDouble(s); // m/s
-                setShooterVelocity(speed);
-                return new Tuple<>(true, "Speed set");
+                boolean done = setShooterVelocity(speed);
+                return new Tuple<>(done, done ? "Done" : "Moving");
             }
         });
     }
@@ -167,6 +168,7 @@ public class KobiShooter extends frc.robot.base.Module {
             double currentVelocity = shooter1.getSelectedSensorVelocity() / ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS));
             // Check threshold
             return Math.abs(targetVelocity - currentVelocity) < SHOOTER_VELOCITY_THRESHOLD;
+
         } else {
             shooter1.set(ControlMode.PercentOutput, 0);
             return true;

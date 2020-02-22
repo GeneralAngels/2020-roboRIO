@@ -85,13 +85,19 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         log("left: " + left.getEncoder().getRaw() + "right: " + right.getEncoder().getRaw());
     }
 
-    public Odometry updateOdometry() {
+    private double compassify(double angle){
+        angle %= 360;
+        if (Math.abs(angle) > 180) {
+            angle += (angle > 0) ? -360 : 360;
+        }
+        return angle;
+    }
 
-        theta = Gyroscope.getAngle();
-        if(theta > 180)
-            theta -= 360;
-        if(theta < -180)
-            theta += 360;
+    public Odometry updateOdometry() {
+        theta = Gyroscope.getAngle(); // Counted theta
+        // 360ify
+        theta = compassify(theta);
+        // Set theta
         odometry.setTheta(theta);
         odometry.setOmega(omega = Gyroscope.getAngularVelocity());
 

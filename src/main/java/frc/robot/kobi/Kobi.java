@@ -144,10 +144,10 @@ public class Kobi extends Bot {
         feeder.limitSwitchTest();
 
         // Shit
-        handleControllers();
+//        handleControllers();
 
 //        shooter.setShooterVelocity(30 * -deadband(operator.getY(GenericHID.Hand.kLeft)));
-//        drive.driveManual(-operator.getY(GenericHID.Hand.kRight)/2, operator.getX(GenericHID.Hand.kRight)/2);
+        drive.driveManual(-operator.getY(GenericHID.Hand.kLeft)/2, operator.getX(GenericHID.Hand.kLeft)/2);
 
         // Update shooter positions
         shooter.updatePositions();
@@ -229,7 +229,7 @@ public class Kobi extends Bot {
 //        double[] wheelsToRobot = drive.wheelsToRobot(-driverLeft.getY(), -driverRight.getY());
         // Send to drive
 //        drive.driveVector(wheelsToRobot[0], wheelsToRobot[1]);
-        drive.direct(-driverLeft.getY(), -driverRight.getY());
+//        drive.direct(-driverLeft.getY(), -driverRight.getY());
     }
 
     public boolean isAutonomous() {
