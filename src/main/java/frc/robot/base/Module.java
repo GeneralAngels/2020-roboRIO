@@ -5,14 +5,15 @@
 
 package frc.robot.base;
 
-import com.ga2230.networking.Node;
 import edu.wpi.first.wpilibj.Timer;
-import org.json.JSONArray;
+import frc.robot.base.communication.Node;
 import org.json.JSONObject;
 
 public class Module extends Node {
 
     private static final String WHITESPACE = "\t";
+
+    protected boolean execute = true;
 
     public Module(String id) {
         super(id);
@@ -80,4 +81,18 @@ public class Module extends Node {
         return (long) (Timer.getFPGATimestamp() * 1000);
     }
 
+    public void setExecute(boolean execute) {
+        this.execute = execute;
+    }
+
+    public boolean getExecute() {
+        return execute;
+    }
+
+    @Override
+    public Tuple<Boolean, String> execute(String command, String parameter) throws Exception {
+        if (execute)
+            return super.execute(command, parameter);
+        return null;
+    }
 }

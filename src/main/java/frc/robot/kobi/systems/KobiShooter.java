@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.interfaces.Potentiometer;
 import frc.robot.base.Bot;
 import frc.robot.kobi.Kobi;
-import org.opencv.core.Mat;
 
 public class KobiShooter extends frc.robot.base.Module {
 
@@ -79,7 +78,7 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter2.setNeutralMode(NeutralMode.Coast);
         shooter3.setNeutralMode(NeutralMode.Coast);
 
-        shooter1.setInverted(false);
+        shooter1.setInverted(true);
         shooter2.setInverted(true);
         shooter3.setInverted(false);
 

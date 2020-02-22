@@ -64,14 +64,10 @@ public class Kobi extends Bot {
     private Autonomous autonomous;
     private PathManager manager;
 
-    // Auto trigger
-    private Toggle autoToggle;
-
-    // Robot mode
-    private boolean isAutonomous = false;
-
     // PDP
     private static PowerDistributionPanel pdp = new PowerDistributionPanel(0);
+
+    private double hoodSetpoint, shooterSetpoint, turretSetpoint;
 
     public static void setupMotor(WPI_TalonSRX talon, FeedbackDevice feedbackDevice, double kP, double kI, double kD, double kF) {
         talon.setSelectedSensorPosition(0);
@@ -112,11 +108,14 @@ public class Kobi extends Bot {
         // RGB mode
         rgb.setMode(RGB.Mode.Fill);
 
-        // Initialize autoToggle
-        autoToggle = new Toggle("auto", new Toggle.OnStateChanged() {
+        command("setpoints", new Command() {
             @Override
-            public void onStateChanged(boolean state) {
-                isAutonomous = !isAutonomous;
+            public Tuple<Boolean, String> execute(String s) throws Exception {
+                String[] parameters = s.split(" ");
+                shooterSetpoint = Double.parseDouble(parameters[0]);
+                hoodSetpoint = Double.parseDouble(parameters[1]);
+                turretSetpoint = Double.parseDouble(parameters[2]);
+                return new Tuple<>(true, "Thank you :)");
             }
         });
     }
@@ -141,56 +140,67 @@ public class Kobi extends Bot {
         // Voltage
         drive.updateVoltage(pdp.getVoltage());
 
+        // Testing
+
         feeder.limitSwitchTest();
 
         // Shit
-//        handleControllers();
 
-//        shooter.setShooterVelocity(30 * -deadband(operator.getY(GenericHID.Hand.kLeft)));
-        drive.driveManual(-operator.getY(GenericHID.Hand.kLeft)/2, operator.getX(GenericHID.Hand.kLeft)/2);
+        // Production
+        handleControllers();
+        //drive.driveManual(-operator.getY(GenericHID.Hand.kLeft)/2, operator.getX(GenericHID.Hand.kLeft)/2);
 
         // Update shooter positions
         shooter.updatePositions();
     }
 
     private void handleControllers() {
-        // Handle operator
-        autoToggle.update(operator.getXButton());
-        // Make sure robot is not in auto
-        if (!isAutonomous) {
+        // Flywheel
+        double flywheelVelocity = 0;
+        if (!operator.getAButton()) {
             // Feeder & shooter
-            double shoot = deadband(-operator.getY(GenericHID.Hand.kRight));
-            // Set velocity
-            boolean doneAccelerating = shooter.setShooterVelocity(30 * shoot);
-            // If wheel is at speed, start shooting, else - use triggers
-            if (doneAccelerating && Math.abs(deadband(shoot)) > 0) {
-                rgb.setColor(Color.GREEN);
-            } else {
-                rgb.setColor(Color.RED);
+            flywheelVelocity = deadband(-operator.getY(GenericHID.Hand.kRight)) * 30;
+        } else {
+            flywheelVelocity = shooterSetpoint;
+        }
+        // Check flywheel acceleration
+        if (shooter.setShooterVelocity(flywheelVelocity) && Math.abs(deadband(flywheelVelocity)) > 0) {
+            rgb.setColor(Color.GREEN);
+        } else {
+            rgb.setColor(Color.RED);
+        }
+
+        // Hood
+        double hoodPosition;
+        if (!operator.getAButton()) {
+            hoodPosition = KobiShooter.HOOD_SAFE_MAXIMUM_ANGLE;
+            // Check for manual
+            if (operator.getBButton()) {
+                hoodPosition = 45;
+            } else if (operator.getYButton()) {
+                hoodPosition = KobiShooter.HOOD_SAFE_MINIMUM_ANGLE;
             }
-            // Turret
-            double left = 0; // Turret signal
-            // Read buttons
+        } else {
+            hoodPosition = hoodSetpoint;
+        }
+        // Set hood position
+        shooter.setHoodPosition(hoodPosition);
+
+        // Turret
+        double turretVelocity = 0;
+        if (!operator.getXButton()) {
+            // Manual control
             if (operator.getStartButton()) {
-                left += 1;
+                turretVelocity += 1;
             }
             if (operator.getBackButton()) {
-                left -= 1;
+                turretVelocity -= 1;
             }
-            // Set turret speed
-            shooter.setTurretVelocity(-left / 5);
-
-            // Hood position
-            if (true) {
-                if (operator.getAButton()) {
-                    shooter.setHoodPosition(KobiShooter.HOOD_SAFE_MINIMUM_ANGLE);
-                } else if (operator.getBButton()) {
-                    shooter.setHoodPosition(45);
-                } else {
-                    shooter.setHoodPosition(KobiShooter.HOOD_SAFE_MAXIMUM_ANGLE);
-                }
-            }
+        } else {
+            turretVelocity = turretSetpoint;
         }
+        shooter.setTurretVelocity(-turretVelocity / 5);
+
         // Move slider & feeder
         if (operator.getPOV() != -1) {
             // Block other roller input
@@ -230,10 +240,6 @@ public class Kobi extends Bot {
         // Send to drive
 //        drive.driveVector(wheelsToRobot[0], wheelsToRobot[1]);
 //        drive.direct(-driverLeft.getY(), -driverRight.getY());
-    }
-
-    public boolean isAutonomous() {
-        return isAutonomous;
     }
 
     private KobiFeeder.Direction fromJoystick(double value) {
