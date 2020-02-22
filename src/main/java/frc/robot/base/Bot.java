@@ -5,7 +5,7 @@
 
 package frc.robot.base;
 
-import com.ga2230.networking.Server;
+import frc.robot.base.communication.Server;
 import org.json.JSONObject;
 
 public class Bot extends Module {
