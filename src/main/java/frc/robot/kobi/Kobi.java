@@ -67,20 +67,6 @@ public class Kobi extends Bot {
     // PDP
     private static PowerDistributionPanel pdp = new PowerDistributionPanel(0);
 
-    public static void setupMotor(WPI_TalonSRX talon, FeedbackDevice feedbackDevice, double kP, double kI, double kD, double kF) {
-        talon.setSelectedSensorPosition(0);
-        talon.configFactoryDefault();
-        talon.configSelectedFeedbackSensor(feedbackDevice, 0, 30);
-        talon.configNominalOutputForward(0, 30);
-        talon.configNominalOutputReverse(0, 30);
-        talon.configPeakOutputForward(1, 30);
-        talon.configPeakOutputReverse(-1, 30);
-        talon.config_kP(0, kP, 30);
-        talon.config_kI(0, kI, 30);
-        talon.config_kD(0, kD, 30);
-        talon.config_kF(0, kF, 30);
-    }
-
     public Kobi() {
         // Joystick
         operator = new XboxController(0);
@@ -135,7 +121,7 @@ public class Kobi extends Bot {
 
         // Production
         handleControllers();
-//        drive.driveManual(-operator.getY(GenericHID.Hand.kLeft) / 2, operator.getX(GenericHID.Hand.kLeft) / 2);
+        drive.driveManual(-operator.getY(GenericHID.Hand.kLeft) / 2, operator.getX(GenericHID.Hand.kLeft) / 2);
 
         // Update shooter positions
         shooter.updatePositions();

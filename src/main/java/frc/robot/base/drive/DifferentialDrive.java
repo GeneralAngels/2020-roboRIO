@@ -84,6 +84,23 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
                 return new Tuple<>(true, "Done");
             }
         });
+
+        command("turn", new Command() {
+
+            private double startingAngle = 0;
+            private boolean started = false;
+
+            @Override
+            public Tuple<Boolean, String> execute(String parameter) throws Exception {
+                if (!started) {
+                    startingAngle = theta;
+                    started = true;
+                } else {
+                    started = !driveTurn(Double.parseDouble(parameter), startingAngle);
+                }
+                return new Tuple<>(!started, "Turning");
+            }
+        });
     }
 
     public void printEncoders() {

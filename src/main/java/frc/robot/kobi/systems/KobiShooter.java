@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.interfaces.Potentiometer;
 import frc.robot.base.Bot;
+import frc.robot.base.utils.General;
 import frc.robot.kobi.Kobi;
 
 public class KobiShooter extends frc.robot.base.Module {
@@ -66,7 +67,7 @@ public class KobiShooter extends frc.robot.base.Module {
         // Turret things
         turret = new WPI_TalonSRX(19);
 
-        Kobi.setupMotor(turret, FeedbackDevice.PulseWidthEncodedPosition, 0, 0.0001, 0, 0.23);
+        General.setupMotor(turret, FeedbackDevice.PulseWidthEncodedPosition, 0, 0.0001, 0, 0.23);
         turret.setSensorPhase(true); // Flip encoder polarity (+/-)
 
         // Shooter things
@@ -74,7 +75,7 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter2 = new WPI_TalonSRX(21);
         shooter3 = new WPI_TalonSRX(22);
 
-        Kobi.setupMotor(shooter1, FeedbackDevice.CTRE_MagEncoder_Relative, 0.7, 0.0001, 1, 0.07); // OMG magic
+        General.setupMotor(shooter1, FeedbackDevice.CTRE_MagEncoder_Relative, 0.55, 0.0000, 1, 0.05); // OMG magic
         shooter1.setSensorPhase(true); // Flip encoder polarity (+/-)
 
         shooter1.setNeutralMode(NeutralMode.Coast);

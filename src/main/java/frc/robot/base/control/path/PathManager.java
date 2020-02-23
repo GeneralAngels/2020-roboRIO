@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import frc.robot.base.drive.DifferentialDrive;
 import frc.robot.base.drive.Odometry;
+import frc.robot.base.utils.General;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -15,8 +16,6 @@ import java.util.ArrayList;
 public class PathManager extends frc.robot.base.Module {
 
     private static final double TIME_DELTA = 0.02;
-
-    private static final double MINIMUM_VELOCITY = 0.35;
 
     private static final double DISTANCE_TOLERANCE = 0.05;
     private static final double RADIAN_TOLERANCE = 3 * Math.PI / 180;
@@ -34,7 +33,7 @@ public class PathManager extends frc.robot.base.Module {
     private int index = 0;
 
     private double theta, omega, x, y;
-    private double maxVelocity, maxAcceleration;
+    private double minVelocity, maxVelocity, maxAcceleration;
 
     public double kTheta, kCurvature, kOmega, kVelocity;
     public double currentDesiredOmega, currentDesiredVelocity, previousDesiredVelocity;
@@ -88,14 +87,7 @@ public class PathManager extends frc.robot.base.Module {
                     if (index >= trajectory.getStates().size()) {
                         return new Tuple<>(true, "Done");
                     }
-                    // Check follow type
-                    if (s.equals("forward")) {
-                        followTrajectory();
-                    } else if (s.equals("reverse")) {
-                        followReversedTrajectory();
-                    } else {
-                        return new Tuple<>(false, "Unknown follow type");
-                    }
+                    followTrajectory();
                     return new Tuple<>(false, "Not done");
                 } else {
                     return new Tuple<>(false, "No trajectory");
@@ -112,7 +104,7 @@ public class PathManager extends frc.robot.base.Module {
 
     private void updateOdometry() {
         Odometry odometry = drive.updateOdometry();
-        theta = odometry.getTheta();
+        theta = General.compassify(odometry.getTheta());
         omega = odometry.getOmega();
         x = odometry.getX();
         y = odometry.getY();
@@ -124,7 +116,7 @@ public class PathManager extends frc.robot.base.Module {
         // Reset things
         kOmega = 0.03;
         kVelocity = 6;
-        maxVelocity = 2.5;
+        maxVelocity = 2;
         maxAcceleration = 2;
         // Update odometry
         updateOdometry();
@@ -138,10 +130,14 @@ public class PathManager extends frc.robot.base.Module {
         double trajectoryCurvature = curvature(end, start);
         // Calculate the maximum acceleration and velocity
 //        maxVelocity = Math.min(4 / Math.abs(trajectoryCurvature), 1.5);
+        double angleDelta = Math.abs(Math.sin(Math.toRadians(end.getRotation().getDegrees() - theta)));
+        // Calculate max acceleration
         if (Math.abs(end.getTranslation().getY() - y) > 0.4)
-            maxAcceleration = Math.min((3 / (Math.abs(trajectoryCurvature))) + (Math.sin(Math.toRadians(end.getRotation().getDegrees() - theta))), maxAcceleration);
+            maxAcceleration = Math.min((3 / (Math.abs(trajectoryCurvature)) + angleDelta), maxAcceleration);
         else
-            maxAcceleration = Math.min(4.5 / Math.abs(trajectoryCurvature), maxAcceleration);
+            maxAcceleration = Math.min(4 / Math.abs(trajectoryCurvature), maxAcceleration);
+        // Calculate minimum velocity
+        minVelocity = Math.max(angleDelta * 0.7, 0.35);
         // Reset some more things
         kTheta = 2.5;
         kCurvature = 3.5;
@@ -213,8 +209,8 @@ public class PathManager extends frc.robot.base.Module {
                 // Calculate velocity (maxVelocity - curvature * kCurv)(V = V0 + a*t)
                 currentDesiredVelocity = Math.min(maxVelocity - (curvature * kCurvature), previousDesiredVelocity + (acceleration * TIME_DELTA));
                 // Check range
-                if ((currentDesiredVelocity >= 0 && currentDesiredVelocity < MINIMUM_VELOCITY) || (maxVelocity < (curvature * kCurvature))) // To make sure velocity isn't too low
-                    currentDesiredVelocity = MINIMUM_VELOCITY;
+                if ((currentDesiredVelocity >= 0 && currentDesiredVelocity < minVelocity) || (maxVelocity < (curvature * kCurvature))) // To make sure velocity isn't too low
+                    currentDesiredVelocity = minVelocity;
                 // Calculate omega (PD control)
                 currentDesiredOmega = errors[2] * kTheta - omega * kOmega;
             } else {
@@ -286,8 +282,8 @@ public class PathManager extends frc.robot.base.Module {
                 // Calculate velocity (maxVelocity - curvature * kCurv)(V = V0 + a*t)
                 currentDesiredVelocity = Math.min(maxVelocity + (curvature * kCurvature), previousDesiredVelocity + (acceleration * TIME_DELTA));
                 // Check range
-                if ((currentDesiredVelocity <= 0 && currentDesiredVelocity < -MINIMUM_VELOCITY) || (maxVelocity > (curvature * kCurvature))) // To make sure velocity isn't too low
-                    currentDesiredVelocity = -MINIMUM_VELOCITY;
+                if ((currentDesiredVelocity <= 0 && currentDesiredVelocity < -minVelocity) || (maxVelocity > (curvature * kCurvature))) // To make sure velocity isn't too low
+                    currentDesiredVelocity = -minVelocity;
                 // Calculate omega (PD control)
                 currentDesiredOmega = errors[2] * kTheta - omega * kOmega;
             } else {
