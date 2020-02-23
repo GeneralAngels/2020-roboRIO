@@ -135,7 +135,7 @@ public class Kobi extends Bot {
 
         // Production
         handleControllers();
-        drive.driveManual(-operator.getY(GenericHID.Hand.kLeft) / 2, operator.getX(GenericHID.Hand.kLeft) / 2);
+//        drive.driveManual(-operator.getY(GenericHID.Hand.kLeft) / 2, operator.getX(GenericHID.Hand.kLeft) / 2);
 
         // Update shooter positions
         shooter.updatePositions();
@@ -230,10 +230,10 @@ public class Kobi extends Bot {
         feeder.feed(fromJoystick(operator.getTriggerAxis(GenericHID.Hand.kLeft) - operator.getTriggerAxis(GenericHID.Hand.kRight))); // Feed from triggers
         // Read joysticks
         // Convert to V/o for PID
-//        double[] wheelsToRobot = drive.wheelsToRobot(-driverLeft.getY(), -driverRight.getY());
+//      double[] wheelsToRobot = drive.wheelsToRobot(-driverLeft.getY(), -driverRight.getY());
         // Send to drive
-//        drive.driveVector(wheelsToRobot[0], wheelsToRobot[1]);
-//        drive.direct(-driverLeft.getY(), -driverRight.getY());
+//      drive.driveVector(wheelsToRobot[0], wheelsToRobot[1]);
+        drive.direct(-driverLeft.getY(), -driverRight.getY());
     }
 
     private KobiFeeder.Direction fromJoystick(double value) {

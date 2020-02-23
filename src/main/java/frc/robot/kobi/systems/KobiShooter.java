@@ -75,7 +75,7 @@ public class KobiShooter extends frc.robot.base.Module {
         shooter3 = new WPI_TalonSRX(22);
 
         Kobi.setupMotor(shooter1, FeedbackDevice.CTRE_MagEncoder_Relative, 0.7, 0.0001, 1, 0.07); // OMG magic
-        shooter1.setSensorPhase(false); // Flip encoder polarity (+/-)
+        shooter1.setSensorPhase(true); // Flip encoder polarity (+/-)
 
         shooter1.setNeutralMode(NeutralMode.Coast);
         shooter2.setNeutralMode(NeutralMode.Coast);
@@ -232,9 +232,9 @@ public class KobiShooter extends frc.robot.base.Module {
             shooter1.set(ControlMode.Velocity, input);
 //        log("A: " + shooter1.getMotorOutputPercent() + " B: " + shooter2.getMotorOutputPercent() + " C: " + shooter3.getMotorOutputPercent());
             double currentVelocity = shooter1.getSelectedSensorVelocity() / ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS));
+            set("flywheel", String.valueOf(currentVelocity));
             // Check threshold
             return Math.abs(targetVelocity - currentVelocity) < SHOOTER_VELOCITY_THRESHOLD;
-
         } else {
             shooter1.set(ControlMode.PercentOutput, 0);
             return true;
