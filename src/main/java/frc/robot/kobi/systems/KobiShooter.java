@@ -54,6 +54,7 @@ public class KobiShooter extends frc.robot.base.Module {
 
     // Setpoints
     private double shooterVelocitySetPoint, hoodPositionSetPoint, turretVelocitySetPoint;
+    private boolean setpointLock = false;
 
     public KobiShooter() {
         super("shooter");
@@ -93,11 +94,16 @@ public class KobiShooter extends frc.robot.base.Module {
         command("setpoints", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String parameter) throws Exception {
-                String[] parameters = parameter.split(" ");
-                shooterVelocitySetPoint = Double.parseDouble(parameters[0]);
-                hoodPositionSetPoint = Double.parseDouble(parameters[1]);
-                turretVelocitySetPoint = Double.parseDouble(parameters[2]);
-                return new Tuple<>(true, "Thank you :)");
+                if (!setpointLock) {
+                    String[] parameters = parameter.split(" ");
+                    shooterVelocitySetPoint = Double.parseDouble(parameters[0]);
+                    hoodPositionSetPoint = Double.parseDouble(parameters[1]);
+                    turretVelocitySetPoint = Double.parseDouble(parameters[2]);
+                    log("SetPoints: " + shooterVelocitySetPoint + " " + hoodPositionSetPoint + " " + turretVelocitySetPoint);
+                    return new Tuple<>(true, "Thank you :)");
+                }else{
+                    return new Tuple<>(false, "I have a setpoint lock :(");
+                }
             }
         });
 
@@ -162,6 +168,10 @@ public class KobiShooter extends frc.robot.base.Module {
                 return new Tuple<>(done, done ? "Done" : "Moving");
             }
         });
+    }
+
+    public void setSetPointLock(boolean setpointLock) {
+        this.setpointLock = setpointLock;
     }
 
     public void updatePositions() {

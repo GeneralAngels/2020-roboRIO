@@ -142,6 +142,8 @@ public class Kobi extends Bot {
     }
 
     private void handleControllers() {
+        // Setpoint lock
+        shooter.setSetPointLock(operator.getAButton());
         // Flywheel
         double flywheelVelocity = 0;
         if (!operator.getAButton()) {
@@ -167,8 +169,13 @@ public class Kobi extends Bot {
                 hoodPosition = KobiShooter.HOOD_SAFE_MINIMUM_ANGLE;
             }
         } else {
-            if (shooter.getHoodSetPoint() >= KobiShooter.HOOD_SAFE_MINIMUM_ANGLE && shooter.getHoodSetPoint() <= KobiShooter.HOOD_SAFE_MAXIMUM_ANGLE)
+            if (shooter.getHoodSetPoint() < KobiShooter.HOOD_SAFE_MINIMUM_ANGLE) {
+                hoodPosition = KobiShooter.HOOD_SAFE_MINIMUM_ANGLE;
+            } else if (shooter.getHoodSetPoint() > KobiShooter.HOOD_SAFE_MAXIMUM_ANGLE) {
+                hoodPosition = KobiShooter.HOOD_SAFE_MAXIMUM_ANGLE;
+            } else {
                 hoodPosition = shooter.getHoodSetPoint();
+            }
         }
         // Set hood position
         shooter.setHoodPosition(hoodPosition);
