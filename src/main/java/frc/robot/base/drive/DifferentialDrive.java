@@ -39,11 +39,13 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public PID motorControlRightVelocity;
     public PID motorControlLeftPosition;
     public PID motorControlRightPosition;
+    public PID robotControlTurn;
     public MotorGroup<T> left;
     public MotorGroup<T> right;
     public Odometry odometry;
 
     private double currentVoltage = 12;
+    private boolean check = true;
 
     public DifferentialDrive() {
         super("drive");
@@ -57,6 +59,9 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         motorControlRightVelocity = new PID("pid_right_velocity", 0, 0.05, 0, 0.22);
         motorControlLeftPosition = new PID("pid_left_position", 3, 0.1, 0.2, 0);
         motorControlRightPosition = new PID("pid_right_position", 3, 0.1, 0.2, 0);
+//        robotControlTurn = new PID("pid_robot_turn", 0.025, 0.001, 0, 0);
+        robotControlTurn = new PID("pid_robot_turn", 0.3, 0.17, 0.05, 0);
+
 
         odometry = new Odometry();
 
@@ -85,7 +90,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         log("left: " + left.getEncoder().getRaw() + "right: " + right.getEncoder().getRaw());
     }
 
-    private double compassify(double angle){
+    private double compassify(double angle) {
         angle %= 360;
         if (Math.abs(angle) > 180) {
             angle += (angle > 0) ? -360 : 360;
@@ -150,6 +155,18 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     }
 
     // Drive output setters
+
+    public boolean driveTurn(double targetAngle, double offset) {
+        // Calculate output
+        double power = robotControlTurn.PIDPosition(theta - offset, targetAngle) / currentVoltage;
+        // Deadband
+        if (Math.abs(robotControlTurn.getError()) < 3)
+            power = 0;
+        // Set output
+        direct(-power, power);
+        // Return finished result
+        return power == 0;
+    }
 
     public void driveManual(double speed, double turn) {
         direct((speed + turn), (speed - turn));

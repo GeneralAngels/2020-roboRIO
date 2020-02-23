@@ -40,7 +40,6 @@ public class PID extends Module {
     public PID(String id, double kP, double kI, double kD, double kF) {
         super(id);
         setPIDF(kP, kI, kD, kF);
-        integral = 0;
         command("setpidf", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
@@ -126,7 +125,6 @@ public class PID extends Module {
         double controlSignal;
         setMeasurement(measurement);
         calculateDerivative();
-        super.set("derivative", String.valueOf(derivative));
         error = setpoint - derivative;
         if (Math.abs(setpoint) < MINIMUM_SETPOINT) {
             // Zeroing controlSignal prevents braking when setpoint returns from high to 0
@@ -162,4 +160,6 @@ public class PID extends Module {
     public double getDerivative() {
         return derivative;
     }
+
+    public double getError(){ return error; }
 }
