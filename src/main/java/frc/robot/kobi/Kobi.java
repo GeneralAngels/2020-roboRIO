@@ -148,7 +148,7 @@ public class Kobi extends Bot {
 
         // Production
         handleControllers();
-        drive.driveManual(-operator.getY(GenericHID.Hand.kLeft)/2, operator.getX(GenericHID.Hand.kLeft)/2);
+//        drive.driveManual(-operator.getY(GenericHID.Hand.kLeft)/2, operator.getX(GenericHID.Hand.kLeft)/2);
 
         // Update shooter positions
         shooter.updatePositions();
