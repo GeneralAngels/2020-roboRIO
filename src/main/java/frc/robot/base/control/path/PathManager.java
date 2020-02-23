@@ -88,7 +88,14 @@ public class PathManager extends frc.robot.base.Module {
                     if (index >= trajectory.getStates().size()) {
                         return new Tuple<>(true, "Done");
                     }
-                    followTrajectory();
+                    // Check follow type
+                    if (s.equals("forward")) {
+                        followTrajectory();
+                    } else if (s.equals("reverse")) {
+                        followReversedTrajectory();
+                    } else {
+                        return new Tuple<>(false, "Unknown follow type");
+                    }
                     return new Tuple<>(false, "Not done");
                 } else {
                     return new Tuple<>(false, "No trajectory");
