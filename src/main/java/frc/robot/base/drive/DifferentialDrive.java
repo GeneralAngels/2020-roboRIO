@@ -92,12 +92,11 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
 
             @Override
             public Tuple<Boolean, String> execute(String parameter) throws Exception {
+                updateOdometry();
                 if (!started) {
                     startingAngle = theta;
-                    started = true;
-                } else {
-                    started = !driveTurn(Double.parseDouble(parameter), startingAngle);
                 }
+                started = !driveTurn(Double.parseDouble(parameter), startingAngle);
                 return new Tuple<>(!started, "Turning");
             }
         });
@@ -107,18 +106,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         log("left: " + left.getEncoder().getRaw() + "right: " + right.getEncoder().getRaw());
     }
 
-    private double compassify(double angle) {
-        angle %= 360;
-        if (Math.abs(angle) > 180) {
-            angle += (angle > 0) ? -360 : 360;
-        }
-        return angle;
-    }
-
     public Odometry updateOdometry() {
         theta = Gyroscope.getAngle(); // Counted theta
-        // 360ify
-        theta = compassify(theta);
         // Set theta
         odometry.setTheta(theta);
         odometry.setOmega(omega = Gyroscope.getAngularVelocity());
