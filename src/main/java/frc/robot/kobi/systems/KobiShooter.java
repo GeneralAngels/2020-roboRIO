@@ -51,7 +51,9 @@ public class KobiShooter extends frc.robot.base.Module {
     private static final double TURRET_GEAR = 240.0 / 22.0; // Verified by Libi (16/02/2020, Nadav, Old = 182.6/17.5)
 
     private WPI_TalonSRX turret;
-    private int turretOffsetPosition = 0;
+
+    // Setpoints
+    private double shooterVelocitySetPoint, hoodPositionSetPoint, turretVelocitySetPoint;
 
     public KobiShooter() {
         super("shooter");
@@ -88,6 +90,31 @@ public class KobiShooter extends frc.robot.base.Module {
 
         // Commands
 
+        command("setpoints", new Command() {
+            @Override
+            public Tuple<Boolean, String> execute(String parameter) throws Exception {
+                String[] parameters = parameter.split(" ");
+                shooterVelocitySetPoint = Double.parseDouble(parameters[0]);
+                hoodPositionSetPoint = Double.parseDouble(parameters[1]);
+                turretVelocitySetPoint = Double.parseDouble(parameters[2]);
+                return new Tuple<>(true, "Thank you :)");
+            }
+        });
+
+        command("follow", new Command() {
+            @Override
+            public Tuple<Boolean, String> execute(String parameter) throws Exception {
+                if (parameter.equals("turret")) {
+                    return new Tuple<>(followTurretSetPoint(), "Following on turret");
+                } else if (parameter.equals("shooter")) {
+                    return new Tuple<>(followShooterSetPoint(), "Following on shooter");
+                } else if (parameter.equals("hood")) {
+                    return new Tuple<>(followHoodSetPoint(), "Following on hood");
+                }
+                return new Tuple<>(false, "Parameter error");
+            }
+        });
+
         command("camera", new Command() {
 
             @Override
@@ -102,15 +129,16 @@ public class KobiShooter extends frc.robot.base.Module {
         command("turret", new Command() {
 
             private boolean reset = true;
+            private double turretPosition = 0;
 
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
                 double delta = Double.parseDouble(s);
                 if (reset) {
-                    resetTurretPosition();
+                    turretPosition = getTurretPosition();
                     reset = false;
                 } else {
-                    reset = setTurretPosition(delta);
+                    reset = setTurretPosition(delta, turretPosition);
                 }
                 if (reset)
                     setTurretVelocity(0);
@@ -142,16 +170,45 @@ public class KobiShooter extends frc.robot.base.Module {
         getHoodPosition();
     }
 
+    public double getHoodSetPoint() {
+        return hoodPositionSetPoint;
+    }
+
+    public double getShooterSetPoint() {
+        return shooterVelocitySetPoint;
+    }
+
+    public double getTurretSetPoint() {
+        return turretVelocitySetPoint;
+    }
+
+    public boolean followHoodSetPoint() {
+        return setHoodPosition(hoodPositionSetPoint);
+    }
+
+    public boolean followShooterSetPoint() {
+        return setShooterVelocity(shooterVelocitySetPoint);
+    }
+
+    public boolean followTurretSetPoint() {
+        setTurretVelocity(turretVelocitySetPoint);
+        return deadband(turretVelocitySetPoint, 0.05) == 0;
+    }
+
     public boolean setHoodPosition(double angle) {
         if (angle >= HOOD_SAFE_MINIMUM_ANGLE && angle <= HOOD_SAFE_MAXIMUM_ANGLE) {
+            // Fetch measurements
             double measurement = potentiometer.get();
             double currentAngle = calculateAngle(measurement);
+            // Calculate error
             double error = deadband(angle - currentAngle, HOOD_THRESHOLD_DEGREES);
+            // Calculate speed
             double speed = 0;
-            if (error != 0) {
+            if (error != 0)
                 speed = error < 0 ? 1 : -1;
-            }
+            // Send speed to servo
             hood.set((speed + 1) / 2);
+            // Return result
             return speed == 0;
         }
         return false;
@@ -174,15 +231,10 @@ public class KobiShooter extends frc.robot.base.Module {
         }
     }
 
-    public void resetTurretPosition() {
-        turretOffsetPosition = getTurretPosition();
-    }
-
-    // Reset to reset the setpoint
-    public boolean setTurretPosition(double angle) {
+    public boolean setTurretPosition(double angle, double offset) {
         // Calculate PID
         if (angle != 0) {
-            double target = turretOffsetPosition + (int) (TURRET_ENCODER_TICKS * (angle / 360));
+            double target = offset + (int) (TURRET_ENCODER_TICKS * (angle / 360));
             double velocity = (target - getTurretPosition()) / (TALON_RATE);
             turret.set(ControlMode.Velocity, velocity);
             // Check threshold
@@ -195,6 +247,12 @@ public class KobiShooter extends frc.robot.base.Module {
         turret.set(speed);
     }
 
+    public double getHoodPosition() {
+        double position = potentiometer.get();
+        set("hood", String.valueOf(position));
+        return position;
+    }
+
     public int getShooterPosition() {
         int position = shooter1.getSelectedSensorPosition();
         set("shooter", String.valueOf(position));
@@ -204,12 +262,6 @@ public class KobiShooter extends frc.robot.base.Module {
     public int getTurretPosition() {
         int position = turret.getSelectedSensorPosition();
         set("turret", String.valueOf(position));
-        return position;
-    }
-
-    public double getHoodPosition() {
-        double position = potentiometer.get();
-        set("hood", String.valueOf(position));
         return position;
     }
 

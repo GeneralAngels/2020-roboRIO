@@ -67,8 +67,6 @@ public class Kobi extends Bot {
     // PDP
     private static PowerDistributionPanel pdp = new PowerDistributionPanel(0);
 
-    private double hoodSetpoint, shooterSetpoint, turretSetpoint;
-
     public static void setupMotor(WPI_TalonSRX talon, FeedbackDevice feedbackDevice, double kP, double kI, double kD, double kF) {
         talon.setSelectedSensorPosition(0);
         talon.configFactoryDefault();
@@ -107,17 +105,6 @@ public class Kobi extends Bot {
         drive.updateOdometry();
         // RGB mode
         rgb.setMode(RGB.Mode.Fill);
-
-        command("setpoints", new Command() {
-            @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
-                String[] parameters = s.split(" ");
-                shooterSetpoint = Double.parseDouble(parameters[0]);
-                hoodSetpoint = Double.parseDouble(parameters[1]);
-                turretSetpoint = Double.parseDouble(parameters[2]);
-                return new Tuple<>(true, "Thank you :)");
-            }
-        });
     }
 
     @Override
@@ -148,7 +135,7 @@ public class Kobi extends Bot {
 
         // Production
         handleControllers();
-//        drive.driveManual(-operator.getY(GenericHID.Hand.kLeft)/2, operator.getX(GenericHID.Hand.kLeft)/2);
+        drive.driveManual(-operator.getY(GenericHID.Hand.kLeft) / 2, operator.getX(GenericHID.Hand.kLeft) / 2);
 
         // Update shooter positions
         shooter.updatePositions();
@@ -161,7 +148,7 @@ public class Kobi extends Bot {
             // Feeder & shooter
             flywheelVelocity = deadband(-operator.getY(GenericHID.Hand.kRight)) * 30;
         } else {
-            flywheelVelocity = shooterSetpoint;
+            flywheelVelocity = shooter.getShooterSetPoint();
         }
         // Check flywheel acceleration
         if (shooter.setShooterVelocity(flywheelVelocity) && Math.abs(deadband(flywheelVelocity)) > 0) {
@@ -171,9 +158,8 @@ public class Kobi extends Bot {
         }
 
         // Hood
-        double hoodPosition;
+        double hoodPosition = KobiShooter.HOOD_SAFE_MAXIMUM_ANGLE;
         if (!operator.getAButton()) {
-            hoodPosition = KobiShooter.HOOD_SAFE_MAXIMUM_ANGLE;
             // Check for manual
             if (operator.getBButton()) {
                 hoodPosition = 45;
@@ -181,10 +167,11 @@ public class Kobi extends Bot {
                 hoodPosition = KobiShooter.HOOD_SAFE_MINIMUM_ANGLE;
             }
         } else {
-            hoodPosition = hoodSetpoint;
+            if (shooter.getHoodSetPoint() >= KobiShooter.HOOD_SAFE_MINIMUM_ANGLE && shooter.getHoodSetPoint() <= KobiShooter.HOOD_SAFE_MAXIMUM_ANGLE)
+                hoodPosition = shooter.getHoodSetPoint();
         }
         // Set hood position
-        //shooter.setHoodPosition(hoodPosition);
+        shooter.setHoodPosition(hoodPosition);
 
         // Turret
         double turretVelocity = 0;
@@ -197,7 +184,7 @@ public class Kobi extends Bot {
                 turretVelocity -= 1;
             }
         } else {
-            turretVelocity = turretSetpoint;
+            turretVelocity = shooter.getTurretSetPoint();
         }
         shooter.setTurretVelocity(-turretVelocity / 5);
 
