@@ -60,7 +60,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         motorControlLeftPosition = new PID("pid_left_position", 3, 0.1, 0.2, 0);
         motorControlRightPosition = new PID("pid_right_position", 3, 0.1, 0.2, 0);
 //        robotControlTurn = new PID("pid_robot_turn", 0.025, 0.001, 0, 0);
-        robotControlTurn = new PID("pid_robot_turn", 0.3, 0.17, 0.05, 0);
+        robotControlTurn = new PID("pid_robot_turn", 0.25, 0, 0.01, 0);
 
 
         odometry = new Odometry();
@@ -75,6 +75,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         enslave(motorControlRightVelocity);
         enslave(motorControlLeftPosition);
         enslave(motorControlRightPosition);
+        enslave(robotControlTurn);
 
         // Commands
         command("reset", new Command() {
@@ -97,6 +98,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
                     startingAngle = theta;
                 }
                 started = !driveTurn(Double.parseDouble(parameter), startingAngle);
+                updateOdometry();
                 return new Tuple<>(!started, "Turning");
             }
         });
@@ -107,9 +109,8 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     }
 
     public Odometry updateOdometry() {
-        theta = Gyroscope.getAngle(); // Counted theta
         // Set theta
-        odometry.setTheta(theta);
+        odometry.setTheta(theta = Gyroscope.getAngle());
         odometry.setOmega(omega = Gyroscope.getAngularVelocity());
 
         if (left.hasEncoder() && right.hasEncoder()) {
@@ -165,6 +166,10 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public boolean driveTurn(double targetAngle, double offset) {
         // Calculate output
         double power = robotControlTurn.PIDPosition(theta - offset, targetAngle) / currentVoltage;
+        if (power > 0)
+            power = Math.min(power, 0.3);
+        else if (power < 0)
+            power = Math.max(power, -0.3);
         // Deadband
         if (Math.abs(robotControlTurn.getError()) < 3)
             power = 0;

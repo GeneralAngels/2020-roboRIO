@@ -48,6 +48,11 @@ public class Module extends Node {
             log(s);
             return new Tuple<>(true, "Logged");
         });
+
+        command("time", s -> {
+            log("Time: " + millis());
+            return new Tuple<>(true, "Logged");
+        });
     }
 
     public JSONObject pullJSON(boolean recursive) {

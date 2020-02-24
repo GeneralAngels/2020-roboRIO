@@ -101,6 +101,9 @@ public class Kobi extends Bot {
         // Time
         set("time", String.valueOf(millis()));
 
+        // Update odometry
+        drive.updateOdometry();
+
         // Auto
         autonomous.loop();
     }

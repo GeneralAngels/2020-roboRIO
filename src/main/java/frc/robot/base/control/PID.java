@@ -155,11 +155,21 @@ public class PID extends Module {
         this.kI = ki;
         this.kD = kd;
         this.kF = kf;
+        this.measurement = 0;
+        this.previousMeasurement = 0;
+        this.integral = 0;
+        this.derivative = 0;
+        this.previousDerivative = 0;
+        this.error = 0;
+        this.previousError = 0;
+        this.previousTime = millis();
     }
 
     public double getDerivative() {
         return derivative;
     }
 
-    public double getError(){ return error; }
+    public double getError() {
+        return error;
+    }
 }
