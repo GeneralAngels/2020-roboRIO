@@ -10,6 +10,7 @@ import frc.robot.base.drive.Odometry;
 import frc.robot.base.utils.General;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.opencv.core.Mat;
 
 import java.util.ArrayList;
 
@@ -104,7 +105,8 @@ public class PathManager extends frc.robot.base.Module {
 
     private void updateOdometry() {
         Odometry odometry = drive.updateOdometry();
-        theta = General.compassify(odometry.getTheta());
+//        theta = General.compassify(odometry.getTheta());
+        theta = odometry.getTheta();
         omega = odometry.getOmega();
         x = odometry.getX();
         y = odometry.getY();
@@ -125,19 +127,24 @@ public class PathManager extends frc.robot.base.Module {
         config.setEndVelocity(0);
         // Poses
         Pose2d start = getPose();
-        Pose2d end = new Pose2d(start.getTranslation().getX() + target.getTranslation().getX(), start.getTranslation().getY() + target.getTranslation().getY(), Rotation2d.fromDegrees(start.getRotation().getDegrees() + target.getRotation().getDegrees()));
+        Pose2d end = new Pose2d(target.getTranslation().getX(), target.getTranslation().getY(), Rotation2d.fromDegrees(target.getRotation().getDegrees()));
         // Calculate curvature
         double trajectoryCurvature = curvature(end, start);
         // Calculate the maximum acceleration and velocity
 //        maxVelocity = Math.min(4 / Math.abs(trajectoryCurvature), 1.5);
         double angleDelta = Math.abs(Math.sin(Math.toRadians(end.getRotation().getDegrees() - theta)));
+        double yDelta = Math.abs(end.getTranslation().getY() - y);
         // Calculate max acceleration
-        if (Math.abs(end.getTranslation().getY() - y) > 0.4)
-            maxAcceleration = Math.min((3 / (Math.abs(trajectoryCurvature)) + angleDelta), maxAcceleration);
+        if (yDelta > 0.4)
+            maxAcceleration = Math.min((3 / (Math.abs(trajectoryCurvature)) + (angleDelta * yDelta)), maxAcceleration);
+//        if (Math.abs(end.getTranslation().getY() - y) > 0.8)
+//            maxAcceleration = Math.min((3 / (Math.abs(trajectoryCurvature)) + angleDelta), maxAcceleration);
+//        else if (Math.abs(end.getTranslation().getY() - y) > 0.4)
+//            maxAcceleration = Math.min((1 / (Math.abs(trajectoryCurvature)) + (angleDelta / 2.0)), maxAcceleration);
         else
-            maxAcceleration = Math.min(4 / Math.abs(trajectoryCurvature), maxAcceleration);
+            maxAcceleration = Math.min(3.5 / Math.abs(trajectoryCurvature), maxAcceleration);
         // Calculate minimum velocity
-        minVelocity = Math.max(angleDelta * 0.7, 0.35);
+        minVelocity = Math.max(angleDelta * yDelta * 0.7, 0.35);
         // Reset some more things
         kTheta = 2.5;
         kCurvature = 3.5;
@@ -230,13 +237,19 @@ public class PathManager extends frc.robot.base.Module {
                         currentDesiredVelocity = 0;
                     }
                     if (Math.abs(lastErrors[2]) > RADIAN_TOLERANCE) {
-                        currentDesiredOmega *= 3;
+                        currentDesiredOmega *= 4;
                     } else {
                         currentDesiredOmega = 0;
                     }
                 } else {
                     currentDesiredVelocity = 0;
                     currentDesiredOmega = 0;
+                }
+                // Deadbands
+                currentDesiredVelocity = General.deadband(currentDesiredVelocity, 0.1);
+                currentDesiredOmega = General.deadband(currentDesiredOmega, 0.1);
+                // Check if done (actually)
+                if (currentDesiredVelocity == 0 && currentDesiredOmega == 0) {
                     this.index++;
                 }
             }
@@ -304,13 +317,19 @@ public class PathManager extends frc.robot.base.Module {
                         currentDesiredVelocity = 0;
                     }
                     if (Math.abs(lastErrors[2]) > RADIAN_TOLERANCE) {
-                        currentDesiredOmega *= 3;
+                        currentDesiredOmega *= 3.5;
                     } else {
                         currentDesiredOmega = 0;
                     }
                 } else {
                     currentDesiredVelocity = 0;
                     currentDesiredOmega = 0;
+                }
+                // Deadbands
+                currentDesiredVelocity = General.deadband(currentDesiredVelocity, 0.07);
+                currentDesiredOmega = General.deadband(currentDesiredOmega, 0.07);
+                // Check if done (actually)
+                if (currentDesiredVelocity == 0 && currentDesiredOmega == 0) {
                     this.index++;
                 }
             }

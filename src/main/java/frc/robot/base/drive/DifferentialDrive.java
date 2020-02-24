@@ -3,6 +3,7 @@ package frc.robot.base.drive;
 import edu.wpi.first.wpilibj.SpeedController;
 import frc.robot.base.Module;
 import frc.robot.base.control.PID;
+import frc.robot.base.utils.General;
 import frc.robot.base.utils.MotorGroup;
 
 import static java.lang.Thread.sleep;
@@ -60,7 +61,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         motorControlLeftPosition = new PID("pid_left_position", 3, 0.1, 0.2, 0);
         motorControlRightPosition = new PID("pid_right_position", 3, 0.1, 0.2, 0);
 //        robotControlTurn = new PID("pid_robot_turn", 0.025, 0.001, 0, 0);
-        robotControlTurn = new PID("pid_robot_turn", 0.25, 0, 0.01, 0);
+        robotControlTurn = new PID("pid_robot_turn", 0.28, 0, 0.01, 0);
 
 
         odometry = new Odometry();
@@ -171,7 +172,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         else if (power < 0)
             power = Math.max(power, -0.3);
         // Deadband
-        if (Math.abs(robotControlTurn.getError()) < 3)
+        if (Math.abs(robotControlTurn.getError()) < 3 || General.deadband(power, 0.07) == 0)
             power = 0;
         // Set output
         direct(-power, power);

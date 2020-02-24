@@ -26,4 +26,10 @@ public class General {
         }
         return angle;
     }
+
+    public static double deadband(double value, double tolerance) {
+        if (Math.abs(value) < tolerance)
+            return 0;
+        return value;
+    }
 }
