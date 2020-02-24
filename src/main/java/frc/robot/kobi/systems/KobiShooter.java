@@ -169,6 +169,14 @@ public class KobiShooter extends frc.robot.base.Module {
                 return new Tuple<>(done, done ? "Done" : "Moving");
             }
         });
+
+        command("lock", new Command() {
+            @Override
+            public Tuple<Boolean, String> execute(String parameter) throws Exception {
+                setpointLock = parameter.equals("true");
+                return new Tuple<>(true, "Lock updated");
+            }
+        });
     }
 
     public void setSetPointLock(boolean setpointLock) {

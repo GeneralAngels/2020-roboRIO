@@ -37,7 +37,7 @@ public class KobiFeeder extends frc.robot.base.Module {
         // Feeder
         feeder = new CANSparkMax(18, CANSparkMaxLowLevel.MotorType.kBrushless);
 
-        command("feeder", new Command() {
+        command("feed", new Command() {
             @Override
             public Tuple<Boolean, String> execute(String s) throws Exception {
                 Direction direction;
@@ -46,7 +46,7 @@ public class KobiFeeder extends frc.robot.base.Module {
                 } else if (s.equals("out")) {
                     direction = Direction.Out;
                 } else {
-                    direction = Direction.Out;
+                    direction = Direction.Stop;
                 }
                 feed(direction);
                 return new Tuple<>(true, "Speed set");
@@ -62,7 +62,7 @@ public class KobiFeeder extends frc.robot.base.Module {
                 } else if (s.equals("out")) {
                     direction = Direction.Out;
                 } else {
-                    direction = Direction.Out;
+                    direction = Direction.Stop;
                 }
                 if (slide(direction)) {
                     return new Tuple<>(true, "Speed set");
