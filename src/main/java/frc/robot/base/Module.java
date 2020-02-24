@@ -49,9 +49,20 @@ public class Module extends Node {
             return new Tuple<>(true, "Logged");
         });
 
-        command("time", s -> {
-            log("Time: " + millis());
-            return new Tuple<>(true, "Logged");
+        command("watch", new Command() {
+
+            private long offset = 0;
+
+            @Override
+            public Tuple<Boolean, String> execute(String parameter) throws Exception {
+                if (parameter.equals("start")) {
+                    offset = millis();
+                } else {
+                    long current = millis();
+                    log("WATCH: " + (current - offset) + "ms, " + ((current - offset) / 1000) + "s.");
+                }
+                return new Tuple<>(true, "Handled");
+            }
         });
     }
 
