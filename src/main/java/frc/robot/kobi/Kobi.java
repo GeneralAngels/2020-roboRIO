@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.base.Bot;
 import frc.robot.base.control.path.PathManager;
 import frc.robot.base.rgb.RGB;
+import frc.robot.base.utils.General;
 import frc.robot.base.utils.Toggle;
 import frc.robot.base.utils.auto.Autonomous;
 import frc.robot.kobi.systems.KobiDrive;
@@ -49,6 +50,8 @@ public class Kobi extends Bot {
      * Turret - has encoder
      * Shooter - has encoder
      */
+
+    private static final double DEADBAND = 0.05;
 
     // Joystick
     private Joystick driverLeft;
@@ -133,28 +136,42 @@ public class Kobi extends Bot {
     private void handleControllers() {
         // Setpoint lock
         shooter.setSetPointLock(operator.getAButton());
+
+        // Setpoints
+
+        double shooterVelocity = 0;
+        double turretVelocity = 0;
+        double hoodPosition = KobiShooter.HOOD_SAFE_MAXIMUM_ANGLE;
+
+        KobiFeeder.Direction feederDirection = KobiFeeder.Direction.Stop;
+        KobiFeeder.Direction rollerDirection = KobiFeeder.Direction.Stop;
+        KobiFeeder.Direction sliderDirection = KobiFeeder.Direction.Stop;
+
         // Flywheel
-        double flywheelVelocity = 0;
         if (!operator.getAButton()) {
-            // Feeder & shooter
-            flywheelVelocity = deadband(-operator.getY(GenericHID.Hand.kRight)) * 30;
+            // Shooter velocity from controller
+            shooterVelocity = General.deadband(-operator.getY(GenericHID.Hand.kRight), DEADBAND) * 30;
         } else {
-            flywheelVelocity = shooter.getShooterSetPoint();
+            shooterVelocity = shooter.getShooterSetPoint();
         }
-        // Check flywheel acceleration
-        if (shooter.setShooterVelocity(flywheelVelocity) && Math.abs(deadband(flywheelVelocity)) > 0) {
-            rgb.setColor(Color.GREEN);
-        } else {
-            rgb.setColor(Color.RED);
+        // Check flywheel acceleration to initiate feeding
+        boolean flywheelAccelerated = shooter.setShooterVelocity(shooterVelocity);
+        // Make sure the input is not 0 and that we accelerated
+        if (flywheelAccelerated && General.deadband(shooterVelocity, DEADBAND) != 0) {
+            feederDirection = KobiFeeder.Direction.In;
         }
+        // Read feeder delta from operator
+        double feederDeltaManual = General.deadband(operator.getTriggerAxis(GenericHID.Hand.kLeft), DEADBAND) - General.deadband(operator.getTriggerAxis(GenericHID.Hand.kRight), DEADBAND);
+        // Check if the delta is not 0
+        if (feederDeltaManual != 0) {
+            feederDirection = fromJoystick(feederDeltaManual);
+        }
+        // Set feeder
+        feeder.feed(feederDirection);
 
         // Hood
-        double hoodPosition = KobiShooter.HOOD_SAFE_MAXIMUM_ANGLE;
         if (!operator.getAButton()) {
-            // Check for manual
-            if (operator.getBButton()) {
-                hoodPosition = 45;
-            } else if (operator.getYButton()) {
+            if (General.deadband(shooterVelocity, DEADBAND) != 0) {
                 hoodPosition = KobiShooter.HOOD_SAFE_MINIMUM_ANGLE;
             }
         } else {
@@ -170,7 +187,6 @@ public class Kobi extends Bot {
         shooter.setHoodPosition(hoodPosition);
 
         // Turret
-        double turretVelocity = 0;
         if (!operator.getXButton()) {
             // Manual control
             if (operator.getStartButton()) {
@@ -182,62 +198,39 @@ public class Kobi extends Bot {
         } else {
             turretVelocity = shooter.getTurretSetPoint();
         }
+        // Set turret
         shooter.setTurretVelocity(-turretVelocity / 5);
 
-        // Move slider & feeder
-        if (operator.getPOV() != -1) {
-            // Block other roller input
-            if (operator.getPOV() == 0 || operator.getPOV() == 180) {
-                // Roll in
-                feeder.roll(KobiFeeder.Direction.In);
-                // Check slider direction
-                if (operator.getPOV() == 0) {
-                    feeder.slide(KobiFeeder.Direction.Out);
-                } else if (operator.getPOV() == 180) {
-                    feeder.slide(KobiFeeder.Direction.In);
-                }
-            } else {
-                // Stop feeder
-                feeder.slide(KobiFeeder.Direction.Stop);
+        // Move slider
+        // Block other roller input
+        if (operator.getPOV() == 0 || operator.getPOV() == 180) {
+            rollerDirection = KobiFeeder.Direction.In;
+            // Check slider direction
+            if (operator.getPOV() == 0) {
+                sliderDirection = KobiFeeder.Direction.Out;
+            } else if (operator.getPOV() == 180) {
+                sliderDirection = KobiFeeder.Direction.In;
             }
-        } else {
-            // Allow roller input
-            if (operator.getBumper(GenericHID.Hand.kRight)) {
-                // Roll in
-                feeder.roll(KobiFeeder.Direction.In);
-            } else if (operator.getBumper(GenericHID.Hand.kLeft)) {
-                // Roll out
-                feeder.roll(KobiFeeder.Direction.Out);
-            } else {
-                // Roll stop
-                feeder.roll(KobiFeeder.Direction.Stop);
-            }
-            // Stop feeder
-            feeder.slide(KobiFeeder.Direction.Stop);
         }
-        // Feeder
-        feeder.feed(fromJoystick(operator.getTriggerAxis(GenericHID.Hand.kLeft) - operator.getTriggerAxis(GenericHID.Hand.kRight))); // Feed from triggers
-        // Read joysticks
-        // Convert to V/o for PID
-//      double[] wheelsToRobot = drive.wheelsToRobot(-driverLeft.getY(), -driverRight.getY());
-        // Send to drive
-//      drive.driveVector(wheelsToRobot[0], wheelsToRobot[1]);
+        // Read other roller direction
+        if (operator.getBumper(GenericHID.Hand.kRight)){
+            rollerDirection = KobiFeeder.Direction.In;
+        }else if (operator.getBumper(GenericHID.Hand.kLeft)){
+            rollerDirection = KobiFeeder.Direction.Out;
+        }
+        // Slide & Roll
+        feeder.roll(rollerDirection);
+        feeder.slide(sliderDirection);
+        // Drive
         drive.direct(-driverLeft.getY(), -driverRight.getY());
     }
 
     private KobiFeeder.Direction fromJoystick(double value) {
-        if (Math.abs(value) < 0.05)
+        if (Math.abs(value) < DEADBAND)
             return KobiFeeder.Direction.Stop;
         if (value < 0)
             return KobiFeeder.Direction.In;
         else
             return KobiFeeder.Direction.Out;
-    }
-
-    private double deadband(double value) {
-        if (Math.abs(value) < 0.05) {
-            return 0;
-        }
-        return value;
     }
 }
