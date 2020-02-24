@@ -103,6 +103,17 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
                 return new Tuple<>(!started, "Turning");
             }
         });
+
+        command("direct", new Command() {
+            @Override
+            public Tuple<Boolean, String> execute(String parameter) throws Exception {
+                String[] split = parameter.split(" ");
+                double left = Double.parseDouble(split[0]);
+                double right = Double.parseDouble(split[1]);
+                direct(left, right);
+                return new Tuple<>(true, "OK");
+            }
+        });
     }
 
     public void printEncoders() {

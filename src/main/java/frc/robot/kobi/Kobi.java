@@ -127,7 +127,7 @@ public class Kobi extends Bot {
 
         // Production
         handleControllers();
-        drive.driveManual(-operator.getY(GenericHID.Hand.kLeft) / 2, operator.getX(GenericHID.Hand.kLeft) / 2);
+        //drive.driveManual(-operator.getY(GenericHID.Hand.kLeft) / 2, operator.getX(GenericHID.Hand.kLeft) / 2);
 
         // Update shooter positions
         shooter.updatePositions();
@@ -158,7 +158,8 @@ public class Kobi extends Bot {
         boolean flywheelAccelerated = shooter.setShooterVelocity(shooterVelocity);
         // Make sure the input is not 0 and that we accelerated
         if (flywheelAccelerated && General.deadband(shooterVelocity, DEADBAND) != 0) {
-            feederDirection = KobiFeeder.Direction.In;
+            if (shooterVelocity > 0)
+                feederDirection = KobiFeeder.Direction.In;
         }
         // Read feeder delta from operator
         double feederDeltaManual = General.deadband(operator.getTriggerAxis(GenericHID.Hand.kLeft), DEADBAND) - General.deadband(operator.getTriggerAxis(GenericHID.Hand.kRight), DEADBAND);
@@ -213,9 +214,9 @@ public class Kobi extends Bot {
             }
         }
         // Read other roller direction
-        if (operator.getBumper(GenericHID.Hand.kRight)){
+        if (operator.getBumper(GenericHID.Hand.kRight)) {
             rollerDirection = KobiFeeder.Direction.In;
-        }else if (operator.getBumper(GenericHID.Hand.kLeft)){
+        } else if (operator.getBumper(GenericHID.Hand.kLeft)) {
             rollerDirection = KobiFeeder.Direction.Out;
         }
         // Slide & Roll

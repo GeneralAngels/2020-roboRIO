@@ -102,7 +102,7 @@ public class KobiShooter extends frc.robot.base.Module {
                     turretVelocitySetPoint = Double.parseDouble(parameters[2]);
                     log("SetPoints: " + shooterVelocitySetPoint + " " + hoodPositionSetPoint + " " + turretVelocitySetPoint);
                     return new Tuple<>(true, "Thank you :)");
-                }else{
+                } else {
                     return new Tuple<>(false, "I have a setpoint lock :(");
                 }
             }
@@ -202,8 +202,8 @@ public class KobiShooter extends frc.robot.base.Module {
     }
 
     public boolean followTurretSetPoint() {
-        setTurretVelocity(turretVelocitySetPoint);
-        return deadband(turretVelocitySetPoint, 0.05) == 0;
+        setTurretVelocity(-turretVelocitySetPoint / 5);
+        return deadband(-turretVelocitySetPoint / 5, 0.05) == 0;
     }
 
     public boolean setHoodPosition(double angle) {
