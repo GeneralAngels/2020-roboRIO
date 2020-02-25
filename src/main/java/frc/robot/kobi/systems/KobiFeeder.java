@@ -112,7 +112,7 @@ public class KobiFeeder extends frc.robot.base.Module {
         currentCurrent = feeder.getOutputCurrent();
         long delta = time - millis();
         set("test-current", String.valueOf(currentCurrent));
-        boolean overCurrent = delta == 0 || (currentCurrent - lastCurrent) / delta > FEEDER_MAX_CURRENT_DERIVATIVE;
+        boolean overCurrent = delta == 0 || Math.abs((currentCurrent - lastCurrent) / delta) > FEEDER_MAX_CURRENT_DERIVATIVE;
         if (direction == Direction.Stop || overCurrent) {
             feeder.set(0);
         } else {
