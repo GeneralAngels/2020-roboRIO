@@ -12,6 +12,12 @@ public class KobiFeeder extends frc.robot.base.Module {
 
     private static final boolean USE_MICROSWITCHES = false;
 
+    private static final double FEEDER_MAX_CURRENT_DERIVATIVE = 1;
+
+    private double lastCurrent = 0;
+    private double currentCurrent = 0;
+    private long time = 0;
+
     // Slider
     private WPI_TalonSRX slider;
     private DigitalInput openSwitch, closeSwitch;
@@ -102,7 +108,12 @@ public class KobiFeeder extends frc.robot.base.Module {
     }
 
     public void feed(Direction direction) {
-        if (direction == Direction.Stop) {
+        lastCurrent = currentCurrent;
+        currentCurrent = feeder.getOutputCurrent();
+        long delta = time - millis();
+        set("test-current", String.valueOf(currentCurrent));
+        boolean overCurrent = delta == 0 || (currentCurrent - lastCurrent) / delta > FEEDER_MAX_CURRENT_DERIVATIVE;
+        if (direction == Direction.Stop || overCurrent) {
             feeder.set(0);
         } else {
             if (direction == Direction.In) {
