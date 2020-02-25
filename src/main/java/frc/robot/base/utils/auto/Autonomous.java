@@ -48,7 +48,7 @@ public class Autonomous extends frc.robot.base.Module {
                     // Update set
                     set("current_block", currentAwaiting);
                     // Determine type
-                    boolean isAsync = currentAwaiting.equals("a");
+                    boolean isAsync = currentAwaiting.startsWith("a");
                     // Run
                     if (isAsync) {
                         // Move to currently async

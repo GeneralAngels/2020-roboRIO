@@ -100,6 +100,9 @@ public class KobiShooter extends frc.robot.base.Module {
                     shooterVelocitySetPoint = Double.parseDouble(parameters[0]);
                     hoodPositionSetPoint = Double.parseDouble(parameters[1]);
                     turretVelocitySetPoint = Double.parseDouble(parameters[2]);
+                    set("shooter-setpoint", parameters[0]);
+                    set("hood-setpoint", parameters[1]);
+                    set("turret-setpoint", parameters[2]);
                     log("SetPoints: " + shooterVelocitySetPoint + " " + hoodPositionSetPoint + " " + turretVelocitySetPoint);
                     return new Tuple<>(true, "Thank you :)");
                 } else {
