@@ -89,20 +89,21 @@ public class KobiFeeder extends frc.robot.base.Module {
                 } else {
                     direction = Direction.Out;
                 }
-                roll(direction);
+                roll(direction, true);
                 return new Tuple<>(true, "Speed set");
             }
         });
     }
 
-    public void roll(Direction direction) {
+    public void roll(Direction direction, boolean fast) {
         if (direction == Direction.Stop) {
             roller.set(0);
         } else {
+            double speed = fast ? 0.75 : 0.5;
             if (direction == Direction.In) {
-                roller.set(0.5);
+                roller.set(speed);
             } else {
-                roller.set(-0.5);
+                roller.set(-speed);
             }
         }
     }
@@ -117,9 +118,9 @@ public class KobiFeeder extends frc.robot.base.Module {
             feeder.set(0);
         } else {
             if (direction == Direction.In) {
-                feeder.set(-1);
+                feeder.set(-0.5);
             } else {
-                feeder.set(1);
+                feeder.set(0.5);
             }
         }
     }

@@ -143,6 +143,8 @@ public class Kobi extends Bot {
         double turretVelocity = 0;
         double hoodPosition = KobiShooter.HOOD_SAFE_MAXIMUM_ANGLE;
 
+        boolean rollerSpeed = true;
+
         KobiFeeder.Direction feederDirection = KobiFeeder.Direction.Stop;
         KobiFeeder.Direction rollerDirection = KobiFeeder.Direction.Stop;
         KobiFeeder.Direction sliderDirection = KobiFeeder.Direction.Stop;
@@ -208,8 +210,10 @@ public class Kobi extends Bot {
             rollerDirection = KobiFeeder.Direction.In;
             // Check slider direction
             if (operator.getPOV() == 0) {
+                rollerSpeed = true;
                 sliderDirection = KobiFeeder.Direction.Out;
             } else if (operator.getPOV() == 180) {
+                rollerSpeed = false;
                 sliderDirection = KobiFeeder.Direction.In;
             }
         }
@@ -220,7 +224,7 @@ public class Kobi extends Bot {
             rollerDirection = KobiFeeder.Direction.Out;
         }
         // Slide & Roll
-        feeder.roll(rollerDirection);
+        feeder.roll(rollerDirection, rollerSpeed);
         feeder.slide(sliderDirection);
         // Drive
         drive.direct(-driverLeft.getY(), -driverRight.getY());
