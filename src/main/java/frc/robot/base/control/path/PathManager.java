@@ -1,5 +1,8 @@
 package frc.robot.base.control.path;
 
+import com.ga2230.shleam.advanced.frc.FRCModule;
+import com.ga2230.shleam.base.structure.Function;
+import com.ga2230.shleam.base.structure.Result;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
@@ -14,7 +17,7 @@ import org.opencv.core.Mat;
 
 import java.util.ArrayList;
 
-public class PathManager extends frc.robot.base.Module {
+public class PathManager extends FRCModule {
 
     private static final double TIME_DELTA = 0.02;
 
@@ -45,9 +48,9 @@ public class PathManager extends frc.robot.base.Module {
 
         // Command registration for autonomous
 
-        command("fetch", new Command() {
+        register("fetch", new Function() {
             @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
+            public Result execute(String parameter) throws Exception {
                 if (trajectory != null) {
                     JSONArray array = new JSONArray();
                     for (Trajectory.State state : trajectory.getStates()) {
@@ -57,41 +60,41 @@ public class PathManager extends frc.robot.base.Module {
                         object.put("angle", state.poseMeters.getRotation().getDegrees());
                         array.put(object);
                     }
-                    return new Tuple<>(true, array.toString());
+                    return Result.finished(array.toString());
                 }
-                return new Tuple<>(true, "[]");
+                return Result.finished("[]");
             }
         });
 
-        command("create", new Command() {
+        register("create", new Function() {
             @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
+            public Result execute(String parameter) throws Exception {
                 // Parse string into three parameters (x, y, theta)
-                String[] split = s.split(" ");
+                String[] split = parameter.split(" ");
                 if (split.length == 3) {
                     double x = Double.parseDouble(split[0]);
                     double y = Double.parseDouble(split[1]);
                     double theta = Double.parseDouble(split[2]);
                     createTrajectory(new Pose2d(x, y, Rotation2d.fromDegrees(theta)));
-                    return new Tuple<>(true, "Trajectory created");
+                    return Result.finished("Trajectory created");
                 } else {
-                    return new Tuple<>(false, "Wrong number of parameters");
+                    return Result.notFinished("Wrong number of parameters");
                 }
             }
         });
 
-        command("follow", new Command() {
+        register("follow", new Function() {
             @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
+            public Result execute(String parameter) throws Exception {
                 if (trajectory != null) {
                     updateProgress();
                     if (index >= trajectory.getStates().size()) {
-                        return new Tuple<>(true, "Done");
+                        return Result.finished("Done");
                     }
                     followTrajectory();
-                    return new Tuple<>(false, "Not done");
+                    return Result.notFinished("Not done");
                 } else {
-                    return new Tuple<>(false, "No trajectory");
+                    return Result.notFinished("No trajectory");
                 }
             }
         });
@@ -100,7 +103,6 @@ public class PathManager extends frc.robot.base.Module {
     private void updateProgress() {
         set("index", String.valueOf(index));
         set("length", String.valueOf(trajectory.getStates().size()));
-        set("progress", get("index") + "/" + get("length"));
     }
 
     private void updateOdometry() {
@@ -137,10 +139,6 @@ public class PathManager extends frc.robot.base.Module {
         // Calculate max acceleration
         if (yDelta > 0.4)
             maxAcceleration = Math.min((3 / (Math.abs(trajectoryCurvature)) + (angleDelta * yDelta)), maxAcceleration);
-//        if (Math.abs(end.getTranslation().getY() - y) > 0.8)
-//            maxAcceleration = Math.min((3 / (Math.abs(trajectoryCurvature)) + angleDelta), maxAcceleration);
-//        else if (Math.abs(end.getTranslation().getY() - y) > 0.4)
-//            maxAcceleration = Math.min((1 / (Math.abs(trajectoryCurvature)) + (angleDelta / 2.0)), maxAcceleration);
         else
             maxAcceleration = Math.min(3.5 / Math.abs(trajectoryCurvature), maxAcceleration);
         // Calculate minimum velocity

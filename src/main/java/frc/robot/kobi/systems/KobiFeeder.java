@@ -2,13 +2,16 @@ package frc.robot.kobi.systems;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ga2230.shleam.advanced.frc.FRCModule;
+import com.ga2230.shleam.base.structure.Function;
+import com.ga2230.shleam.base.structure.Result;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.base.utils.General;
 import frc.robot.kobi.Kobi;
 
-public class KobiFeeder extends frc.robot.base.Module {
+public class KobiFeeder extends FRCModule {
 
     private static final boolean USE_MICROSWITCHES = false;
 
@@ -43,54 +46,30 @@ public class KobiFeeder extends frc.robot.base.Module {
         // Feeder
         feeder = new CANSparkMax(18, CANSparkMaxLowLevel.MotorType.kBrushless);
 
-        command("feed", new Command() {
+        register("feed", new Function() {
             @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
-                Direction direction;
-                if (s.equals("in")) {
-                    direction = Direction.In;
-                } else if (s.equals("out")) {
-                    direction = Direction.Out;
-                } else {
-                    direction = Direction.Stop;
-                }
-                feed(direction);
-                return new Tuple<>(true, "Speed set");
+            public Result execute(String parameter) throws Exception {
+                feed(General.fromString(parameter));
+                return Result.finished("Set");
             }
         });
 
-        command("slide", new Command() {
+        register("slide", new Function() {
             @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
-                Direction direction;
-                if (s.equals("in")) {
-                    direction = Direction.In;
-                } else if (s.equals("out")) {
-                    direction = Direction.Out;
+            public Result execute(String parameter) throws Exception {
+                if (slide(General.fromString(parameter))) {
+                    return Result.finished("Set");
                 } else {
-                    direction = Direction.Stop;
-                }
-                if (slide(direction)) {
-                    return new Tuple<>(true, "Speed set");
-                } else {
-                    return new Tuple<>(false, "Limit-switch error");
+                    return Result.notFinished("Limit-switch error");
                 }
             }
         });
 
-        command("roll", new Command() {
+        register("roll", new Function() {
             @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
-                Direction direction;
-                if (s.equals("in")) {
-                    direction = Direction.In;
-                } else if (s.equals("out")) {
-                    direction = Direction.Out;
-                } else {
-                    direction = Direction.Out;
-                }
-                roll(direction, true);
-                return new Tuple<>(true, "Speed set");
+            public Result execute(String parameter) throws Exception {
+                roll(General.fromString(parameter), true);
+                return Result.finished("Set");
             }
         });
     }
@@ -109,18 +88,20 @@ public class KobiFeeder extends frc.robot.base.Module {
     }
 
     public void feed(Direction direction) {
+        // Switch errors
         lastCurrent = currentCurrent;
         currentCurrent = feeder.getOutputCurrent();
+        // Calculate current limit
         long delta = time - millis();
-        set("test-current", String.valueOf(currentCurrent));
         boolean overCurrent = delta == 0 || Math.abs((currentCurrent - lastCurrent) / delta) > FEEDER_MAX_CURRENT_DERIVATIVE;
+        set("test-current", String.valueOf(currentCurrent));
         if (direction == Direction.Stop || overCurrent) {
             feeder.set(0);
         } else {
             if (direction == Direction.In) {
-                feeder.set(-0.5);
+                feeder.set(-0.25);
             } else {
-                feeder.set(0.5);
+                feeder.set(0.25);
             }
         }
     }

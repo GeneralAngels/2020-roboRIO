@@ -1,9 +1,8 @@
 package frc.robot.base.utils;
 
+import com.ga2230.shleam.advanced.frc.FRCModule;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SpeedController;
-import frc.robot.base.Module;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -12,7 +11,7 @@ import java.util.ArrayList;
  * https://github.com/GeneralAngels/RIO20
  */
 
-public class MotorGroup<Type extends SpeedController> extends Module {
+public class MotorGroup<Type extends SpeedController> extends FRCModule {
 
     public static final int FORWARD = 1, BACKWARD = -1, BRAKE = 0;
 

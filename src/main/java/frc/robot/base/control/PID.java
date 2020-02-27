@@ -1,13 +1,15 @@
 package frc.robot.base.control;
 
-import frc.robot.base.Module;
+import com.ga2230.shleam.advanced.frc.FRCModule;
+import com.ga2230.shleam.base.structure.Function;
+import com.ga2230.shleam.base.structure.Result;
 
 /**
  * Copyright (c) 2019 General Angels
  * https://github.com/GeneralAngels/RIO20
  */
 
-public class PID extends Module {
+public class PID extends FRCModule {
 
 
     private static final double TOLERANCE = 0.01;
@@ -39,15 +41,17 @@ public class PID extends Module {
 
     public PID(String id, double kP, double kI, double kD, double kF) {
         super(id);
+
         setPIDF(kP, kI, kD, kF);
-        command("setpidf", new Command() {
+
+        register("set", new Function() {
             @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
-                String[] split = s.split(" ");
+            public Result execute(String parameter) throws Exception {
+                String[] split = parameter.split(" ");
                 if (split.length == 4) {
                     setPIDF(Double.parseDouble(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2]), Double.parseDouble(split[3]));
                 }
-                return new Tuple<>(true, "OK");
+                return Result.finished("OK");
             }
         });
     }

@@ -1,14 +1,16 @@
 package frc.robot.base.drive;
 
+import com.ga2230.shleam.advanced.frc.FRCModule;
+import com.ga2230.shleam.base.structure.Function;
+import com.ga2230.shleam.base.structure.Result;
 import edu.wpi.first.wpilibj.SpeedController;
-import frc.robot.base.Module;
 import frc.robot.base.control.PID;
 import frc.robot.base.utils.General;
 import frc.robot.base.utils.MotorGroup;
 
 import static java.lang.Thread.sleep;
 
-public class DifferentialDrive<T extends SpeedController> extends Module {
+public class DifferentialDrive<T extends SpeedController> extends FRCModule {
 
     private static final double TOLERANCE = 0.05;
 
@@ -54,70 +56,60 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         left = new MotorGroup<>("left");
         right = new MotorGroup<>("right");
 
-//        motorControlLeftVelocity = new PID("pid_left_velocity", 0, 0.09, 0, 0.25);
-//        motorControlRightVelocity = new PID("pid_right_velocity", 0, 0.09, 0, 0.25);
         motorControlLeftVelocity = new PID("pid_left_velocity", 0, 0.05, 0, 0.22);
         motorControlRightVelocity = new PID("pid_right_velocity", 0, 0.05, 0, 0.22);
         motorControlLeftPosition = new PID("pid_left_position", 3, 0.1, 0.2, 0);
         motorControlRightPosition = new PID("pid_right_position", 3, 0.1, 0.2, 0);
-//        robotControlTurn = new PID("pid_robot_turn", 0.025, 0.001, 0, 0);
         robotControlTurn = new PID("pid_robot_turn", 0.28, 0, 0.01, 0);
-
 
         odometry = new Odometry();
 
         // MotorGroups
-        enslave(left);
-        enslave(right);
+        adopt(left);
+        adopt(right);
         // Odometry
-        enslave(odometry);
+        adopt(odometry);
         // PIDs
-        enslave(motorControlLeftVelocity);
-        enslave(motorControlRightVelocity);
-        enslave(motorControlLeftPosition);
-        enslave(motorControlRightPosition);
-        enslave(robotControlTurn);
+        adopt(motorControlLeftVelocity);
+        adopt(motorControlRightVelocity);
+        adopt(motorControlLeftPosition);
+        adopt(motorControlRightPosition);
+        adopt(robotControlTurn);
 
         // Commands
-        command("reset", new Command() {
+        register("reset", new Function() {
             @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
+            public Result execute(String parameter) throws Exception {
                 resetOdometry();
-                return new Tuple<>(true, "Done");
+                return Result.finished("Reset");
             }
         });
 
-        command("turn", new Command() {
+        register("turn", new Function() {
 
             private double startingAngle = 0;
             private boolean started = false;
 
             @Override
-            public Tuple<Boolean, String> execute(String parameter) throws Exception {
+            public Result execute(String parameter) throws Exception {
                 updateOdometry();
                 if (!started) {
                     startingAngle = theta;
                 }
                 started = !driveTurn(Double.parseDouble(parameter), startingAngle);
                 updateOdometry();
-                return new Tuple<>(!started, "Turning");
+                return Result.create(!started, "Set");
             }
         });
 
-        command("direct", new Command() {
+        register("direct", new Function() {
             @Override
-            public Tuple<Boolean, String> execute(String parameter) throws Exception {
+            public Result execute(String parameter) throws Exception {
                 String[] split = parameter.split(" ");
-                double left = Double.parseDouble(split[0]);
-                double right = Double.parseDouble(split[1]);
-                direct(left, right);
-                return new Tuple<>(true, "OK");
+                direct(Double.parseDouble(split[0]), Double.parseDouble(split[1]));
+                return Result.finished("Set");
             }
         });
-    }
-
-    public void printEncoders() {
-        log("left: " + left.getEncoder().getRaw() + "right: " + right.getEncoder().getRaw());
     }
 
     public Odometry updateOdometry() {
@@ -150,9 +142,11 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
     public void resetOdometry() {
         // Reset gyro
         Gyroscope.reset();
+
         // Reset encoders
         left.resetEncoder();
         right.resetEncoder();
+
         // Reset variables
         this.x = 0;
         this.y = 0;
@@ -160,6 +154,7 @@ public class DifferentialDrive<T extends SpeedController> extends Module {
         this.omega = 0;
         this.lastEncoders = new double[2];
         this.currentEncoders = new double[2];
+
         // Update odometry
         updateOdometry();
     }

@@ -1,17 +1,18 @@
 package frc.robot.base.rgb;
 
+import com.ga2230.shleam.advanced.frc.FRCModule;
+import com.ga2230.shleam.base.structure.Function;
+import com.ga2230.shleam.base.structure.Result;
 import edu.wpi.first.wpilibj.SerialPort;
-import frc.robot.base.Module;
 
 import java.awt.*;
-import java.util.*;
 
 /**
  * Copyright (c) 2019 General Angels
  * https://github.com/GeneralAngels/RIO20
  */
 
-public class RGB extends Module {
+public class RGB extends FRCModule {
 
     private static final int TOO_FAST_MILLIS = 20;
 
@@ -33,37 +34,19 @@ public class RGB extends Module {
             this.serial = null;
             log("RGB serial Initialization failure: " + exception.toString());
         }
-        command("color", new Command() {
+
+        register("color", new Function() {
             @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
-                String[] split = s.split(" ");
-                if (!(split.length == 3))
-                    return new Tuple<>(false, "Must have 3 parameters");
+            public Result execute(String parameter) throws Exception {
+                String[] split = parameter.split(" ");
                 // Parse things
                 int r = Integer.parseInt(split[0]);
                 int g = Integer.parseInt(split[1]);
                 int b = Integer.parseInt(split[2]);
-                // Validate
-                if (!(r < 256 && g < 256 && b < 256))
-                    return new Tuple<>(false, "Not in valid range");
                 // Set the color
                 setColor(new Color(r, g, b));
                 // Return OK
-                return new Tuple<>(true, "OK");
-            }
-        });
-        command("mode", new Command() {
-            @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
-                if (s.equals("fill")) {
-                    setMode(Mode.Fill);
-                    return new Tuple<>(true, "OK");
-                } else if (s.equals("slide")) {
-                    setMode(Mode.Slide);
-                    return new Tuple<>(true, "OK");
-                }
-                // Return help
-                return new Tuple<>(false, "Must be fill or slide");
+                return Result.finished("Set");
             }
         });
     }

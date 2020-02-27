@@ -1,25 +1,18 @@
 package frc.robot.kobi;
 
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ga2230.shleam.advanced.frc.FRCRobot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.base.Bot;
 import frc.robot.base.control.path.PathManager;
 import frc.robot.base.rgb.RGB;
 import frc.robot.base.utils.General;
-import frc.robot.base.utils.Toggle;
-import frc.robot.base.utils.auto.Autonomous;
 import frc.robot.kobi.systems.KobiDrive;
 import frc.robot.kobi.systems.KobiFeeder;
 import frc.robot.kobi.systems.KobiShooter;
-import org.opencv.core.Mat;
 
-import java.awt.*;
-
-public class Kobi extends Bot {
+public class Kobi extends FRCRobot {
 
     /**
      * Pinout as of 16/02/2020
@@ -64,40 +57,36 @@ public class Kobi extends Bot {
     private KobiShooter shooter;
     private RGB rgb;
 
-    private Autonomous autonomous;
     private PathManager manager;
 
     // PDP
     private static PowerDistributionPanel pdp = new PowerDistributionPanel(0);
 
     public Kobi() {
-        // Joystick
+        // Controller initialization
         operator = new XboxController(0);
         driverLeft = new Joystick(1);
         driverRight = new Joystick(2);
 
-        // Modules
+        // Module initialization
         rgb = new RGB();
         drive = new KobiDrive();
         manager = new PathManager(drive);
         feeder = new KobiFeeder();
         shooter = new KobiShooter();
-        autonomous = new Autonomous(this);
-        // Ah yes, enslaved modules
-        enslave(autonomous);
-        enslave(manager);
-        enslave(shooter);
-        enslave(feeder);
-        enslave(drive);
-        enslave(rgb);
-        // Resets
-        drive.updateOdometry();
+
+        // Adopt children
+        adopt(manager);
+        adopt(shooter);
+        adopt(feeder);
+        adopt(drive);
+        adopt(rgb);
+
         // RGB mode
         rgb.setMode(RGB.Mode.Fill);
     }
 
-    @Override
-    public void autonomous() {
+    private void updateAll(){
         // Voltage
         drive.updateVoltage(pdp.getVoltage());
 
@@ -107,31 +96,29 @@ public class Kobi extends Bot {
         // Update odometry
         drive.updateOdometry();
 
-        // Auto
-        autonomous.loop();
+        // Update shooter positions
+        shooter.updatePositions();
     }
 
     @Override
-    public void teleop() {
-        // Time
-        set("time", String.valueOf(millis()));
+    public void autonomousLoop() {
+        // Update all
+        updateAll();
 
-        // Voltage
-        drive.updateVoltage(pdp.getVoltage());
+        // Runtime
+        autonomous.next();
+    }
 
-        // Testing
-
-        feeder.limitSwitchTest();
-
-        // Shit
+    @Override
+    public void teleopLoop() {
+        // Update all
+        updateAll();
 
         // Production
         handleControllers();
         //drive.driveManual(-operator.getY(GenericHID.Hand.kLeft) / 2, operator.getX(GenericHID.Hand.kLeft) / 2);
-
-        // Update shooter positions
-        shooter.updatePositions();
     }
+
 
     private void handleControllers() {
         // Setpoint lock
@@ -167,7 +154,7 @@ public class Kobi extends Bot {
         double feederDeltaManual = General.deadband(operator.getTriggerAxis(GenericHID.Hand.kLeft), DEADBAND) - General.deadband(operator.getTriggerAxis(GenericHID.Hand.kRight), DEADBAND);
         // Check if the delta is not 0
         if (feederDeltaManual != 0) {
-            feederDirection = fromJoystick(feederDeltaManual);
+            feederDirection = General.fromJoystick(feederDeltaManual, DEADBAND);
         }
         // Set feeder
         feeder.feed(feederDirection);
@@ -228,14 +215,5 @@ public class Kobi extends Bot {
         feeder.slide(sliderDirection);
         // Drive
         drive.direct(-driverLeft.getY(), -driverRight.getY());
-    }
-
-    private KobiFeeder.Direction fromJoystick(double value) {
-        if (Math.abs(value) < DEADBAND)
-            return KobiFeeder.Direction.Stop;
-        if (value < 0)
-            return KobiFeeder.Direction.In;
-        else
-            return KobiFeeder.Direction.Out;
     }
 }

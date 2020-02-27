@@ -1,14 +1,13 @@
 package frc.robot.base.utils;
 
-import frc.robot.base.Module;
-import org.json.JSONObject;
+import com.ga2230.shleam.advanced.frc.FRCModule;
 
 /**
  * Copyright (c) 2019 General Angels
  * https://github.com/GeneralAngels/RIO20
  */
 
-public class Toggle extends Module {
+public class Toggle extends FRCModule {
 
     private boolean pushedState = false;
     private boolean toggleState = false;

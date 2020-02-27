@@ -1,10 +1,9 @@
 package frc.robot;
 
+import com.ga2230.shleam.advanced.frc.FRCRobot;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
-import frc.robot.base.Bot;
 import frc.robot.kobi.Kobi;
-import frc.robot.shuby.Shuby;
 
 public final class Main {
 
@@ -14,30 +13,31 @@ public final class Main {
 
     private static class Robot extends TimedRobot {
 
-        private Bot bobot;
+        private FRCRobot robot;
 
         @Override
         public void robotInit() {
-            bobot = new Kobi();
-            bobot.init();
+            robot = new Kobi();
         }
 
         @Override
         public void autonomousInit() {
+            robot.autonomousSetup();
         }
 
         @Override
         public void autonomousPeriodic() {
-            bobot.autonomous();
+            robot.autonomousLoop();
+        }
+
+        @Override
+        public void teleopInit() {
+            robot.teleopSetup();
         }
 
         @Override
         public void teleopPeriodic() {
-            bobot.teleop();
-        }
-
-        @Override
-        public void testPeriodic() {
+            robot.teleopLoop();
         }
     }
 }

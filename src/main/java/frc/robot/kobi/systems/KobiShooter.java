@@ -4,14 +4,15 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ga2230.shleam.advanced.frc.FRCModule;
+import com.ga2230.shleam.base.structure.Function;
+import com.ga2230.shleam.base.structure.Result;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.interfaces.Potentiometer;
-import frc.robot.base.Bot;
 import frc.robot.base.utils.General;
-import frc.robot.kobi.Kobi;
 
-public class KobiShooter extends frc.robot.base.Module {
+public class KobiShooter extends FRCModule {
 
     private static final double TALON_RATE = 100.0 / 1000.0; // 100ms/1s
 
@@ -92,9 +93,9 @@ public class KobiShooter extends frc.robot.base.Module {
 
         // Commands
 
-        command("setpoints", new Command() {
+        register("setpoints", new Function() {
             @Override
-            public Tuple<Boolean, String> execute(String parameter) throws Exception {
+            public Result execute(String parameter) throws Exception {
                 if (!setpointLock) {
                     String[] parameters = parameter.split(" ");
                     shooterVelocitySetPoint = Double.parseDouble(parameters[0]);
@@ -104,80 +105,24 @@ public class KobiShooter extends frc.robot.base.Module {
                     set("hood-setpoint", parameters[1]);
                     set("turret-setpoint", parameters[2]);
                     log("SetPoints: " + shooterVelocitySetPoint + " " + hoodPositionSetPoint + " " + turretVelocitySetPoint);
-                    return new Tuple<>(true, "Thank you :)");
+                    return Result.finished("Thanks man");
                 } else {
-                    return new Tuple<>(false, "I have a setpoint lock :(");
+                    return Result.notFinished("Setpoint lock");
                 }
             }
         });
 
-        command("follow", new Command() {
+        register("follow", new Function() {
             @Override
-            public Tuple<Boolean, String> execute(String parameter) throws Exception {
+            public Result execute(String parameter) throws Exception {
                 if (parameter.equals("turret")) {
-                    return new Tuple<>(followTurretSetPoint(), "Following on turret");
+                    return Result.create(followTurretSetPoint(), "Following on turret");
                 } else if (parameter.equals("shooter")) {
-                    return new Tuple<>(followShooterSetPoint(), "Following on shooter");
+                    return Result.create(followShooterSetPoint(), "Following on shooter");
                 } else if (parameter.equals("hood")) {
-                    return new Tuple<>(followHoodSetPoint(), "Following on hood");
+                    return Result.create(followHoodSetPoint(), "Following on hood");
                 }
-                return new Tuple<>(false, "Parameter error");
-            }
-        });
-
-        command("camera", new Command() {
-
-            @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
-                double speed = Double.parseDouble(s);
-                // Set position
-                setTurretVelocity(speed);
-                return new Tuple<>(true, "Moving");
-            }
-        });
-
-        command("turret", new Command() {
-
-            private boolean reset = true;
-            private double turretPosition = 0;
-
-            @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
-                double delta = Double.parseDouble(s);
-                if (reset) {
-                    turretPosition = getTurretPosition();
-                    reset = false;
-                } else {
-                    reset = setTurretPosition(delta, turretPosition);
-                }
-                if (reset)
-                    setTurretVelocity(0);
-                return new Tuple<>(reset, reset ? "Done" : "Moving");
-            }
-        });
-
-        command("hood", new Command() {
-            @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
-                boolean done = setHoodPosition(Double.parseDouble(s));
-                return new Tuple<>(done, done ? "Done" : "Moving");
-            }
-        });
-
-        command("shooter", new Command() {
-            @Override
-            public Tuple<Boolean, String> execute(String s) throws Exception {
-                double speed = Double.parseDouble(s); // m/s
-                boolean done = setShooterVelocity(speed);
-                return new Tuple<>(done, done ? "Done" : "Moving");
-            }
-        });
-
-        command("lock", new Command() {
-            @Override
-            public Tuple<Boolean, String> execute(String parameter) throws Exception {
-                setpointLock = parameter.equals("true");
-                return new Tuple<>(true, "Lock updated");
+                return Result.notFinished("Follow what");
             }
         });
     }
