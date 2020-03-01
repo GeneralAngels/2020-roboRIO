@@ -134,6 +134,9 @@ public class DifferentialDrive<T extends SpeedController> extends FRCModule {
 
             // Set distance
             odometry.setDistance(distanceFromEncoders);
+            log("x: " + odometry.getX());
+            log("y: " + odometry.getY());
+            log("theta: " + odometry.getTheta());
         }
 
         return odometry;

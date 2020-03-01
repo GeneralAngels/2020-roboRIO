@@ -118,8 +118,8 @@ public class PathManager extends FRCModule {
         // Reset index
         index = 1;
         // Reset things
-        kOmega = 0.03;
-        kVelocity = 6;
+        kOmega = 0.05;
+        kVelocity = 2;
         maxVelocity = 2;
         maxAcceleration = 2;
         // Update odometry
@@ -142,10 +142,10 @@ public class PathManager extends FRCModule {
         else
             maxAcceleration = Math.min(3.5 / Math.abs(trajectoryCurvature), maxAcceleration);
         // Calculate minimum velocity
-        minVelocity = Math.max(angleDelta * yDelta * 0.7, 0.35);
+        minVelocity = 0.5;
         // Reset some more things
-        kTheta = 2.5;
-        kCurvature = 3.5;
+        kTheta = 3.5;
+        kCurvature = 4;
         // Generate trajectory
         trajectory = TrajectoryGenerator.generateTrajectory(start, new ArrayList<>(), end, config);
     }
@@ -235,7 +235,7 @@ public class PathManager extends FRCModule {
                         currentDesiredVelocity = 0;
                     }
                     if (Math.abs(lastErrors[2]) > RADIAN_TOLERANCE) {
-                        currentDesiredOmega *= 4;
+                        currentDesiredOmega *= 3;
                     } else {
                         currentDesiredOmega = 0;
                     }
@@ -248,7 +248,9 @@ public class PathManager extends FRCModule {
                 currentDesiredOmega = General.deadband(currentDesiredOmega, 0.1);
                 // Check if done (actually)
                 if (currentDesiredVelocity == 0 && currentDesiredOmega == 0) {
-                    this.index++;
+                    this.index += 1;
+                    if (this.index > trajectory.getStates().size())
+                        this.index = trajectory.getStates().size();
                 }
             }
             if (!isLast && errors[0] < errors[1]) {

@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import frc.robot.base.control.path.PathManager;
 import frc.robot.base.rgb.RGB;
 import frc.robot.base.utils.General;
@@ -46,6 +48,8 @@ public class Kobi extends FRCRobot {
 
     private static final double DEADBAND = 0.05;
 
+    private static long offset;
+
     // Joystick
     private Joystick driverLeft;
     private Joystick driverRight;
@@ -63,6 +67,9 @@ public class Kobi extends FRCRobot {
     private static PowerDistributionPanel pdp = new PowerDistributionPanel(0);
 
     public Kobi() {
+        // Update offset
+        offset = millis();
+
         // Controller initialization
         operator = new XboxController(0);
         driverLeft = new Joystick(1);
@@ -82,16 +89,18 @@ public class Kobi extends FRCRobot {
         adopt(drive);
         adopt(rgb);
 
+        manager.createTrajectory(new Pose2d(2, 1, Rotation2d.fromDegrees(0)));
+
         // RGB mode
         rgb.setMode(RGB.Mode.Fill);
     }
 
-    private void updateAll(){
+    private void updateAll() {
         // Voltage
         drive.updateVoltage(pdp.getVoltage());
 
         // Time
-        set("time", String.valueOf(millis()));
+        set("time", String.valueOf(millis() - offset));
 
         // Update odometry
         drive.updateOdometry();
@@ -116,7 +125,6 @@ public class Kobi extends FRCRobot {
 
         // Production
         handleControllers();
-        //drive.driveManual(-operator.getY(GenericHID.Hand.kLeft) / 2, operator.getX(GenericHID.Hand.kLeft) / 2);
     }
 
 
