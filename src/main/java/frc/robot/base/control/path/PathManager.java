@@ -22,13 +22,13 @@ public class PathManager extends FRCModule {
 
     private static final double RANGE_TOLERANCE = 0.2;
     private static final double ANGLE_TOLERANCE = 0.05;
-    private static final double MAXIMUM_VELOCITY = 2;
+    private static final double MAXIMUM_VELOCITY = 1;
     private static final double MINIMUM_VELOCITY = 0.5;
 
     private static final double K_THETA = 4.0;
-    private static final double K_CURVATURE = 1.5;
+    private static final double K_CURVATURE = 1;
     private static final double K_OMEGA = 0.1;
-    private static final double K_VELOCITY = 1.0;
+    private static final double K_VELOCITY = 0;
 
 
     private static final boolean LOGS_ENABLED = true;
@@ -153,7 +153,7 @@ public class PathManager extends FRCModule {
                     index++;
             } else {
                 log("not last point");
-                currentDesiredVelocity = MAXIMUM_VELOCITY - omega * K_CURVATURE;
+                currentDesiredVelocity = MAXIMUM_VELOCITY - Math.abs(omega) * K_CURVATURE;
                 if (General.deadband(errors[0], errors[1]) == 0)
                     index++;
             }
