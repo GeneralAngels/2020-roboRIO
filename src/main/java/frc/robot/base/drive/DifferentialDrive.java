@@ -134,9 +134,6 @@ public class DifferentialDrive<T extends SpeedController> extends FRCModule {
 
             // Set distance
             odometry.setDistance(distanceFromEncoders);
-            log("x: " + odometry.getX());
-            log("y: " + odometry.getY());
-            log("theta: " + odometry.getTheta());
         }
 
         return odometry;
@@ -171,6 +168,14 @@ public class DifferentialDrive<T extends SpeedController> extends FRCModule {
             this.currentVoltage = voltage;
     }
 
+    private double sign(double input) {
+        if (input > 0)
+            return 1;
+        if (input < 0)
+            return -1;
+        return 0;
+    }
+
     // Drive output setters
 
     public boolean driveTurn(double targetAngle, double offset) {
@@ -196,13 +201,10 @@ public class DifferentialDrive<T extends SpeedController> extends FRCModule {
 
     public void driveVector(double velocity, double omega) {
         // Outputs
-        double[] motorOutputs = calculateOutputs(Math.abs(velocity) < TOLERANCE ? 0 : velocity, Math.abs(omega) < TOLERANCE ? 0 : omega);
+        double[] motorOutputs = calculateOutputs(General.deadband(velocity, TOLERANCE), General.deadband(omega, TOLERANCE));
         // voltage tolerance
-        if (Math.abs(motorOutputs[0]) < 0.07)
-            motorOutputs[0] = 0;
-        if (Math.abs(motorOutputs[1]) < 0.07)
-            motorOutputs[1] = 0;
-
+        motorOutputs[0] = General.deadband(motorOutputs[0], 0.07);
+        motorOutputs[1] = General.deadband(motorOutputs[1], 0.07);
         direct(motorOutputs[0], motorOutputs[1]);
         updateOdometry();
     }
@@ -217,12 +219,13 @@ public class DifferentialDrive<T extends SpeedController> extends FRCModule {
         // Calculate
         double motorOutputLeft = motorControlLeftVelocity.PIDVelocity(left.getEncoder().getRaw() * ENCODER_TO_RADIAN, wheelSetPoints[0]);
         double motorOutputRight = motorControlRightVelocity.PIDVelocity(right.getEncoder().getRaw() * ENCODER_TO_RADIAN, wheelSetPoints[1]);
-        //Add friction voltage
-        motorOutputLeft += (deadband * (motorOutputLeft / Math.abs(motorOutputLeft)));
-        motorOutputRight += (deadband * (motorOutputRight / Math.abs(motorOutputRight)));
+        // Add friction voltage
+        motorOutputLeft += (deadband * sign(motorOutputLeft));
+        motorOutputRight += (deadband * sign(motorOutputRight));
         // Divide
         motorOutputLeft /= currentVoltage;
         motorOutputRight /= currentVoltage;
+        log("L " + motorOutputLeft + " R " + motorOutputRight + " V " + currentVoltage);
         // Return tuple
         return new double[]{motorOutputLeft, motorOutputRight};
     }

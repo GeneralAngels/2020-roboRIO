@@ -10,13 +10,17 @@ import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import frc.robot.base.drive.DifferentialDrive;
 import frc.robot.base.utils.MotorGroup;
 
-public class KobiDrive extends DifferentialDrive<VictorSP> {
-    public KobiDrive() {
+import java.util.ArrayList;
 
-        left.addMotor(new VictorSP(0));
-        left.addMotor(new VictorSP(1));
-        right.addMotor(new VictorSP(2));
-        right.addMotor(new VictorSP(3));
+public class KobiDrive extends DifferentialDrive<VictorSP> {
+
+    private ArrayList<VictorSP> drives = new ArrayList<>();
+
+    public KobiDrive() {
+        drives.add(left.addMotor(new VictorSP(0)));
+        drives.add(left.addMotor(new VictorSP(1)));
+        drives.add(right.addMotor(new VictorSP(2)));
+        drives.add(right.addMotor(new VictorSP(3)));
 
         right.setEncoder(new Encoder(0, 1));
         left.setEncoder(new Encoder(3, 2));
@@ -24,6 +28,5 @@ public class KobiDrive extends DifferentialDrive<VictorSP> {
         right.setDirection(MotorGroup.BACKWARD);
         resetOdometry();
     }
-
 
 }

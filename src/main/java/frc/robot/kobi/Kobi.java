@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import frc.robot.base.control.path.PathManager;
+import frc.robot.base.control.path.Point;
 import frc.robot.base.rgb.RGB;
 import frc.robot.base.utils.General;
 import frc.robot.kobi.systems.KobiDrive;
@@ -89,7 +90,7 @@ public class Kobi extends FRCRobot {
         adopt(drive);
         adopt(rgb);
 
-        manager.createTrajectory(new Pose2d(2, 1, Rotation2d.fromDegrees(0)));
+        manager.createTrajectory(new Point(1, 0, 0, 0), false);
 
         // RGB mode
         rgb.setMode(RGB.Mode.Fill);
@@ -122,9 +123,14 @@ public class Kobi extends FRCRobot {
     public void teleopLoop() {
         // Update all
         updateAll();
-
+//        log("right: " + drive.right.getEncoder().getRaw());
+//        log("left: " + drive.left.getEncoder().getRaw());
         // Production
-        handleControllers();
+//        handleControllers();
+        if (operator.getBButton())
+            manager.followTrajectory(false);
+        else
+            drive.driveManual(-operator.getY(GenericHID.Hand.kRight) / 3, operator.getX(GenericHID.Hand.kRight) / 3);
     }
 
 

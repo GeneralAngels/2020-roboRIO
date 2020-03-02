@@ -13,7 +13,6 @@ import frc.robot.base.drive.Odometry;
 import frc.robot.base.utils.General;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.opencv.core.Mat;
 
 import java.util.ArrayList;
 
@@ -21,28 +20,26 @@ public class PathManager extends FRCModule {
 
     private static final double TIME_DELTA = 0.02;
 
-    private static final double DISTANCE_TOLERANCE = 0.05;
-    private static final double RADIAN_TOLERANCE = 3 * Math.PI / 180;
-    private static final double DEGREE_TOLERANCE = 5;
+    private static final double RANGE_TOLERANCE = 0.2;
+    private static final double ANGLE_TOLERANCE = 0.05;
+    private static final double MAXIMUM_VELOCITY = 2;
+    private static final double MINIMUM_VELOCITY = 0.5;
+
+    private static final double K_THETA = 4.0;
+    private static final double K_CURVATURE = 1.5;
+    private static final double K_OMEGA = 0.1;
+    private static final double K_VELOCITY = 1.0;
+
 
     private static final boolean LOGS_ENABLED = true;
-
-    private static final int FUTURE_CURVATURE_STATES = 2; // How many states to skip when looking for future curvatures (for linear acceleration)
 
     private DifferentialDrive drive;
 
     private ArrayList<Point> points;
 
-    private Trajectory trajectory;
-
-    // Trajectory progress
     private int index = 0;
-
     private double theta, omega, x, y;
-    private double minVelocity, maxVelocity, maxAcceleration;
-
-    public double kTheta, kCurvature, kOmega, kVelocity;
-    public double currentDesiredOmega, currentDesiredVelocity, previousDesiredVelocity;
+    private double currentDesiredOmega, currentDesiredVelocity, previousDesiredVelocity;
 
     public PathManager(DifferentialDrive drive) {
         super("path");
@@ -97,13 +94,9 @@ public class PathManager extends FRCModule {
         register("follow", new Function() {
             @Override
             public Result execute(String parameter) throws Exception {
-                if (trajectory != null) {
-                    updateProgress();
-                    if (index >= trajectory.getStates().size()) {
-                        return Result.finished("Done");
-                    }
-                    followTrajectory(parameter.equals("reverse"));
-                    return Result.notFinished("Not done");
+                if (points != null) {
+                    boolean done = followTrajectory(parameter.equals("reverse"));
+                    return Result.create(done, done ? "Done" : "Not done");
                 } else {
                     return Result.notFinished("No trajectory");
                 }
@@ -113,7 +106,7 @@ public class PathManager extends FRCModule {
 
     private void updateProgress() {
         set("index", String.valueOf(index));
-        set("length", String.valueOf(trajectory.getStates().size()));
+        set("length", String.valueOf(points.size()));
     }
 
     private void updateOdometry() {
@@ -130,11 +123,6 @@ public class PathManager extends FRCModule {
         points = new ArrayList<>();
         // Reset index
         index = 1;
-        // Reset things
-        kOmega = 0.05;
-        kVelocity = 2;
-        maxVelocity = 2;
-        maxAcceleration = 2;
         // Update odometry
         updateOdometry();
         // Configure trajectory
@@ -145,107 +133,54 @@ public class PathManager extends FRCModule {
         Point end = target;
         // Poses
         trajectoryToPoints(TrajectoryGenerator.generateTrajectory(pointToState(start).poseMeters, new ArrayList<>(), pointToState(end).poseMeters, config));
-        // Calculate curvature
-        double trajectoryCurvature = curvature(end, start);
-        // Calculate the maximum acceleration and velocity
-//        maxVelocity = Math.min(4 / Math.abs(trajectoryCurvature), 1.5);
-        double angleDelta = Math.abs(Math.sin(Math.toRadians(end.getAngle() - start.getAngle())));
-        double yDelta = Math.abs(end.getY() - start.getY());
-        // Calculate max acceleration
-        if (yDelta > 0.4)
-            maxAcceleration = Math.min((3 / (Math.abs(trajectoryCurvature)) + (angleDelta * yDelta)), maxAcceleration);
-        else
-            maxAcceleration = Math.min(3.5 / Math.abs(trajectoryCurvature), maxAcceleration);
-        // Calculate minimum velocity
-        minVelocity = 0.5;
-        // Reset some more things
-        kTheta = 3.5;
-        kCurvature = 4;
-        // Multiply for reversed
-        if (reversed) {
-            kCurvature *= -1;
-            maxAcceleration *= -1;
-        }
     }
 
-    public void followTrajectory(boolean reversed) {
-        // Follow trajectory
+    public boolean followTrajectory(boolean reversed) {
+        // Update progress and odometry
         updateProgress();
-        // Check if finished
+        updateOdometry();
+        // Follow trajectory
         if (index < points.size()) {
-            // Setup previous values
-            previousDesiredVelocity = currentDesiredVelocity;
-            // Setup odometry value
-            updateOdometry();
-            // Setup states
-            Point currentGoal = points.get(index);
-            // Calculate curvature
-            double curvature = currentGoal.getCurvature();
-            if (index < points.size() - FUTURE_CURVATURE_STATES) // Check future curvature
-                curvature = points.get(index + FUTURE_CURVATURE_STATES).getCurvature(); // Look for future curvature
-            // Absolute the values
-            curvature = Math.abs(curvature);
-            // Calculate new errors
+            // Calculate errors
             double[] errors = calculateErrors();
-            // Is last point yet?
-            boolean isLast = !(index < points.size() - 1);
-            // Calculate kTheta
-            kTheta = Math.abs(kTheta);
-            // Make sure we are not done yet
-            if (!isLast) {
-                // Calculate average curvature
-                double acceleration = maxAcceleration - (movingAverageCurvature() / 2.0); // 2.0 is an arbitrary value
-                // Sets
-                set("maxV", String.valueOf(maxVelocity));
-                set("maxA", String.valueOf(maxAcceleration));
-                // Calculate velocity (maxVelocity - curvature * kCurv)(V = V0 + a*t)
-                currentDesiredVelocity = Math.min(maxVelocity - (curvature * kCurvature), previousDesiredVelocity + (acceleration * TIME_DELTA));
-                // Check range
-                if ((currentDesiredVelocity >= 0 && currentDesiredVelocity < minVelocity) || (maxVelocity < (curvature * kCurvature))) // To make sure velocity isn't too low
-                    currentDesiredVelocity = minVelocity;
-                // Calculate omega (PD control)
-                currentDesiredOmega = errors[2] * kTheta - omega * kOmega;
+            // Calculate desired angular velocity
+            currentDesiredOmega = errors[2] * K_THETA - omega * K_OMEGA;
+            // Check if last point
+            if (index == points.size() - 1) {
+                log("last point");
+                currentDesiredVelocity = errors[0] * K_VELOCITY;
+                if (General.deadband(errors[0], RANGE_TOLERANCE) == 0)
+                    index++;
             } else {
-                // Last point
-                calculateVelocityCoefficient();
-                // Calculate errors
-                double[] lastErrors = calculateLastErrors();
-                // Calculate desired sh*t
-                currentDesiredVelocity = lastErrors[0] * kVelocity;
-                currentDesiredOmega = lastErrors[2] * kTheta - omega * kOmega;
-                // Check if done
-                if (!(Math.abs(lastErrors[1]) < DISTANCE_TOLERANCE && Math.abs(lastErrors[2]) < RADIAN_TOLERANCE)) {
-                    // Distance
-                    if (Math.abs(lastErrors[1]) > DISTANCE_TOLERANCE) {
-                        currentDesiredVelocity *= 1;
-                    } else {
-                        currentDesiredVelocity = 0;
-                    }
-                    if (Math.abs(lastErrors[2]) > RADIAN_TOLERANCE) {
-                        currentDesiredOmega *= 3;
-                    } else {
-                        currentDesiredOmega = 0;
-                    }
-                } else {
-                    currentDesiredVelocity = 0;
-                    currentDesiredOmega = 0;
-                }
-                // Deadbands
-                currentDesiredVelocity = General.deadband(currentDesiredVelocity, 0.1);
-                currentDesiredOmega = General.deadband(currentDesiredOmega, 0.1);
-                // Check if done (actually)
-                if (currentDesiredVelocity == 0 && currentDesiredOmega == 0) {
-                    this.index++;
-                }
+                log("not last point");
+                currentDesiredVelocity = MAXIMUM_VELOCITY - omega * K_CURVATURE;
+                if (General.deadband(errors[0], errors[1]) == 0)
+                    index++;
             }
-            if (!isLast && errors[0] < errors[1]) {
-                this.index++;
-            }
-            set("targetVelocity", String.valueOf(currentDesiredVelocity));
-            set("targetOmega", String.valueOf(currentDesiredOmega));
+            // Make sure the signal is positive
+            currentDesiredVelocity = Math.max(currentDesiredVelocity, MINIMUM_VELOCITY);
+            // Multiply for reverse
+            currentDesiredVelocity *= (!reversed ? 1 : -1);
+            // Send command
             drive.driveVector(currentDesiredVelocity, currentDesiredOmega);
+            // Return not done
+            return false;
         } else {
-            log("Finished");
+            log("only turn");
+            // Fix target
+            currentDesiredVelocity = 0;
+            // Calculate errors
+            double errorTheta = calculateLastError();
+            // Calculate desired angular velocity
+            if (General.deadband(errorTheta, ANGLE_TOLERANCE) == 0) {
+                currentDesiredOmega = 0;
+            } else {
+                currentDesiredOmega = errorTheta * K_THETA - omega * K_OMEGA;
+            }
+            // Send drive command
+            drive.driveVector(currentDesiredVelocity, currentDesiredOmega);
+            // Return result
+            return General.deadband(errorTheta, ANGLE_TOLERANCE) == 0;
         }
     }
 
@@ -255,7 +190,7 @@ public class PathManager extends FRCModule {
 
     public double[] calculateErrors() {
         // Theta calculation
-        double errorTheta = (curvature(getCurrentPoint(), points.get(index)) - Math.toRadians(getCurrentPoint().getAngle())) % (2 * Math.PI);
+        double errorTheta = Math.toRadians(General.compassify(Math.toDegrees(curvature(getCurrentPoint(), points.get(index)) - Math.toRadians(getCurrentPoint().getAngle()))));
         // Error calculation
         double currentDistanceError = absoluteDistance(getCurrentPoint(), points.get(index));
         double previousDistanceError = absoluteDistance(getCurrentPoint(), points.get(index - 1));
@@ -263,16 +198,11 @@ public class PathManager extends FRCModule {
         return new double[]{currentDistanceError, previousDistanceError, errorTheta};
     }
 
-    public double[] calculateLastErrors() {
+    public double calculateLastError() {
         // Get the errors
         Point lastPose = points.get(points.size() - 1);
-        // Calculate errors
-        double relativeErrorPosition = relativeDistance(getCurrentPoint(), lastPose);
-        double absoluteErrorPosition = absoluteDistance(getCurrentPoint(), lastPose);
-        // Calculate angle error
-        double errorTheta = Math.toRadians(points.get(points.size() - 1).getAngle() - getCurrentPoint().getAngle());
         // Return tuple
-        return new double[]{absoluteErrorPosition, relativeErrorPosition, errorTheta};
+        return Math.toRadians(General.compassify(lastPose.getAngle() - getCurrentPoint().getAngle()));
     }
 
     private double[] deltas(Point first, Point last) {
@@ -297,47 +227,10 @@ public class PathManager extends FRCModule {
         return Math.sqrt(errors[0] * errors[0] + errors[1] * errors[1]);
     }
 
-    private double relativeDistance(Point first, Point last) {
-        // Assign values
-        double[] errors = deltas(first, last);
-        // Radian degrees of first (instead of theta)
-        double angle = Math.toRadians(first.getAngle());
-        // Return distance
-        return errors[0] * Math.cos(angle) + errors[1] * Math.sin(angle);
-    }
-
-    private void calculateVelocityCoefficient() {
-        // Calculate errors
-        double errorDistance = relativeDistance(getCurrentPoint(), points.get(index));
-        kVelocity = Math.abs(kVelocity);
-        if (errorDistance < 0) {
-            kVelocity *= -1;
-        } else {
-            kVelocity *= 1;
-        }
-    }
-
-    private double movingAverageCurvature() {
-        double average = 0;
-        for (int i = points.size() - 1; i >= 0; i--) {
-            average = (average + Math.abs(points.get(i).getCurvature())) / 2;
-        }
-        return average;
-    }
-
     @Override
     protected void log(String string) {
         if (LOGS_ENABLED)
             super.log(string);
-    }
-
-    private double[] derivePolynomial(double[] coefficients) {
-        double[] result = new double[coefficients.length];
-        result[0] = 0;
-        for (int i = 1; i < coefficients.length; i++) {
-            result[i] = coefficients[i - 1] * i;
-        }
-        return result;
     }
 
     private Trajectory.State pointToState(Point point) {

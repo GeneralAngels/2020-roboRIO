@@ -3,6 +3,7 @@ package frc.robot.base.control;
 import com.ga2230.shleam.advanced.frc.FRCModule;
 import com.ga2230.shleam.base.structure.Function;
 import com.ga2230.shleam.base.structure.Result;
+import frc.robot.base.utils.General;
 
 /**
  * Copyright (c) 2019 General Angels
@@ -64,15 +65,7 @@ public class PID extends FRCModule {
         if (measurement == previousMeasurement)
             return derivative;
         derivative = (measurement - previousMeasurement) / timeDelta;
-        if (Math.abs(derivative) < 0.001)
-            derivative = 0;
-        return derivative;
-    }
-
-    public double calculateDerivative(double measurement, double previousMeasurement) {
-        derivative = (measurement - previousMeasurement) / timeDelta;
-        if (Math.abs(derivative) < 0.001)
-            derivative = 0;
+        derivative = General.deadband(derivative, 0.001);
         return derivative;
     }
 
@@ -122,7 +115,7 @@ public class PID extends FRCModule {
 
     public void updateDelta() {
         this.timeDelta = (millis() - previousTime) / 1000;
-        previousTime = millis();
+        this.previousTime = millis();
     }
 
     public double PIDVelocity(double measurement, double setpoint) {
@@ -146,6 +139,12 @@ public class PID extends FRCModule {
         }
         previousError = error;
         previousDerivative = derivative;
+
+        set("integral", String.valueOf(integral));
+        set("derivative", String.valueOf(derivative));
+        set("error", String.valueOf(derivative));
+        set("setpoint", String.valueOf(derivative));
+
         return range(controlSignal, -MAXIMUM_SIGNAL, MAXIMUM_SIGNAL);
     }
 

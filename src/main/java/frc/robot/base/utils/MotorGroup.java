@@ -64,12 +64,14 @@ public class MotorGroup<Type extends SpeedController> extends FRCModule {
         this.direction = direction;
     }
 
-    public void addMotors(Type[] drives) {
+    public Type[] addMotors(Type[] drives) {
         for (Type drive : drives) addMotor(drive);
+        return drives;
     }
 
-    public void addMotor(Type drive) {
+    public Type addMotor(Type drive) {
         drives.add(drive);
+        return drive;
     }
 
     public void removeMotor(Type drive) {

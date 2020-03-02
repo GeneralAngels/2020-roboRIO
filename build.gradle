@@ -46,7 +46,7 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation "com.ga2230:shleam:2020.0.0"
+    implementation "com.ga2230:shleam:2020.0.1"
     implementation "org.json:json:20190722"
 
     implementation "org.la4j:la4j:0.6.0"
