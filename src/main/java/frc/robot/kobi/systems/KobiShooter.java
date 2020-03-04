@@ -191,11 +191,12 @@ public class KobiShooter extends FRCModule {
     public boolean setShooterVelocity(double targetVelocity) {
         if (targetVelocity != 0) {
             // Velocity is M/S
-            double input = targetVelocity * ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS));
+            double conversion = ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS));
+            double input = targetVelocity * conversion;
             // Set is Tick/100ms
             shooter1.set(ControlMode.Velocity, input);
-//        log("A: " + shooter1.getMotorOutputPercent() + " B: " + shooter2.getMotorOutputPercent() + " C: " + shooter3.getMotorOutputPercent());
-            double currentVelocity = shooter1.getSelectedSensorVelocity() / ((SHOOTER_ENCODER_TICKS * TALON_RATE) / (2 * Math.PI * SHOOTER_WHEEL_RADIUS));
+            // Calculate the current velocity
+            double currentVelocity = shooter1.getSelectedSensorVelocity() / conversion;
             set("flywheel", String.valueOf(currentVelocity));
             // Check threshold
             return Math.abs(targetVelocity - currentVelocity) < SHOOTER_VELOCITY_THRESHOLD;

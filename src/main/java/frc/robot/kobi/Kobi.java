@@ -155,7 +155,7 @@ public class Kobi extends FRCRobot {
         // Flywheel
         if (!operator.getAButton()) {
             // Shooter velocity from controller
-            shooterVelocity = General.deadband(-operator.getY(GenericHID.Hand.kRight), DEADBAND) * 34;
+            shooterVelocity = General.deadband(-operator.getY(GenericHID.Hand.kRight), DEADBAND) * 20;
         } else {
             shooterVelocity = shooter.getShooterSetPoint();
         }
