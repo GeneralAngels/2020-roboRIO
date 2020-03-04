@@ -37,8 +37,6 @@ public class PathManager extends FRCModule {
     private ArrayList<Point> points;
 
     private int index = 0;
-    private double theta, omega, x, y;
-    private double currentDesiredOmega, currentDesiredVelocity, previousDesiredVelocity;
 
     public PathManager(DifferentialDrive drive) {
         super("path");
@@ -109,12 +107,7 @@ public class PathManager extends FRCModule {
     }
 
     private void updateOdometry() {
-        Odometry odometry = drive.updateOdometry();
-//        theta = General.compassify(odometry.getTheta());
-        theta = odometry.getTheta();
-        omega = odometry.getOmega();
-        x = odometry.getX();
-        y = odometry.getY();
+        drive.updateOdometry();
     }
 
     public void createTrajectory(Point target, boolean reversed) {
@@ -139,15 +132,17 @@ public class PathManager extends FRCModule {
         updateProgress();
         updateOdometry();
         // Follow trajectory
+        double currentDesiredOmega;
+        double currentDesiredVelocity;
         if (index < points.size()) {
             // Calculate errors
             double[] errors = calculateErrors();
             // Calculate desired angular velocity
-            currentDesiredOmega = errors[2] * K_THETA - omega * K_OMEGA;
+            currentDesiredOmega = errors[2] * K_THETA - getCurrentPoint().getCurvature() * K_OMEGA;
             // Check if last point
             //if (index == points.size() - 1) { //TODO: check if changed if works
-            Point lastPoint = points.get(points.size()-1);
-            if(distance(getCurrentPoint(), lastPoint) < 0.5){
+            Point lastPoint = points.get(points.size() - 1);
+            if (distance(getCurrentPoint(), lastPoint) < 0.5) {
                 log("last point");
                 currentDesiredVelocity = errors[0] * K_VELOCITY;
                 if (General.deadband(errors[0], RANGE_TOLERANCE) == 0)
@@ -177,7 +172,7 @@ public class PathManager extends FRCModule {
             if (General.deadband(errorTheta, ANGLE_TOLERANCE) == 0) {
                 currentDesiredOmega = 0;
             } else {
-                currentDesiredOmega = errorTheta * K_THETA - omega * K_OMEGA;
+                currentDesiredOmega = errorTheta * K_THETA - getCurrentPoint().getCurvature() * K_OMEGA;
             }
             // Send drive command
             drive.driveVector(currentDesiredVelocity, currentDesiredOmega);
@@ -187,7 +182,7 @@ public class PathManager extends FRCModule {
     }
 
     public Point getCurrentPoint() {
-        return new Point(x, y, theta, omega);
+        return drive.getOdometry().toPoint();
     }
 
     public double[] calculateErrors() {

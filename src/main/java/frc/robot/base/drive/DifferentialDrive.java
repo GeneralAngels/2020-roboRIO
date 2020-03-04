@@ -26,10 +26,6 @@ public class DifferentialDrive<T extends SpeedController> extends FRCModule {
     private double deadband = 0.826; // =0.07*11.8 //11.8 current voltage, 0.07 minimum voltage (in order to move the robot)
 
     // Odometry
-    private double x = 0;
-    private double y = 0;
-    private double theta = 0;
-    private double omega = 0;
     private double leftMetersPrev = 0;
     private double rightMetersPrev = 0;
 
@@ -94,7 +90,7 @@ public class DifferentialDrive<T extends SpeedController> extends FRCModule {
             public Result execute(String parameter) throws Exception {
                 updateOdometry();
                 if (!started) {
-                    startingAngle = theta;
+                    startingAngle = odometry.getAngle();
                 }
                 started = !driveTurn(Double.parseDouble(parameter), startingAngle);
                 updateOdometry();
@@ -113,9 +109,6 @@ public class DifferentialDrive<T extends SpeedController> extends FRCModule {
     }
 
     public Odometry updateOdometry() {
-        // Set theta
-        odometry.setTheta(theta = Gyroscope.getAngle());
-        odometry.setOmega(omega = Gyroscope.getAngularVelocity());
 
         if (left.hasEncoder() && right.hasEncoder()) {
             // Set lasts
@@ -125,35 +118,24 @@ public class DifferentialDrive<T extends SpeedController> extends FRCModule {
             // Calculate meters
             double leftMeters = (currentEncoders[0] - lastEncoders[0]) * ENCODER_TO_METER;
             double rightMeters = (currentEncoders[1] - lastEncoders[1]) * ENCODER_TO_METER;
-            // Calculate distance
-            double distanceFromEncoders = (leftMeters + rightMeters) / 2;
-
-            // Set odometry
-            odometry.setX((x += distanceFromEncoders * Math.cos(Math.toRadians(theta))));
-            odometry.setY((y += distanceFromEncoders * Math.sin(Math.toRadians(theta))));
-
-            // Set distance
-            odometry.setDistance(distanceFromEncoders);
+            // Update odometry
+            odometry.update(new double[]{leftMeters, rightMeters});
         }
 
         return odometry;
     }
 
     public void resetOdometry() {
-        // Reset gyro
-        Gyroscope.reset();
-
         // Reset encoders
         left.resetEncoder();
         right.resetEncoder();
 
         // Reset variables
-        this.x = 0;
-        this.y = 0;
-        this.theta = 0;
-        this.omega = 0;
-        this.lastEncoders = new double[2];
-        this.currentEncoders = new double[2];
+        lastEncoders = new double[2];
+        currentEncoders = new double[2];
+
+        // Reset odometry
+        odometry.reset();
 
         // Update odometry
         updateOdometry();
@@ -180,7 +162,7 @@ public class DifferentialDrive<T extends SpeedController> extends FRCModule {
 
     public boolean driveTurn(double targetAngle, double offset) {
         // Calculate output
-        double power = robotControlTurn.PIDPosition(theta - offset, targetAngle) / currentVoltage;
+        double power = robotControlTurn.PIDPosition(odometry.getAngle() - offset, targetAngle) / currentVoltage;
         if (power > 0)
             power = Math.min(power, 0.3);
         else if (power < 0)

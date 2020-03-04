@@ -232,6 +232,10 @@ public class KobiShooter extends FRCModule {
         return position;
     }
 
+//    public int getTurretOffset(){
+//
+//    }
+
     private double deadband(double value, double threshold) {
         if (Math.abs(value) < threshold)
             return 0;

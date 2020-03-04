@@ -9,14 +9,6 @@ public abstract class Gyroscope {
 
     private static PigeonIMU pigeon = new PigeonIMU(30);
 
-    private static long millis() {
-        return (long) (Timer.getFPGATimestamp() * 1000);
-    }
-
-    private static void log(String string) {
-        System.out.println(("Gyroscope: ") + string);
-    }
-
     public static double getAngle() {
         double[] ypr = new double[3];
         pigeon.getYawPitchRoll(ypr);
@@ -27,6 +19,10 @@ public abstract class Gyroscope {
         double[] xyz = new double[3];
         pigeon.getRawGyro(xyz);
         return xyz[2];
+    }
+
+    public static void setAngle(double angle) {
+        pigeon.setYaw(angle);
     }
 
     public static void reset() {
