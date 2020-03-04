@@ -128,11 +128,11 @@ public class Kobi extends FRCRobot {
 //        log("right: " + drive.right.getEncoder().getRaw());
 //        log("left: " + drive.left.getEncoder().getRaw());
         // Production
-//        handleControllers();
-        if (operator.getBButton())
-            manager.followTrajectory(false);
-        else
-            drive.driveManual(-operator.getY(GenericHID.Hand.kRight) / 3, operator.getX(GenericHID.Hand.kRight) / 3);
+        handleControllers();
+//        if (operator.getBButton())
+//            manager.followTrajectory(false);
+//        else
+//            drive.driveManual(-operator.getY(GenericHID.Hand.kRight) / 3, operator.getX(GenericHID.Hand.kRight) / 3);
     }
 
 

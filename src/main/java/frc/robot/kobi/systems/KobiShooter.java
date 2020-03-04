@@ -49,8 +49,11 @@ public class KobiShooter extends FRCModule {
 
     // Turret things
     private static final double TURRET_ENCODER_TICKS = 4096; // Verified by Idan
+    private static final double TURRET_THRESHOLD_VELOCITY = 0.1;
     private static final double TURRET_THRESHOLD_TICKS = 10;
     private static final double TURRET_GEAR = 240.0 / 22.0; // Verified by Libi (16/02/2020, Nadav, Old = 182.6/17.5)
+
+    private int turretOffsetTicks;
 
     private WPI_TalonSRX turret;
 
@@ -159,7 +162,11 @@ public class KobiShooter extends FRCModule {
 
     public boolean followTurretSetPoint() {
         setTurretVelocity(-turretVelocitySetPoint / 5);
-        return deadband(-turretVelocitySetPoint / 5, 0.05) == 0;
+        return General.deadband(-turretVelocitySetPoint / 5, 0.05) == 0;
+    }
+
+    public void resetTurretPosition() {
+        this.turretOffsetTicks = turret.getSelectedSensorPosition();
     }
 
     public boolean setHoodPosition(double angle) {
@@ -168,7 +175,7 @@ public class KobiShooter extends FRCModule {
             double measurement = potentiometer.get();
             double currentAngle = calculateAngle(measurement);
             // Calculate error
-            double error = deadband(angle - currentAngle, HOOD_THRESHOLD_DEGREES);
+            double error = General.deadband(angle - currentAngle, HOOD_THRESHOLD_DEGREES);
             // Calculate speed
             double speed = 0;
             if (error != 0)
@@ -198,14 +205,15 @@ public class KobiShooter extends FRCModule {
         }
     }
 
-    public boolean setTurretPosition(double angle, double offset) {
+    public boolean setTurretPosition(double angle) {
         // Calculate PID
         if (angle != 0) {
-            double target = offset + (int) (TURRET_ENCODER_TICKS * (angle / 360));
-            double velocity = (target - getTurretPosition()) / (TALON_RATE);
+            double target = turretOffsetTicks + (int) (TURRET_ENCODER_TICKS * (angle / 360));
+            double velocity = (target - turret.getSelectedSensorVelocity()) / (TALON_RATE);
+            // Set the velocity
             turret.set(ControlMode.Velocity, velocity);
             // Check threshold
-            return Math.abs(target - getTurretPosition()) < TURRET_THRESHOLD_TICKS;
+            return General.deadband(velocity, TURRET_THRESHOLD_VELOCITY) == 0;
         }
         return true;
     }
@@ -226,19 +234,9 @@ public class KobiShooter extends FRCModule {
         return position;
     }
 
-    public int getTurretPosition() {
-        int position = turret.getSelectedSensorPosition();
+    public double getTurretPosition() {
+        double position = (turret.getSelectedSensorPosition() - turretOffsetTicks) / (TURRET_ENCODER_TICKS / 360.0);
         set("turret", String.valueOf(position));
         return position;
-    }
-
-//    public int getTurretOffset(){
-//
-//    }
-
-    private double deadband(double value, double threshold) {
-        if (Math.abs(value) < threshold)
-            return 0;
-        return value;
     }
 }
