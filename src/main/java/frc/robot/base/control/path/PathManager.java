@@ -30,7 +30,6 @@ public class PathManager extends FRCModule {
     private static final double K_OMEGA = 0.1;
     private static final double K_VELOCITY = 0;
 
-
     private static final boolean LOGS_ENABLED = true;
 
     private DifferentialDrive drive;
@@ -146,14 +145,17 @@ public class PathManager extends FRCModule {
             // Calculate desired angular velocity
             currentDesiredOmega = errors[2] * K_THETA - omega * K_OMEGA;
             // Check if last point
-            if (index == points.size() - 1) {
+            //if (index == points.size() - 1) { //TODO: check if changed if works
+            Point lastPoint = points.get(points.size()-1);
+            if(distance(getCurrentPoint(), lastPoint) < 0.5){
                 log("last point");
                 currentDesiredVelocity = errors[0] * K_VELOCITY;
                 if (General.deadband(errors[0], RANGE_TOLERANCE) == 0)
                     index++;
+                // TODO these two if are meaningfully the same
             } else {
                 log("not last point");
-                currentDesiredVelocity = MAXIMUM_VELOCITY - Math.abs(omega) * K_CURVATURE;
+                currentDesiredVelocity = MAXIMUM_VELOCITY - Math.abs(errors[2]) * K_CURVATURE;
                 if (General.deadband(errors[0], errors[1]) == 0)
                     index++;
             }
@@ -192,8 +194,8 @@ public class PathManager extends FRCModule {
         // Theta calculation
         double errorTheta = Math.toRadians(General.compassify(Math.toDegrees(curvature(getCurrentPoint(), points.get(index)) - Math.toRadians(getCurrentPoint().getAngle()))));
         // Error calculation
-        double currentDistanceError = absoluteDistance(getCurrentPoint(), points.get(index));
-        double previousDistanceError = absoluteDistance(getCurrentPoint(), points.get(index - 1));
+        double currentDistanceError = distance(getCurrentPoint(), points.get(index));
+        double previousDistanceError = distance(getCurrentPoint(), points.get(index - 1));
         // Return tuple
         return new double[]{currentDistanceError, previousDistanceError, errorTheta};
     }
@@ -220,7 +222,7 @@ public class PathManager extends FRCModule {
         return Math.atan2(deltas[1], deltas[0]);
     }
 
-    private double absoluteDistance(Point first, Point last) {
+    private double distance(Point first, Point last) {
         // Assign values
         double[] errors = deltas(first, last);
         // Calculate and return

@@ -90,6 +90,8 @@ public class Kobi extends FRCRobot {
         adopt(drive);
         adopt(rgb);
 
+        // Register functions
+
         manager.createTrajectory(new Point(1, 0, 0, 0), false);
 
         // RGB mode
