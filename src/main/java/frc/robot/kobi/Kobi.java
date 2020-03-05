@@ -5,12 +5,9 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import frc.robot.base.control.path.PathManager;
 import frc.robot.base.control.path.Point;
 import frc.robot.base.rgb.RGB;
-import frc.robot.base.utils.CommunicationIndicator;
 import frc.robot.base.utils.General;
 import frc.robot.kobi.systems.KobiDrive;
 import frc.robot.kobi.systems.KobiFeeder;
@@ -83,7 +80,6 @@ public class Kobi extends FRCRobot {
         shooter = new KobiShooter();
 
         // Adopt children
-        adopt(new CommunicationIndicator());
         adopt(manager);
         adopt(shooter);
         adopt(feeder);
