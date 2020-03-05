@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import frc.robot.base.control.path.PathManager;
 import frc.robot.base.control.path.Point;
 import frc.robot.base.rgb.RGB;
+import frc.robot.base.utils.CommunicationIndicator;
 import frc.robot.base.utils.General;
 import frc.robot.kobi.systems.KobiDrive;
 import frc.robot.kobi.systems.KobiFeeder;
@@ -68,8 +69,6 @@ public class Kobi extends FRCRobot {
     private static PowerDistributionPanel pdp = new PowerDistributionPanel(0);
 
     public Kobi() {
-        // Update offset
-        offset = millis();
 
         // Controller initialization
         operator = new XboxController(0);
@@ -84,6 +83,7 @@ public class Kobi extends FRCRobot {
         shooter = new KobiShooter();
 
         // Adopt children
+        adopt(new CommunicationIndicator());
         adopt(manager);
         adopt(shooter);
         adopt(feeder);
@@ -110,6 +110,17 @@ public class Kobi extends FRCRobot {
 
         // Update shooter positions
         shooter.updatePositions();
+    }
+
+    @Override
+    public void autonomousSetup() {
+        // Update offset
+        offset = millis();
+    }
+
+    @Override
+    public void teleopSetup() {
+        autonomousSetup();
     }
 
     @Override
@@ -155,7 +166,7 @@ public class Kobi extends FRCRobot {
         // Flywheel
         if (!operator.getAButton()) {
             // Shooter velocity from controller
-            shooterVelocity = General.deadband(-operator.getY(GenericHID.Hand.kRight), DEADBAND) * 20;
+            shooterVelocity = General.deadband(-operator.getY(GenericHID.Hand.kRight), DEADBAND) * 34;
         } else {
             shooterVelocity = shooter.getShooterSetPoint();
         }

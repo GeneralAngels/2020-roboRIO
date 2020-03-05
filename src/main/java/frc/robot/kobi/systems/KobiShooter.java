@@ -79,7 +79,7 @@ public class KobiShooter extends FRCModule {
         shooter2 = new WPI_TalonSRX(21);
         shooter3 = new WPI_TalonSRX(22);
 
-        General.setupMotor(shooter1, FeedbackDevice.CTRE_MagEncoder_Relative, 0.55, 0.0000, 1, 0.05); // OMG magic
+        General.setupMotor(shooter1, FeedbackDevice.CTRE_MagEncoder_Relative, 1, 0.00001, 0, 0.07); // OMG magic
         shooter1.setSensorPhase(true); // Flip encoder polarity (+/-)
 
         shooter1.setNeutralMode(NeutralMode.Coast);
