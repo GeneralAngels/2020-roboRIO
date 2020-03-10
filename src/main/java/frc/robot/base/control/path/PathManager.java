@@ -75,6 +75,25 @@ public class PathManager extends FRCModule {
             }
         });
 
+        // Request a path from the laptop
+        register("request", new Function() {
+            @Override
+            public Result execute(String parameter) throws Exception {
+                // Parse string into three parameters (x, y, theta)
+                String[] split = parameter.split(" ");
+                if (split.length == 3) {
+                    double x = Double.parseDouble(split[0]);
+                    double y = Double.parseDouble(split[1]);
+                    double angle = Double.parseDouble(split[2]);
+                    set("target-x", String.valueOf(x));
+                    set("target-y", String.valueOf(y));
+                    set("target-angle", String.valueOf(angle));
+                    points = null;
+                }
+                return Result.create(points != null, "Requesting");
+            }
+        });
+
         register("set", new Function() {
             @Override
             public Result execute(String parameter) throws Exception {

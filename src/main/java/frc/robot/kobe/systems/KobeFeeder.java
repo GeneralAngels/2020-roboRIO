@@ -116,7 +116,6 @@ public class KobeFeeder extends FRCModule {
             return true;
         } else {
             if (direction == Direction.In) {
-                // if (!closeSwitch.get()) { //microswitch isn't working
                 // Todo m/s l/s
                 if (closeSwitch.get() && USE_MICROSWITCHES) {
                     slider.set(0);
