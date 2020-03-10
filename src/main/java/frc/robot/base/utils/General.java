@@ -2,7 +2,7 @@ package frc.robot.base.utils;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import frc.robot.kobi.systems.KobiFeeder;
+import frc.robot.kobe.systems.KobeFeeder;
 
 public class General {
 
@@ -34,24 +34,24 @@ public class General {
         return value;
     }
 
-    public static KobiFeeder.Direction fromJoystick(double value, double deadband) {
+    public static KobeFeeder.Direction fromJoystick(double value, double deadband) {
         value = deadband(value, deadband);
         if (value == 0)
-            return KobiFeeder.Direction.Stop;
+            return KobeFeeder.Direction.Stop;
         if (value < 0)
-            return KobiFeeder.Direction.In;
+            return KobeFeeder.Direction.In;
         else
-            return KobiFeeder.Direction.Out;
+            return KobeFeeder.Direction.Out;
     }
 
-    public static KobiFeeder.Direction fromString(String string) {
-        KobiFeeder.Direction direction;
+    public static KobeFeeder.Direction fromString(String string) {
+        KobeFeeder.Direction direction;
         if (string.equals("in")) {
-            direction = KobiFeeder.Direction.In;
+            direction = KobeFeeder.Direction.In;
         } else if (string.equals("out")) {
-            direction = KobiFeeder.Direction.Out;
+            direction = KobeFeeder.Direction.Out;
         } else {
-            direction = KobiFeeder.Direction.Stop;
+            direction = KobeFeeder.Direction.Stop;
         }
         return direction;
     }

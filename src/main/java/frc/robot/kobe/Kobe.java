@@ -1,4 +1,4 @@
-package frc.robot.kobi;
+package frc.robot.kobe;
 
 import com.ga2230.shleam.advanced.frc.FRCRobot;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -9,11 +9,11 @@ import frc.robot.base.control.path.PathManager;
 import frc.robot.base.control.path.Point;
 import frc.robot.base.rgb.RGB;
 import frc.robot.base.utils.General;
-import frc.robot.kobi.systems.KobiDrive;
-import frc.robot.kobi.systems.KobiFeeder;
-import frc.robot.kobi.systems.KobiShooter;
+import frc.robot.kobe.systems.KobeDrive;
+import frc.robot.kobe.systems.KobeFeeder;
+import frc.robot.kobe.systems.KobeShooter;
 
-public class Kobi extends FRCRobot {
+public class Kobe extends FRCRobot {
 
     /**
      * Pinout as of 16/02/2020
@@ -24,9 +24,9 @@ public class Kobi extends FRCRobot {
      * 6, 7 - Turret LimS/W
      * <p>
      * PWM:
-     * 0, 1 - Left Victors
-     * 2, 3 - Right Victors
-     * 4 - Hood Servo
+     * 2, 3 - Left Sparks
+     * 4, 5 - Right Sparks
+     * 6 - Hood Servo
      * <p>
      * AIO:
      * 0 - Hood Potentiometer
@@ -36,8 +36,8 @@ public class Kobi extends FRCRobot {
      * Turret - 19
      * Feeder - 18
      * Roller - 17
-     * 50, 51, ~52~ - Left Sparks
-     * 53, 54, ~55~ - Right Sparks
+     * 30, 31 - Left Sparks
+     * 32, 33 - Right Sparks
      * <p>
      * Talon Encoders:
      * Slide - has encoder
@@ -55,9 +55,9 @@ public class Kobi extends FRCRobot {
     private XboxController operator;
 
     // Modules
-    private KobiDrive drive;
-    private KobiFeeder feeder;
-    private KobiShooter shooter;
+    private KobeDrive drive;
+    private KobeFeeder feeder;
+    private KobeShooter shooter;
     private RGB rgb;
 
     private PathManager manager;
@@ -65,7 +65,7 @@ public class Kobi extends FRCRobot {
     // PDP
     private static PowerDistributionPanel pdp = new PowerDistributionPanel(0);
 
-    public Kobi() {
+    public Kobe() {
 
         // Controller initialization
         operator = new XboxController(0);
@@ -74,10 +74,10 @@ public class Kobi extends FRCRobot {
 
         // Module initialization
         rgb = new RGB();
-        drive = new KobiDrive();
+        drive = new KobeDrive();
         manager = new PathManager(drive);
-        feeder = new KobiFeeder();
-        shooter = new KobiShooter();
+        feeder = new KobeFeeder();
+        shooter = new KobeShooter();
 
         // Adopt children
         adopt(manager);
@@ -151,13 +151,13 @@ public class Kobi extends FRCRobot {
 
         double shooterVelocity = 0;
         double turretVelocity = 0;
-        double hoodPosition = KobiShooter.HOOD_SAFE_MAXIMUM_ANGLE;
+        double hoodPosition = KobeShooter.HOOD_SAFE_MAXIMUM_ANGLE;
 
         boolean rollerSpeed = true;
 
-        KobiFeeder.Direction feederDirection = KobiFeeder.Direction.Stop;
-        KobiFeeder.Direction rollerDirection = KobiFeeder.Direction.Stop;
-        KobiFeeder.Direction sliderDirection = KobiFeeder.Direction.Stop;
+        KobeFeeder.Direction feederDirection = KobeFeeder.Direction.Stop;
+        KobeFeeder.Direction rollerDirection = KobeFeeder.Direction.Stop;
+        KobeFeeder.Direction sliderDirection = KobeFeeder.Direction.Stop;
 
         // Flywheel
         if (!operator.getAButton()) {
@@ -171,7 +171,7 @@ public class Kobi extends FRCRobot {
         // Make sure the input is not 0 and that we accelerated
         if (flywheelAccelerated && General.deadband(shooterVelocity, DEADBAND) != 0) {
             if (shooterVelocity > 0)
-                feederDirection = KobiFeeder.Direction.In;
+                feederDirection = KobeFeeder.Direction.In;
         }
         // Read feeder delta from operator
         double feederDeltaManual = General.deadband(operator.getTriggerAxis(GenericHID.Hand.kLeft), DEADBAND) - General.deadband(operator.getTriggerAxis(GenericHID.Hand.kRight), DEADBAND);
@@ -185,13 +185,13 @@ public class Kobi extends FRCRobot {
         // Hood
         if (!operator.getAButton()) {
             if (General.deadband(shooterVelocity, DEADBAND) != 0) {
-                hoodPosition = KobiShooter.HOOD_SAFE_MINIMUM_ANGLE;
+                hoodPosition = KobeShooter.HOOD_SAFE_MINIMUM_ANGLE;
             }
         } else {
-            if (shooter.getHoodSetPoint() < KobiShooter.HOOD_SAFE_MINIMUM_ANGLE) {
-                hoodPosition = KobiShooter.HOOD_SAFE_MINIMUM_ANGLE;
-            } else if (shooter.getHoodSetPoint() > KobiShooter.HOOD_SAFE_MAXIMUM_ANGLE) {
-                hoodPosition = KobiShooter.HOOD_SAFE_MAXIMUM_ANGLE;
+            if (shooter.getHoodSetPoint() < KobeShooter.HOOD_SAFE_MINIMUM_ANGLE) {
+                hoodPosition = KobeShooter.HOOD_SAFE_MINIMUM_ANGLE;
+            } else if (shooter.getHoodSetPoint() > KobeShooter.HOOD_SAFE_MAXIMUM_ANGLE) {
+                hoodPosition = KobeShooter.HOOD_SAFE_MAXIMUM_ANGLE;
             } else {
                 hoodPosition = shooter.getHoodSetPoint();
             }
@@ -217,21 +217,21 @@ public class Kobi extends FRCRobot {
         // Move slider
         // Block other roller input
         if (operator.getPOV() == 0 || operator.getPOV() == 180) {
-            rollerDirection = KobiFeeder.Direction.In;
+            rollerDirection = KobeFeeder.Direction.In;
             // Check slider direction
             if (operator.getPOV() == 0) {
                 rollerSpeed = true;
-                sliderDirection = KobiFeeder.Direction.Out;
+                sliderDirection = KobeFeeder.Direction.Out;
             } else if (operator.getPOV() == 180) {
                 rollerSpeed = false;
-                sliderDirection = KobiFeeder.Direction.In;
+                sliderDirection = KobeFeeder.Direction.In;
             }
         }
         // Read other roller direction
         if (operator.getBumper(GenericHID.Hand.kRight)) {
-            rollerDirection = KobiFeeder.Direction.In;
+            rollerDirection = KobeFeeder.Direction.In;
         } else if (operator.getBumper(GenericHID.Hand.kLeft)) {
-            rollerDirection = KobiFeeder.Direction.Out;
+            rollerDirection = KobeFeeder.Direction.Out;
         }
         // Slide & Roll
         feeder.roll(rollerDirection, rollerSpeed);

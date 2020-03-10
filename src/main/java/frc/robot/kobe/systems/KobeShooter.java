@@ -1,4 +1,4 @@
-package frc.robot.kobi.systems;
+package frc.robot.kobe.systems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.interfaces.Potentiometer;
 import frc.robot.base.utils.General;
 
-public class KobiShooter extends FRCModule {
+public class KobeShooter extends FRCModule {
 
     private static final double TALON_RATE = 100.0 / 1000.0; // 100ms/1s
 
@@ -61,12 +61,12 @@ public class KobiShooter extends FRCModule {
     private double shooterVelocitySetPoint, hoodPositionSetPoint, turretVelocitySetPoint;
     private boolean setpointLock = false;
 
-    public KobiShooter() {
+    public KobeShooter() {
         super("shooter");
 
         // Hood things
         potentiometer = new AnalogPotentiometer(0);
-        hood = new Servo(4);
+        hood = new Servo(6);
 
         // Turret things
         turret = new WPI_TalonSRX(19);

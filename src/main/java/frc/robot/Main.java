@@ -3,7 +3,7 @@ package frc.robot;
 import com.ga2230.shleam.advanced.frc.FRCRobot;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
-import frc.robot.kobi.Kobi;
+import frc.robot.kobe.Kobe;
 
 public final class Main {
 
@@ -17,7 +17,7 @@ public final class Main {
 
         @Override
         public void robotInit() {
-            robot = new Kobi();
+            robot = new Kobe();
         }
 
         @Override

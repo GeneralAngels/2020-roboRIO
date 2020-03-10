@@ -1,4 +1,4 @@
-package frc.robot.kobi.systems;
+package frc.robot.kobe.systems;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -9,9 +9,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.base.utils.General;
-import frc.robot.kobi.Kobi;
 
-public class KobiFeeder extends FRCModule {
+public class KobeFeeder extends FRCModule {
 
     private static final boolean USE_MICROSWITCHES = false;
 
@@ -31,7 +30,7 @@ public class KobiFeeder extends FRCModule {
     // Collector (Roller-Gripper)
     private WPI_TalonSRX roller;
 
-    public KobiFeeder() {
+    public KobeFeeder() {
         super("feeder");
 
         // Slider
